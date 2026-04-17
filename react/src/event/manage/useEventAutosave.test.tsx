@@ -46,7 +46,7 @@ describe("useEventAutosave", () => {
 	it("immediately sends song save when updateActiveSong is called", () => {
 		const { result } = setup();
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		result.current.updateActiveSong("song-xyz");
 
@@ -62,7 +62,7 @@ describe("useEventAutosave", () => {
 	it("sends slide save when updateActiveSlidePosition is called", () => {
 		const { result } = setup();
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		const slidePos = 7;
 		result.current.updateActiveSlidePosition(slidePos);

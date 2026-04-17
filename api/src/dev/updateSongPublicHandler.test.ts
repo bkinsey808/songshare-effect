@@ -16,7 +16,7 @@ describe("updateSongPublicHandler", () => {
 			env: { ENVIRONMENT: "production" },
 		});
 
-		const resp = await updateSongPublicHandler(ctx);
+		const resp = await Effect.runPromise(updateSongPublicHandler(ctx));
 
 		expect(resp.status).toBe(HTTP_FORBIDDEN);
 		const json = await resp.json();
@@ -38,7 +38,7 @@ describe("updateSongPublicHandler", () => {
 			},
 		});
 
-		const resp = await updateSongPublicHandler(ctx);
+		const resp = await Effect.runPromise(updateSongPublicHandler(ctx));
 
 		expect(resp.status).toBe(HTTP_OK);
 		expect(vi.mocked(updateSongPublic)).toHaveBeenCalledWith(ctx);

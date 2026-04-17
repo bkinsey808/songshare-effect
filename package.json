@@ -22,7 +22,7 @@
 		"format": "npx oxfmt .",
 		"format:check": "npx oxfmt --check .",
 		"format:list-different": "npx oxfmt --list-different .",
-		"lint": "npx tsc -b . && npx oxlint --config .oxlintrc.json --type-aware . && npx eslint --config eslint.config.ts --cache react/src api/src shared/src --ext .ts,.tsx && npm run check:md && npm run check:ai-system",
+		"lint": "npx tsc -b . && npx oxlint --config .oxlintrc.json --type-aware . && npx eslint --config eslint.config.ts --cache react/src api/src shared/src --ext .ts,.tsx && npm run check:md && npm run check:ai-system && npm run find-missing-jsdoc",
 		"lint:fix": "npx oxlint --config .oxlintrc.json --type-aware --fix .",
 		"lint:list-files": "npx oxlint --format=unix . | awk -F: '{print $1}' | sort -u | sed '/^$/d'",
 		"preview": "vite preview",

@@ -24,7 +24,7 @@ describe("makeTestSong helper", () => {
 
 	it("starts with empty collections and timestamps", () => {
 		const song = makeTestSong();
-		expect(song.fields).toStrictEqual([]);
+		expect(song.translations).toStrictEqual([]);
 		expect(song.slide_order).toStrictEqual([]);
 		expect(song.slides).toStrictEqual({});
 

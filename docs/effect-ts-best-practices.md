@@ -6,8 +6,10 @@
 This document covers Effect-TS patterns used in this project: typed errors,
 schema validation, service composition, dependency injection, and Hono HTTP integration.
 
-Note: Prefer functions that return an `Effect` instead of raw `Promise` values for library and
-service APIs. Expose Effects from modules and convert Promise boundaries to Effects using
+Note: Prefer functions that return an `Effect` instead of raw `Promise` values for almost any
+function. Only return a Promise from a function if there is a very good reason to.
+Make sure any function that returns a Promise has thorough code comments that explain why.
+Expose Effects from modules and convert Promise boundaries to Effects using
 `Effect.tryPromise` so callers can compose, test, and map errors in the Effect model.
 
 ## Table of Contents
@@ -43,6 +45,7 @@ service APIs. Expose Effects from modules and convert Promise boundaries to Effe
     - [Throwing Instead of Effect.fail](#throwing-instead-of-effectfail)
     - [Bare Effect.tryPromise Without catch](#bare-effecttrypromise-without-catch)
     - [Ignoring Error Channels](#ignoring-error-channels)
+- [Refactoring Promise-Returning Functions to Effect](#refactoring-promise-to-effect)
 - [Quick Checklist](#quick-checklist)
 - [See Also](#see-also)
 
@@ -609,6 +612,93 @@ const validated = yield* Schema.decodeUnknown(UserSchema)(body).pipe(
   Effect.mapError((e) => new ValidationError({ message: Schema.formatIssueSync(e) })),
 );
 ```
+
+---
+
+<a id="refactoring-promise-to-effect"></a>
+
+## Refactoring Promise-Returning Functions to Effect
+
+When converting existing `async function(): Promise<T>` service functions to Effect, follow this
+structured approach.
+
+**Identify scope:** Start with service functions (not HTTP handlers, which use `handleHttpEndpoint`
+directly). Prioritize functions with complex async boundaries or multiple error paths.
+
+**Step 1: Update signature and wrap in Effect.gen**
+
+```typescript
+// Before
+export default async function getUser(id: string): Promise<User> {
+
+// After
+export default function getUser(id: string): Effect.Effect<User, DatabaseError | NotFoundError> {
+  return Effect.gen(function* getUserGen() {
+```
+
+**Step 2: Replace await with yield* and Effect.tryPromise**
+
+```typescript
+// Before
+const user = await db.query("SELECT * FROM users WHERE id = $1", [id]);
+
+// After
+const user = yield* Effect.tryPromise({
+  try: () => db.query("SELECT * FROM users WHERE id = $1", [id]),
+  catch: (error) =>
+    new DatabaseError({
+      message: `Query failed: ${error instanceof Error ? error.message : String(error)}`,
+    }),
+});
+```
+
+**Step 3: Replace throw with Effect.fail**
+
+```typescript
+// Before
+if (!user) {
+  throw new Error("User not found");
+}
+
+// After
+if (!user) {
+  yield* Effect.fail(
+    new NotFoundError({
+      resource: "User",
+      id,
+    }),
+  );
+}
+```
+
+**Step 4: Handle TypeScript type narrowing with ?? operator**
+
+When TypeScript doesn't narrow types through an `Effect.fail` branch, use the `?? (yield* Effect.fail(...))`
+pattern to help the type checker understand that null/undefined branches are impossible:
+
+```typescript
+// After a null check that didn't use yield*, narrow the type:
+const user = data.user ?? (yield* Effect.fail(
+  new ServerError({ message: "user is unexpectedly null" }),
+));
+```
+
+**Step 5: Update callers**
+
+- **In tests:** Wrap Effect calls with `Effect.runPromise()`
+  ```typescript
+  const result = await Effect.runPromise(getUser("123"));
+  ```
+- **In handlers:** Use `handleHttpEndpoint` utility; it automatically runs the Effect
+- **In other services:** Compose via `yield*` directly inside `Effect.gen`
+- **In service implementations:** Mock Effect functions to return `Effect.succeed(value)` or `Effect.fail(error)`
+  ```typescript
+  vi.mocked(getUser).mockReturnValue(Effect.succeed({ id: "123", name: "Alice" }));
+  ```
+
+**Tool selection:** For simple functions with 1-2 error paths, incremental string replacement works
+well. For complex functions with nested async operations or multiple error recovery paths, a full
+file rewrite or using a subagent converges faster and avoids iteration cycles.
 
 ---
 

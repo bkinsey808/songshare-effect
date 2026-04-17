@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
 import FormField from "@/react/lib/design-system/form/FormField";
 import InsertChordButton from "@/react/song/song-form/chord-picker/InsertChordButton";
+import { findLanguageByTag } from "@/shared/language/translationLanguages";
 import { safeGet } from "@/shared/utils/safe";
 
 import type useSlideDetailCard from "./useSlideDetailCard";
@@ -18,6 +19,8 @@ type SlideDetailFieldsProps = Readonly<{
 	onLyricsChange: ReturnType<typeof useSlideDetailCard>["onLyricsChange"];
 	onOpenChordPicker: ReturnType<typeof useSlideDetailCard>["onOpenChordPicker"];
 	onSyncLyricsSelection: ReturnType<typeof useSlideDetailCard>["onSyncLyricsSelection"];
+	lyricsLanguage: string;
+	scriptLanguage: string | undefined;
 }>;
 
 /**
@@ -31,6 +34,8 @@ type SlideDetailFieldsProps = Readonly<{
  * @param onLyricsChange - Updates the lyrics field and syncs selection state
  * @param onOpenChordPicker - Opens the chord picker for insert or edit mode
  * @param onSyncLyricsSelection - Syncs textarea selection into local hook state
+ * @param lyricsLanguage - BCP 47 language code for the lyrics field.
+ * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns Field editor list for the slide detail card
  */
 export default function SlideDetailFields({
@@ -42,6 +47,8 @@ export default function SlideDetailFields({
 	onLyricsChange,
 	onOpenChordPicker,
 	onSyncLyricsSelection,
+	lyricsLanguage,
+	scriptLanguage,
 }: SlideDetailFieldsProps): ReactElement {
 	const { t } = useTranslation();
 	const lyricsValue = safeGet(slide.field_data, "lyrics") ?? "";
@@ -76,7 +83,21 @@ export default function SlideDetailFields({
 							/>
 						</div>
 					) : (
-						<FormField label={t(`song.${field}`, field)}>
+						<FormField label={((): string => {
+							if (field === "script") {
+								return `Script: ${t(`song.${field}`, field)}`;
+							}
+							if (field === scriptLanguage) {
+								const langEntry = findLanguageByTag(field);
+								return langEntry ? `Script: ${langEntry.name}` : t(`song.${field}`, field);
+							}
+							if (field === lyricsLanguage) {
+								const langEntry = findLanguageByTag(field);
+								return langEntry ? `Lyrics: ${langEntry.name}` : t(`song.${field}`, field);
+							}
+							const langEntry = findLanguageByTag(field);
+							return langEntry ? langEntry.name : t(`song.${field}`, field);
+						})()}>
 							<AutoExpandingTextarea
 								value={safeGet(slide.field_data, field) ?? ""}
 								onChange={(event) => {

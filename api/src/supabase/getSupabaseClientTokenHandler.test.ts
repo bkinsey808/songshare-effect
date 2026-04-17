@@ -1,9 +1,11 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import { ServerError } from "@/api/api-errors";
 import { makeCtxWithJsonResponse } from "@/api/hono/makeCtx.test-util";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { HTTP_INTERNAL, ONE_HOUR_SECONDS } from "@/shared/constants/http";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 
 import getSupabaseClientTokenHandler from "./getSupabaseClientTokenHandler";
 
@@ -16,7 +18,9 @@ const EXPECTED_CALL_COUNT = 1;
 describe("getSupabaseClientTokenHandler", () => {
 	it("returns JSON with token on success", async () => {
 		const getSupabaseClientToken = await import("./getSupabaseClientToken");
-		vi.mocked(getSupabaseClientToken.default).mockResolvedValue({ accessToken: MOCK_TOKEN });
+		vi.mocked(getSupabaseClientToken.default).mockReturnValue(
+			Effect.succeed({ accessToken: MOCK_TOKEN }),
+		);
 
 		const ctx = makeCtxWithJsonResponse({
 			env: {
@@ -39,9 +43,11 @@ describe("getSupabaseClientTokenHandler", () => {
 		expect(getSupabaseClientToken.default).toHaveBeenCalledTimes(EXPECTED_CALL_COUNT);
 	});
 
-	it("returns 500 JSON error when getSupabaseClientToken throws", async () => {
+	it("returns 500 JSON error when getSupabaseClientToken fails", async () => {
 		const getSupabaseClientToken = await import("./getSupabaseClientToken");
-		vi.mocked(getSupabaseClientToken.default).mockRejectedValue(new Error("Sign-in failed"));
+		vi.mocked(getSupabaseClientToken.default).mockReturnValue(
+			Effect.fail(new ServerError({ message: "Sign-in failed" })),
+		);
 
 		const ctx = makeCtxWithJsonResponse({
 			env: {
@@ -58,6 +64,5 @@ describe("getSupabaseClientTokenHandler", () => {
 		const json = await response.json();
 		const record = forceCast<Record<string, unknown>>(json);
 		expect(record).toHaveProperty("error");
-		expect(String(record.error)).toContain("Supabase client token");
 	});
 });

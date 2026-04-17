@@ -17,6 +17,8 @@ type SlideDetailCardProps = Readonly<{
 	fields: readonly string[];
 	slideOrder: readonly string[];
 	slides: Readonly<Record<string, Slide>>;
+	lyricsLanguage: string;
+	scriptLanguage: string | undefined;
 	uiState: Readonly<{
 		confirmingDeleteSlideId: string | undefined;
 		setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
@@ -56,6 +58,8 @@ type SlideDetailCardProps = Readonly<{
  * @param fields - Editable field keys shown in the card
  * @param slideOrder - Current slide order array
  * @param slides - Map of slide id to Slide objects
+ * @param lyricsLanguage - BCP 47 language code for the lyrics field.
+ * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @param uiState - Local UI state (confirm/delete/background picker)
  * @param actions - Action handlers passed from the parent editor
  * @returns A ReactElement representing the detailed slide card or undefined when slide missing
@@ -66,6 +70,8 @@ export default function SlideDetailCard({
 	fields,
 	slideOrder,
 	slides,
+	lyricsLanguage,
+	scriptLanguage,
 	uiState,
 	actions,
 }: SlideDetailCardProps): ReactElement | undefined {
@@ -146,6 +152,8 @@ export default function SlideDetailCard({
 				onLyricsChange={onLyricsChange}
 				onOpenChordPicker={onOpenChordPicker}
 				onSyncLyricsSelection={onSyncLyricsSelection}
+				lyricsLanguage={lyricsLanguage}
+				scriptLanguage={scriptLanguage}
 			/>
 			<div className="mb-6">
 				<FormField label={t("song.slideBackgroundImage", "Slide Background Image")}>

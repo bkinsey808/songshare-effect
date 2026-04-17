@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import { NOT_FOUND } from "@/shared/constants/shared-constants";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserJoinPath } from "@/shared/paths";
+import { type CommunityUserJoinPayload } from "@/shared/validation/communitySchemas";
 
 import type { InvitationSlice } from "../slice/InvitationSlice.type";
 
@@ -31,12 +32,8 @@ export default function acceptCommunityInvitation(
 		setInvitationLoading(true);
 		setInvitationError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () => postJson(apiCommunityUserJoinPath, { community_id: communityId }),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityUserJoinPayload = { community_id: communityId };
+		yield* $(postJson(apiCommunityUserJoinPath, payload));
 
 		// Optimistically mark as accepted so UI can show the link immediately
 		const updated = [...pendingCommunityInvitations];

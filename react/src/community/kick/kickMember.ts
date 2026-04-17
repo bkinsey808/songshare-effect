@@ -2,6 +2,7 @@ import { Effect } from "effect";
 
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserKickPath } from "@/shared/paths";
+import { type CommunityUserKickPayload } from "@/shared/validation/communitySchemas";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
@@ -25,16 +26,11 @@ export default function kickMember(
 		setCommunityLoading(true);
 		setCommunityError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () =>
-					postJson(apiCommunityUserKickPath, {
-						community_id: communityId,
-						user_id: userId,
-					}),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityUserKickPayload = {
+			community_id: communityId,
+			user_id: userId,
+		};
+		yield* $(postJson(apiCommunityUserKickPath, payload));
 
 		setCommunityLoading(false);
 	}).pipe(

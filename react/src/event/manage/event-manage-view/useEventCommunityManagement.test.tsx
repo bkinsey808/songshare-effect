@@ -21,7 +21,7 @@ vi.mock("../runAction");
 // Default module behaviors — individual tests can override
 vi.mocked(fetchEventCommunitiesFn).mockReturnValue(Effect.succeed([] as readonly []));
 vi.mocked(subscribeToCommunityEventByEvent).mockReturnValue(Effect.succeed(() => undefined));
-vi.mocked(postJson).mockResolvedValue(undefined);
+vi.mocked(postJson).mockReturnValue(Effect.succeed(undefined));
 
 describe("useEventCommunityManagement", () => {
 	const EVENT_ID = "e1";
@@ -68,8 +68,8 @@ describe("useEventCommunityManagement", () => {
 		vi.clearAllMocks();
 
 		// mock runAction to immediately invoke the provided action so postJson runs
-		vi.mocked(runAction).mockImplementation(async (opts: { action: () => Promise<void> }) => {
-			await opts.action();
+		vi.mocked(runAction).mockImplementation(async (opts: { action: () => Effect.Effect<void, Error> }) => {
+			await Effect.runPromise(opts.action());
 		});
 
 		const setActionState = vi.fn();
@@ -106,8 +106,8 @@ describe("useEventCommunityManagement", () => {
 	it("removes a community when onRemoveCommunityClick is called", async () => {
 		vi.clearAllMocks();
 
-		vi.mocked(runAction).mockImplementation(async (opts: { action: () => Promise<void> }) => {
-			await opts.action();
+		vi.mocked(runAction).mockImplementation(async (opts: { action: () => Effect.Effect<void, Error> }) => {
+			await Effect.runPromise(opts.action());
 		});
 
 		const setActionState = vi.fn();

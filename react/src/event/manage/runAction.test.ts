@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 // mock extractErrorMessage helper so we can assert on its usage
-import { mockExtractErrorMessage } from "@/react/lib/test-utils/mockExtractErrorMessage";
+import { mockExtractErrorMessage } from "@/react/lib/test-utils/mockExtractErrorMessage.test-util";
+import { Effect } from "effect";
 
 import type { ActionState } from "./ActionState.type";
 import runAction from "./runAction";
@@ -11,14 +12,14 @@ import runAction from "./runAction";
 describe("runAction", () => {
 	it("sets loading, calls action & refresh, and updates success for non-playback keys", async () => {
 		mockExtractErrorMessage();
-		const action = vi.fn().mockResolvedValue(undefined);
+		const action = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const refreshFn = vi.fn().mockResolvedValue(undefined);
 		const setActionState = vi.fn<(state: ActionState) => void>();
 
 		await runAction({
 			actionKey: "some-key",
 			successMessage: "done",
-			action: action as () => Promise<void>,
+			action: action as () => Effect.Effect<void, Error>,
 			setActionState: setActionState as (state: ActionState) => void,
 			refreshFn: refreshFn as () => Promise<void>,
 		});
@@ -44,14 +45,14 @@ describe("runAction", () => {
 
 	it("does not touch state or refresh for playback actions", async () => {
 		mockExtractErrorMessage();
-		const action = vi.fn().mockResolvedValue(undefined);
+		const action = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const refreshFn = vi.fn().mockResolvedValue(undefined);
 		const setActionState = vi.fn<(state: ActionState) => void>();
 
 		await runAction({
 			actionKey: "playlist",
 			successMessage: "ignored",
-			action: action as () => Promise<void>,
+			action: action as () => Effect.Effect<void, Error>,
 			setActionState: setActionState as (state: ActionState) => void,
 			refreshFn: refreshFn as () => Promise<void>,
 		});
@@ -63,35 +64,35 @@ describe("runAction", () => {
 
 	it("propagates errors from action via extractErrorMessage", async () => {
 		mockExtractErrorMessage();
-		const action = vi.fn().mockRejectedValue(new Error("boom"));
+		const action = vi.fn().mockReturnValue(Effect.fail(new Error("boom")));
 		const refreshFn = vi.fn().mockResolvedValue(undefined);
 		const setActionState = vi.fn<(state: ActionState) => void>();
 
 		await runAction({
 			actionKey: "x",
 			successMessage: "irrelevant",
-			action: action as () => Promise<void>,
+			action: action as () => Effect.Effect<void, Error>,
 			setActionState: setActionState as (state: ActionState) => void,
 			refreshFn: refreshFn as () => Promise<void>,
 		});
 
 		expect(setActionState).toHaveBeenLastCalledWith({
 			loadingKey: undefined,
-			error: "Error: boom-Action failed",
+			error: "boom-Action failed",
 			success: undefined,
 		});
 	});
 
 	it("treats refreshFn failures like action errors", async () => {
 		mockExtractErrorMessage();
-		const action = vi.fn().mockResolvedValue(undefined);
+		const action = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const refreshFn = vi.fn().mockRejectedValue(new Error("nope"));
 		const setActionState = vi.fn<(state: ActionState) => void>();
 
 		await runAction({
 			actionKey: "another",
 			successMessage: "foo",
-			action: action as () => Promise<void>,
+			action: action as () => Effect.Effect<void, Error>,
 			setActionState: setActionState as (state: ActionState) => void,
 			refreshFn: refreshFn as () => Promise<void>,
 		});
@@ -99,7 +100,7 @@ describe("runAction", () => {
 		// since refresh throws, final state should be error
 		expect(setActionState).toHaveBeenLastCalledWith({
 			loadingKey: undefined,
-			error: "Error: nope-Action failed",
+			error: "nope-Action failed",
 			success: undefined,
 		});
 	});

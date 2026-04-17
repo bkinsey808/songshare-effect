@@ -8,7 +8,6 @@ import { SongPublicInsertSchema } from "@/shared/generated/supabaseSchemas";
 import { type Database, type Json } from "@/shared/generated/supabaseTypes";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
-
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import sanitizeSlidesForDb from "./sanitizeSlidesForDb";
@@ -16,7 +15,7 @@ import sanitizeSlidesForDb from "./sanitizeSlidesForDb";
 /**
  * Schema validating song form payload.
  *
- * Ensures the presence and shape of song fields, `fields`, `slide_order`,
+ * Ensures the presence and shape of song language fields, `slide_order`,
  * and `slides` records. This keeps validation close to the API boundary to
  * prevent malformed data from reaching database code.
  */
@@ -24,12 +23,14 @@ const SongFormSchema = Schema.Struct({
 	song_id: Schema.optional(Schema.String),
 	song_name: Schema.String,
 	song_slug: Schema.String,
+	lyrics: Schema.optional(Schema.String),
+	script: Schema.optional(Schema.NonEmptyString),
+	translations: Schema.Array(Schema.NonEmptyString),
 	key: SongPublicInsertSchema.fields.key,
 	short_credit: Schema.optional(Schema.String),
 	long_credit: Schema.optional(Schema.String),
 	private_notes: Schema.optional(Schema.String),
 	public_notes: Schema.optional(Schema.String),
-	fields: Schema.Array(Schema.String),
 	slide_order: Schema.Array(Schema.String),
 	tags: Schema.optional(Schema.Array(Schema.String)),
 	slides: Schema.Record({
@@ -49,9 +50,6 @@ const SongFormSchema = Schema.Struct({
 		}),
 	}),
 });
-
-// Avoid using magic numbers like `0` in multiple places — prefer a named
-// constant for clarity and to satisfy the project's lint rules.
 
 type SongFormData = Schema.Schema.Type<typeof SongFormSchema>;
 
@@ -87,6 +85,8 @@ export default function songSave(
 			}),
 		);
 
+		// Compute effective lyrics: default to "en" when missing or empty.
+
 		// Validate form payload - directly use the schema without casting
 		const validated: SongFormData = yield* $(
 			validateFormEffect({
@@ -94,31 +94,54 @@ export default function songSave(
 				data: body,
 				i18nMessageKey: "SONG_FORM",
 			}).pipe(
+				/**
+				 * Map validation issues to a structured ValidationError.
+				 *
+				 * NOTE: the underlying schema-validator may produce terse messages
+				 * like "is missing" which are not helpful by themselves. Prefer
+				 * including the issue path (e.g. `slides.0.field_data.title`) along
+				 * with the message when surface-level reporting is required.
+				 */
 				Effect.mapError((errs) => {
 					// Pick first error to return a structured ValidationError.
-					// Use a named ZERO constant instead of a magic numeric literal.
-					const first =
-						Array.isArray(errs) && errs.length > ZERO ? errs.find(() => true) : undefined;
+					// Prefer the explicit first element over `find` for clarity.
+					const first = Array.isArray(errs) && errs.length > ZERO ? errs[ZERO] : undefined;
+					// If the validator provided a `field`, include it with the message so
+					// callers don't receive terse messages like "is missing" with no context.
+					let combinedMessage = "Validation failed";
+					if (first) {
+						if (first.field) {
+							combinedMessage = `${first.field}: ${String(first.message ?? "")}`;
+						} else {
+							combinedMessage = String(first.message ?? "Validation failed");
+						}
+					}
 					return new ValidationError({
-						message: first?.message ?? "Validation failed",
+						message: combinedMessage,
 					});
-				}),
-			),
-		);
+				})
+			)
+			);
 
 		// Build strongly-typed values for DB insertion to avoid unsafe assertions.
 		// Use runtime checks and safe coercions so ESLint/TS won't require `as` casts.
-		const fieldsForDb: string[] = Array.isArray(validated.fields)
-			? validated.fields.map(String)
-			: [];
 		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
 			? validated.slide_order.map(String)
 			: [];
+		const translationsForDb: string[] = Array.isArray(validated.translations)
+			? validated.translations.map(String)
+			: [];
 		/* oxlint-disable-next-line unicorn/no-null */
 		const keyForDb = validated.key === undefined ? null : validated.key;
-		// CRITICAL: Pass fields array to sanitizeSlidesForDb so it can normalize field_data
-		// to ensure all fields are present in every slide's field_data
-		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides, validated.fields);
+		const effectiveLyrics: string = typeof validated.lyrics === "string" && validated.lyrics.trim() !== ""
+			? validated.lyrics
+			: "en";
+
+		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides, {
+			lyrics: effectiveLyrics,
+			script: validated.script,
+			translations: translationsForDb,
+		});
 
 		// Create Supabase client with service role key to bypass RLS for writes
 		const supabase = createClient<Database>(
@@ -216,9 +239,12 @@ export default function songSave(
 							.update({
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
+								lyrics: effectiveLyrics,
+								/* oxlint-disable-next-line unicorn/no-null */
+								script: validated.script ?? null,
+								translations: translationsForDb,
 								/* oxlint-disable-next-line unicorn/no-null */
 								key: keyForDb,
-								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
 								/* oxlint-disable-next-line unicorn/no-null */
@@ -240,8 +266,11 @@ export default function songSave(
 								user_id: userId,
 								song_name: validated.song_name,
 								song_slug: validated.song_slug,
+								lyrics: effectiveLyrics,
+								/* oxlint-disable-next-line unicorn/no-null */
+								script: validated.script ?? null,
+								translations: translationsForDb,
 								key: keyForDb,
-								fields: fieldsForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
 								/* oxlint-disable-next-line unicorn/no-null */

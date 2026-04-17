@@ -6,19 +6,18 @@ import generateId from "./generate/generateId";
 type UseFormStateReturn = {
 	slideOrder: readonly string[];
 	slides: Record<string, Slide>;
-	fields: readonly string[];
 	setSlideOrder: (newOrder: readonly string[]) => void;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
-	toggleField: (field: string, checked: boolean) => void;
 	/** Resets slides to a single new slide. Returns the new slide id so callers can sync initial state. */
 	resetFormState: () => string;
 	initialSlideId: string;
 };
 
 /**
- * Hook that encapsulates form-local state for slides, fields and slide order
+ * Hook that encapsulates form-local state for slides and slide order.
+ * Active language fields are now derived from `formValues` (lyrics/script/translations).
  *
- * @returns Object exposing `slideOrder`, `slides`, `fields`, and helpers to mutate them
+ * @returns Object exposing `slideOrder`, `slides`, and helpers to mutate them
  */
 export default function useFormState(): UseFormStateReturn {
 	// Initialize slides state with a unique ID
@@ -31,31 +30,9 @@ export default function useFormState(): UseFormStateReturn {
 			field_data: {},
 		},
 	});
-	// Made fields stateful
-	const [fields, setFields] = useState<readonly string[]>(["lyrics"]);
 
-	// Handle field checkbox changes
 	/**
-	 * Toggle a field on or off in the form state.
-	 *
-	 * @param field - Field key to toggle
-	 * @param checked - Whether the field should be enabled
-	 * @returns void
-	 */
-	function toggleField(field: string, checked: boolean): void {
-		setFields((currentFields) => {
-			if (checked) {
-				// Add field if not already present
-				return currentFields.includes(field) ? currentFields : [...currentFields, field];
-			}
-			// Remove field
-			return currentFields.filter((fieldName) => fieldName !== field);
-		});
-	}
-
-	// Reset form state to initial values
-	/**
-	 * Reset slides, slide order, and fields to initial defaults.
+	 * Reset slides and slide order to initial defaults.
 	 *
 	 * @returns New first slide id generated for the reset state
 	 */
@@ -68,17 +45,14 @@ export default function useFormState(): UseFormStateReturn {
 				field_data: {},
 			},
 		});
-		setFields(["lyrics"]);
 		return newFirstId;
 	}
 
 	return {
 		slideOrder,
 		slides,
-		fields,
 		setSlideOrder,
 		setSlides,
-		toggleField,
 		resetFormState,
 		initialSlideId,
 	};

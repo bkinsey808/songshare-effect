@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, renderHook, waitFor } from "@testing-librar
 import { describe, expect, it, vi } from "vitest";
 
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
-import { type SongPublic, songFields } from "@/react/song/song-schema";
+import type { SongPublic } from "@/react/song/song-schema";
 import makeSongFromIds from "@/react/song/test-utils/makeSongFromIds.test-util";
 import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 import isRecord from "@/shared/type-guards/isRecord";
@@ -18,8 +18,9 @@ const UPDATED_VIEWPORT_WIDTH = 900;
 const UPDATED_VIEWPORT_HEIGHT = 1600;
 const LANDSCAPE_CONTAINER_CLASS_NAME = "mx-auto w-full max-w-5xl";
 const PORTRAIT_CONTAINER_CLASS_NAME = "mx-auto w-full max-w-xl";
-const LYRICS_FIELD = "lyrics";
-const SCRIPT_FIELD = "script";
+const LYRICS_LANGUAGE = "en";
+const SCRIPT_LANGUAGE = "es";
+const TRANSLATION_LANGUAGE = "fr";
 const FIRST_SLIDE_ID = "a";
 const SECOND_SLIDE_ID = "b";
 const THIRD_SLIDE_ID = "c";
@@ -182,7 +183,7 @@ describe("useSongViewSlides — Harness", () => {
 			canPortalFullScreen: "true",
 			clampedIndex: "0",
 			currentSlideName: FIRST_SLIDE_NAME,
-			displayFields: LYRICS_FIELD,
+			displayFields: LYRICS_LANGUAGE,
 			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			isFullScreen: FULL_SCREEN_FALSE,
 			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
@@ -197,10 +198,9 @@ describe("useSongViewSlides — Harness", () => {
 		installViewportDimensions();
 
 		// Arrange
-		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID, THIRD_SLIDE_ID], [
-			SCRIPT_FIELD,
-			LYRICS_FIELD,
-		]);
+		const song = makeSongFromIds([FIRST_SLIDE_ID, SECOND_SLIDE_ID, THIRD_SLIDE_ID], {
+			script: SCRIPT_LANGUAGE,
+		});
 		const { getByTestId } = render(<Harness songPublic={song} />);
 
 		// Act
@@ -239,7 +239,7 @@ describe("useSongViewSlides — Harness", () => {
 			slideContainerClassName: getByTestId("slide-container-class-name").textContent,
 			totalSlides: getByTestId("total-slides").textContent,
 		}).toStrictEqual({
-			displayFields: `${SCRIPT_FIELD},${LYRICS_FIELD}`,
+			displayFields: `${LYRICS_LANGUAGE},${SCRIPT_LANGUAGE}`,
 			effectiveSlideOrientation: ResolvedSlideOrientation.portrait,
 			isFullScreen: FULL_SCREEN_TRUE,
 			slideContainerClassName: PORTRAIT_CONTAINER_CLASS_NAME,
@@ -260,7 +260,7 @@ describe("useSongViewSlides — renderHook", () => {
 		expect(result.current).toMatchObject({
 			clampedIndex: ZERO,
 			currentSlide: undefined,
-			displayFields: songFields,
+			displayFields: [],
 			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			isFullScreen: false,
 			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
@@ -281,23 +281,30 @@ describe("useSongViewSlides — renderHook", () => {
 
 		// Assert
 		expect(result.current.currentSlide).toBeUndefined();
-		expect(result.current.displayFields).toStrictEqual([LYRICS_FIELD]);
+		expect(result.current.displayFields).toStrictEqual([LYRICS_LANGUAGE]);
 		expect(result.current.totalSlides).toBe(ZERO);
 	});
 
-	it("uses custom fields and resolves the first slide initially", () => {
+	it("uses language-derived display fields and resolves the first slide initially", () => {
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
 		// Arrange
-		const song = makeSongFromIds([FIRST_SLIDE_ID], [SCRIPT_FIELD, LYRICS_FIELD]);
+		const song = makeSongFromIds([FIRST_SLIDE_ID], {
+			script: SCRIPT_LANGUAGE,
+			translations: [TRANSLATION_LANGUAGE],
+		});
 
 		// Act
 		const { result } = renderHook(() => useSongViewSlides(song));
 
 		// Assert
 		expect(result.current.currentSlide).toStrictEqual(song.slides[FIRST_SLIDE_ID]);
-		expect(result.current.displayFields).toStrictEqual([SCRIPT_FIELD, LYRICS_FIELD]);
+		expect(result.current.displayFields).toStrictEqual([
+			LYRICS_LANGUAGE,
+			SCRIPT_LANGUAGE,
+			TRANSLATION_LANGUAGE,
+		]);
 		expect(result.current.totalSlides).toBe(ONE);
 	});
 

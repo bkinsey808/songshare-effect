@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict UhsbFEOEMt2OMnZuBQ0ARBH1uCEwMmPJsV0rnUdsjA8Q8GlH0zbMaqKSMvOPhdz
+\restrict m2WTdgUZQLwcxW8J2bzMd9mnzPmFLMePYfjMEWUb3Ji3bWscXrLMl0uPSvypAEO
 
 -- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
@@ -31,6 +31,24 @@ CREATE SCHEMA public;
 --
 
 COMMENT ON SCHEMA public IS 'standard public schema';
+
+
+--
+-- Name: are_all_valid_bcp47(text[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.are_all_valid_bcp47(codes text[]) RETURNS boolean
+    LANGUAGE sql IMMUTABLE STRICT
+    AS $_$ SELECT COALESCE(bool_and(code ~ '^[a-z]{2,3}(-[A-Za-z0-9]+)*$'), true) FROM unnest(codes) code $_$;
+
+
+--
+-- Name: array_has_no_duplicates(text[]); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.array_has_no_duplicates(arr text[]) RETURNS boolean
+    LANGUAGE sql IMMUTABLE STRICT
+    AS $$ SELECT COUNT(*) = COUNT(DISTINCT v) FROM unnest(arr) v $$;
 
 
 --
@@ -82,6 +100,15 @@ BEGIN
   );
 END;
 $$;
+
+
+--
+-- Name: is_valid_bcp47(text); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.is_valid_bcp47(code text) RETURNS boolean
+    LANGUAGE sql IMMUTABLE STRICT
+    AS $_$ SELECT code ~ '^[a-z]{2,3}(-[A-Za-z0-9]+)*$' $_$;
 
 
 --
@@ -1158,7 +1185,6 @@ CREATE TABLE public.song_public (
     user_id uuid NOT NULL,
     song_name text NOT NULL,
     song_slug text NOT NULL,
-    fields text[] NOT NULL,
     slide_order text[] NOT NULL,
     slides jsonb NOT NULL,
     key text,
@@ -1168,8 +1194,18 @@ CREATE TABLE public.song_public (
     public_notes text,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
+    lyrics text DEFAULT 'en'::text NOT NULL,
+    translations text[] DEFAULT '{}'::text[] NOT NULL,
+    script text,
     CONSTRAINT song_name_format CHECK (((length(song_name) >= 2) AND (length(song_name) <= 100) AND (song_name = btrim(song_name)) AND (POSITION(('  '::text) IN (song_name)) = 0))),
     CONSTRAINT song_public_key_allowed_values CHECK (((key IS NULL) OR (key = ANY (ARRAY['C'::text, 'C#'::text, 'Db'::text, 'D'::text, 'D#'::text, 'Eb'::text, 'E'::text, 'F'::text, 'F#'::text, 'Gb'::text, 'G'::text, 'G#'::text, 'Ab'::text, 'A'::text, 'A#'::text, 'Bb'::text, 'B'::text])))),
+    CONSTRAINT song_public_lyrics_not_in_translations CHECK ((NOT (lyrics = ANY (translations)))),
+    CONSTRAINT song_public_lyrics_valid_bcp47 CHECK (public.is_valid_bcp47(lyrics)),
+    CONSTRAINT song_public_script_not_in_translations CHECK (((script IS NULL) OR (NOT (script = ANY (translations))))),
+    CONSTRAINT song_public_script_not_lyrics CHECK (((script IS NULL) OR (script <> lyrics))),
+    CONSTRAINT song_public_script_valid_bcp47 CHECK (((script IS NULL) OR public.is_valid_bcp47(script))),
+    CONSTRAINT song_public_translations_no_duplicates CHECK (public.array_has_no_duplicates(translations)),
+    CONSTRAINT song_public_translations_valid_bcp47 CHECK (public.are_all_valid_bcp47(translations)),
     CONSTRAINT song_slug_format CHECK (((song_slug ~ '^[a-z0-9-]+$'::text) AND (song_slug !~ '-%'::text) AND (song_slug !~ '%-'::text) AND (POSITION(('--'::text) IN (song_slug)) = 0)))
 );
 
@@ -3617,5 +3653,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict UhsbFEOEMt2OMnZuBQ0ARBH1uCEwMmPJsV0rnUdsjA8Q8GlH0zbMaqKSMvOPhdz
+\unrestrict m2WTdgUZQLwcxW8J2bzMd9mnzPmFLMePYfjMEWUb3Ji3bWscXrLMl0uPSvypAEO
 

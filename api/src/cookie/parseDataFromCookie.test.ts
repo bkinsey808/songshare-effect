@@ -1,4 +1,4 @@
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 import { verify } from "hono/jwt";
 import { describe, expect, it, vi } from "vitest";
 
@@ -31,7 +31,9 @@ describe("parseDataFromCookie", () => {
 		mockDecodeUnknownSyncOrThrow({ foo: "bar" });
 
 		// Act
-		const res = await parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema });
+		const res = await Effect.runPromise(
+			parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema }),
+		);
 
 		// Assert
 		expect(res).toStrictEqual({ foo: "bar" });
@@ -48,12 +50,14 @@ describe("parseDataFromCookie", () => {
 		});
 
 		// Act
-		const res = await parseDataFromCookie({
-			ctx,
-			cookieName: "mycookie",
-			schema: TestSchema,
-			allowMissing: true,
-		});
+		const res = await Effect.runPromise(
+			parseDataFromCookie({
+				ctx,
+				cookieName: "mycookie",
+				schema: TestSchema,
+				allowMissing: true,
+			}),
+		);
 
 		// Assert
 		expect(res).toBeUndefined();
@@ -66,7 +70,9 @@ describe("parseDataFromCookie", () => {
 		const ctx = makeCtx({ headers: { Cookie: "" }, env: { SUPABASE_JWT_SECRET: "jwt-secret" } });
 
 		// Act
-		const promise = parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema });
+		const promise = Effect.runPromise(
+			parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema }),
+		);
 
 		// Assert
 		await expect(promise).rejects.toThrow(/Failed to extract token from cookie/);
@@ -74,7 +80,7 @@ describe("parseDataFromCookie", () => {
 
 	it("throws when ctx is not provided", async () => {
 		// Arrange/Act
-		const promise = parseDataFromCookie({ cookieName: "x", schema: TestSchema });
+		const promise = Effect.runPromise(parseDataFromCookie({ cookieName: "x", schema: TestSchema }));
 
 		// Assert
 		await expect(promise).rejects.toThrow(/Missing context when parsing data from cookie/);
@@ -92,12 +98,14 @@ describe("parseDataFromCookie", () => {
 		mockHonoJwtVerifyFailure(new Error("invalid token"));
 
 		// Act
-		const res = await parseDataFromCookie({
-			ctx,
-			cookieName: "mycookie",
-			schema: TestSchema,
-			allowMissing: true,
-		});
+		const res = await Effect.runPromise(
+			parseDataFromCookie({
+				ctx,
+				cookieName: "mycookie",
+				schema: TestSchema,
+				allowMissing: true,
+			}),
+		);
 
 		// Assert
 		expect(res).toBeUndefined();
@@ -115,10 +123,12 @@ describe("parseDataFromCookie", () => {
 		mockHonoJwtVerifyFailure(new Error("invalid token"));
 
 		// Act
-		const promise = parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema });
+		const promise = Effect.runPromise(
+			parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema }),
+		);
 
 		// Assert
-		await expect(promise).rejects.toThrow(/Failed to parse data from cookie/);
+		await expect(promise).rejects.toThrow(/JWT verification failed/);
 	});
 
 	it("returns undefined when decode fails and allowMissing is true", async () => {
@@ -134,12 +144,14 @@ describe("parseDataFromCookie", () => {
 		mockDecodeThrow(new Error("schema mismatch"));
 
 		// Act
-		const res = await parseDataFromCookie({
-			ctx,
-			cookieName: "mycookie",
-			schema: TestSchema,
-			allowMissing: true,
-		});
+		const res = await Effect.runPromise(
+			parseDataFromCookie({
+				ctx,
+				cookieName: "mycookie",
+				schema: TestSchema,
+				allowMissing: true,
+			}),
+		);
 
 		// Assert
 		expect(res).toBeUndefined();
@@ -158,9 +170,11 @@ describe("parseDataFromCookie", () => {
 		mockDecodeThrow(new Error("schema mismatch"));
 
 		// Act
-		const promise = parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema });
+		const promise = Effect.runPromise(
+			parseDataFromCookie({ ctx, cookieName: "mycookie", schema: TestSchema }),
+		);
 
 		// Assert
-		await expect(promise).rejects.toThrow(/Failed to parse data from cookie/);
+		await expect(promise).rejects.toThrow(/Failed to decode cookie data/);
 	});
 });

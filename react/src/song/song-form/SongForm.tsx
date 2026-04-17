@@ -23,13 +23,13 @@ export default function SongForm(): ReactElement {
 		getFieldError,
 		isSubmitting,
 		isLoadingData,
+		submitError,
 		isEditing,
 		slideOrder,
 		slides,
 		fields,
 		setSlideOrder,
 		setSlides,
-		toggleField,
 		handleFormSubmit,
 		formRef,
 		resetForm,
@@ -89,6 +89,15 @@ export default function SongForm(): ReactElement {
 								)}
 					</p>
 				</div>
+
+				{submitError === undefined || submitError === "" ? undefined : (
+					<div
+						className="mb-6 rounded-lg border border-red-700 bg-red-900/20 p-4 text-red-300"
+						data-testid="song-form-submit-error"
+					>
+						{submitError}
+					</div>
+				)}
 
 				{isLoadingData ? (
 					<div className="flex items-center justify-center rounded-lg border border-gray-600 bg-gray-800 p-12">
@@ -153,12 +162,13 @@ export default function SongForm(): ReactElement {
 									>
 										<SlidesEditor
 											fields={fields}
-											toggleField={toggleField}
 											slideOrder={slideOrder}
 											setSlideOrder={setSlideOrder}
 											slides={slides}
 											setSlides={setSlides}
 											openChordPicker={openChordPicker}
+											lyricsLanguage={formValues.lyrics}
+											scriptLanguage={formValues.script}
 										/>
 									</CollapsibleSection>
 								</div>
@@ -181,6 +191,8 @@ export default function SongForm(): ReactElement {
 										slides={slides}
 										setSlides={setSlides}
 										openChordPicker={openChordPicker}
+										lyricsLanguage={formValues.lyrics}
+										scriptLanguage={formValues.script}
 									/>
 								</CollapsibleSection>
 							</div>

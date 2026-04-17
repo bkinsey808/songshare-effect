@@ -1,10 +1,12 @@
+import { Effect } from "effect";
+
 import type { CommunityActionState } from "../CommunityActionState.type";
 
 type RunCommunityActionArgs = {
 	/** Unique key identifying this action for loading/error/success tracking. */
 	readonly key: string;
-	/** Async work to run (API call, etc.). */
-	readonly action: () => Promise<void>;
+	/** Effect to run (API call, etc.). */
+	readonly action: () => Effect.Effect<void, Error>;
 	/** Message displayed on successful completion. */
 	readonly successMessage: string;
 	/** Setter returned by `useState<CommunityActionState>`. */
@@ -42,7 +44,7 @@ export default async function runCommunityAction({
 
 	let succeeded = false;
 	try {
-		await action();
+		await Effect.runPromise(action());
 		succeeded = true;
 	} catch (error: unknown) {
 		setActionState({

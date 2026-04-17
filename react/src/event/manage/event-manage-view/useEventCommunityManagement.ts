@@ -1,4 +1,4 @@
-import { Effect as EffectRuntime } from "effect";
+import { Effect } from "effect";
 import { useEffect, useState } from "react";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -6,6 +6,7 @@ import fetchEventCommunitiesFn from "@/react/event/fetch/fetchEventCommunities";
 import subscribeToCommunityEventByEvent from "@/react/event/subscribe/subscribeToCommunityEventByEvent";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityEventAddPath, apiCommunityEventRemovePath } from "@/shared/paths";
+import { type CommunityEventAddPayload } from "@/shared/validation/communitySchemas";
 
 import type { ActionState } from "../ActionState.type";
 import refreshEvent from "../refreshEvent";
@@ -14,7 +15,7 @@ import runAction from "../runAction";
 type UseEventCommunityManagementProps = {
 	readonly currentEventId: string | undefined;
 	readonly event_slug: string | undefined;
-	readonly fetchEventBySlug: (eventSlug: string) => EffectRuntime.Effect<void, unknown>;
+	readonly fetchEventBySlug: (eventSlug: string) => Effect.Effect<void, unknown>;
 	readonly setActionState: React.Dispatch<React.SetStateAction<ActionState>>;
 };
 
@@ -49,7 +50,7 @@ export default function useEventCommunityManagement({
 	useEffect(() => {
 		void (async (): Promise<void> => {
 			try {
-				await EffectRuntime.runPromise(fetchCommunityLibrary());
+				await Effect.runPromise(fetchCommunityLibrary());
 			} catch {
 				// Keep manager usable even if community library fails to load
 			}
@@ -64,7 +65,7 @@ export default function useEventCommunityManagement({
 			// oxlint-disable-next-line no-empty-function -- no fetch when undefined; return fn for React 19 HMR
 			return;
 		}
-		void EffectRuntime.runPromise(fetchEventCommunitiesFn(currentEventId, useAppStore.getState));
+		void Effect.runPromise(fetchEventCommunitiesFn(currentEventId, useAppStore.getState));
 		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
 		return;
 	}, [currentEventId]);
@@ -78,7 +79,7 @@ export default function useEventCommunityManagement({
 		let cleanup: (() => void) | undefined = undefined;
 		void (async (): Promise<void> => {
 			try {
-				cleanup = await EffectRuntime.runPromise(
+				cleanup = await Effect.runPromise(
 					subscribeToCommunityEventByEvent(currentEventId, useAppStore.getState),
 				);
 			} catch (error: unknown) {
@@ -126,12 +127,18 @@ export default function useEventCommunityManagement({
 		void runAction({
 			actionKey: "add-community",
 			successMessage: "Community linked",
-			action: async (): Promise<void> => {
-				await postJson(apiCommunityEventAddPath, {
+			action: (): Effect.Effect<void, Error> => {
+				const payload: CommunityEventAddPayload = {
 					community_id: addCommunityIdInput,
 					event_id: currentEventId,
-				});
-				setAddCommunityIdInput(undefined);
+				};
+				return postJson(apiCommunityEventAddPath, payload).pipe(
+					Effect.tap(() =>
+						Effect.sync(() => {
+							setAddCommunityIdInput(undefined);
+						}),
+					),
+				);
 			},
 			setActionState,
 			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
@@ -148,14 +155,14 @@ export default function useEventCommunityManagement({
 		if (currentEventId === undefined) {
 			return;
 		}
+		const removePayload: CommunityEventAddPayload = {
+			community_id: communityId,
+			event_id: currentEventId,
+		};
 		void runAction({
 			actionKey: `remove-community:${communityId}`,
 			successMessage: "Community unlinked",
-			action: () =>
-				postJson(apiCommunityEventRemovePath, {
-					community_id: communityId,
-					event_id: currentEventId,
-				}),
+			action: () => postJson(apiCommunityEventRemovePath, removePayload),
 			setActionState,
 			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
 		});

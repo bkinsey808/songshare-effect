@@ -1,6 +1,8 @@
+import { Effect } from "effect";
+
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
-import { HTTP_INTERNAL, ONE_HOUR_SECONDS } from "@/shared/constants/http";
-import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import handleHttpEndpoint from "@/api/http/handleHttpEndpoint";
+import { ONE_HOUR_SECONDS } from "@/shared/constants/http";
 
 import getSupabaseClientToken from "./getSupabaseClientToken";
 
@@ -14,46 +16,40 @@ import getSupabaseClientToken from "./getSupabaseClientToken";
  * @returns - A JSON HTTP response with the token on success, or a 500 JSON error
  *   response on failure.
  */
-export default async function getSupabaseClientTokenHandler(
+export default function getSupabaseClientTokenHandler(
 	ctx: ReadonlyContext,
 ): Promise<Response> {
-	try {
-		const {
-			VITE_SUPABASE_URL,
-			SUPABASE_SERVICE_KEY,
-			SUPABASE_VISITOR_EMAIL,
-			SUPABASE_VISITOR_PASSWORD,
-			SUPABASE_LEGACY_JWT_SECRET,
-		} = ctx.env;
-		// exactOptionalPropertyTypes: only include the optional key when it has a value
-		const env = {
-			VITE_SUPABASE_URL,
-			SUPABASE_SERVICE_KEY,
-			SUPABASE_VISITOR_EMAIL,
-			SUPABASE_VISITOR_PASSWORD,
-			...(SUPABASE_LEGACY_JWT_SECRET === undefined ? {} : { SUPABASE_LEGACY_JWT_SECRET }),
-		};
+	return handleHttpEndpoint(
+		(ctxArg: ReadonlyContext) =>
+			Effect.gen(function* getSupabaseClientTokenEffect() {
+				const {
+					VITE_SUPABASE_URL,
+					SUPABASE_SERVICE_KEY,
+					SUPABASE_VISITOR_EMAIL,
+					SUPABASE_VISITOR_PASSWORD,
+					SUPABASE_LEGACY_JWT_SECRET,
+				} = ctxArg.env;
+				// exactOptionalPropertyTypes: only include the optional key when it has a value
+				const env = {
+					VITE_SUPABASE_URL,
+					SUPABASE_SERVICE_KEY,
+					SUPABASE_VISITOR_EMAIL,
+					SUPABASE_VISITOR_PASSWORD,
+					...(SUPABASE_LEGACY_JWT_SECRET === undefined
+						? {}
+						: { SUPABASE_LEGACY_JWT_SECRET }),
+				};
 
-		const { accessToken, realtimeToken } = await getSupabaseClientToken(env);
+				const { accessToken, realtimeToken } = yield* getSupabaseClientToken(env);
 
-		return ctx.json({
-			access_token: accessToken,
-			token_type: "bearer",
-			// 1 hour
-			expires_in: ONE_HOUR_SECONDS,
-			...(realtimeToken === undefined ? {} : { realtime_token: realtimeToken }),
-		});
-	} catch (error) {
-		console.error(
-			"Failed to generate Supabase client token:",
-			extractErrorMessage(error, "Unknown error"),
-		);
-		return Response.json(
-			{ error: "Failed to generate Supabase client token" },
-			{
-				status: HTTP_INTERNAL,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
-	}
+				return {
+					access_token: accessToken,
+					token_type: "bearer",
+					// 1 hour
+					expires_in: ONE_HOUR_SECONDS,
+					...(realtimeToken === undefined ? {} : { realtime_token: realtimeToken }),
+				};
+			}),
+		(data) => data,
+	)(ctx);
 }

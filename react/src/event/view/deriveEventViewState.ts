@@ -1,10 +1,10 @@
 import type { EventEntry } from "@/react/event/event-types";
 import {
-	deriveCurrentParticipantStatus,
-	getParticipantPermissions,
-	type ParticipantStatus,
+    deriveCurrentParticipantStatus,
+    getParticipantPermissions,
+    type ParticipantStatus,
 } from "@/react/event/participant-status/participantStatusMachine";
-import { songFields, type SongPublic } from "@/react/song/song-schema";
+import { type SongPublic } from "@/react/song/song-schema";
 import { utcTimestampToClientLocalDate } from "@/shared/utils/date/formatEventDate";
 
 const ZERO = 0;
@@ -94,10 +94,27 @@ export default function deriveEventViewState(
 		activeSong !== undefined && activeSlideId !== undefined
 			? activeSong.slides?.[activeSlideId]
 			: undefined;
-	const activeSlideDisplayFields =
-		activeSong !== undefined && Array.isArray(activeSong.fields) && activeSong.fields.length > ZERO
-			? activeSong.fields.map(String)
-			: [...songFields];
+	const activeSlideDisplayFields: readonly string[] =
+		activeSong === undefined
+			? []
+			: (() => {
+				  const translations: string[] = [];
+				  if (Array.isArray(activeSong.translations)) {
+					  // Safely iterate and collect only string translations
+					  // to avoid spreading a possibly-unsafe any[] value.
+					  for (const t of activeSong.translations) {
+						  if (typeof t === "string") {
+							  translations.push(t);
+						  }
+					  }
+				  }
+
+				  return [
+					  activeSong.lyrics ?? "",
+					  ...(activeSong.script === undefined || activeSong.script === null ? [] : [activeSong.script]),
+					  ...translations,
+				  ];
+			  })();
 	const activeSongTotalSlides =
 		activeSong !== undefined && Array.isArray(activeSong.slide_order)
 			? activeSong.slide_order.length

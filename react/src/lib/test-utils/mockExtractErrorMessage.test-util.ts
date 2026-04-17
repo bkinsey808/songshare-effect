@@ -8,7 +8,13 @@ import { vi } from "vitest";
  * disabling lint rules out of test files and centralizes the pattern.
  */
 // create a reusable spy that can be inspected or overwritten by tests.
-const extractSpy = vi.fn((err: unknown, def: string) => `${String(err)}-${def}`);
+const extractSpy = vi.fn((err: unknown, def: string) => {
+	// Match the behavior of the real extractErrorMessage: extract just the message from Error instances
+	if (err instanceof Error) {
+		return `${err.message}-${def}`;
+	}
+	return `${String(err)}-${def}`;
+});
 
 // establish the mock as soon as this module loads so that any other imports
 // (e.g. runAction) see the stubbed implementation.  keeping the `vi.mock`

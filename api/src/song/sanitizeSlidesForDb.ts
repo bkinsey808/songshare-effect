@@ -1,26 +1,38 @@
 import { type Json } from "@/shared/generated/supabaseTypes";
+import normalizeSlideFieldData from "@/shared/song/normalizeSlideFieldData";
 import isRecord from "@/shared/type-guards/isRecord";
 import isString from "@/shared/type-guards/isString";
-
-import ensureAllFieldsPresent from "./ensureAllFieldsPresent";
 
 /**
  * Sanitize an incoming `slides` value into a JSON-serializable structure
  * suitable for writing into the `song_public.slides` column. This strips
  * out non-record entries and coerces values to plain strings where needed.
  *
- * CRITICAL: Normalizes field_data to ensure all fields from the fields array
- * are present in every slide's field_data. This prevents decode failures when
- * reading the data back, as the schema requires all fields to be present.
+ * CRITICAL: Normalizes slide `field_data` to the current language-keyed shape
+ * so writes stop persisting legacy keys like `lyrics`, `script`, and
+ * `enTranslation`.
  *
  * This is intentionally a runtime guard that accepts `unknown` and returns
  * a safe plain-object `Json` value; it does not perform schema validation.
  *
  * @param slides - The raw `slides` value from the incoming payload.
- * @param fields - Array of field names that must be present in each slide's field_data.
+ * @param lyrics - Required lyrics language code for the song.
+ * @param script - Optional script language code for the song.
+ * @param translations - Ordered translation language codes for the song.
  * @returns A plain JSON object that is safe to persist in the DB.
  */
-export default function sanitizeSlidesForDb(slides: unknown, fields: readonly string[] = []): Json {
+export default function sanitizeSlidesForDb(
+	slides: unknown,
+	{
+		lyrics = "",
+		script,
+		translations = [],
+	}: Readonly<{
+		lyrics?: string | undefined;
+		script?: string | undefined;
+		translations?: readonly string[] | undefined;
+	}> = {},
+): Json {
 	if (isRecord(slides)) {
 		const sanitized: Record<
 			string,
@@ -36,11 +48,6 @@ export default function sanitizeSlidesForDb(slides: unknown, fields: readonly st
 			}
 		> = {};
 
-		// Normalize fields array - ensure it's an array of strings
-		const normalizedFields = Array.isArray(fields)
-			? fields.filter((field): field is string => typeof field === "string")
-			: [];
-
 		for (const [slideKey, slideVal] of Object.entries(slides)) {
 			if (isRecord(slideVal)) {
 				const slideNameRaw = slideVal["slide_name"];
@@ -53,9 +60,12 @@ export default function sanitizeSlidesForDb(slides: unknown, fields: readonly st
 						)
 					: {};
 
-				// CRITICAL: Ensure all fields from the fields array are present in field_data
-				// This prevents decode failures when reading the data back
-				const fieldData = ensureAllFieldsPresent(existingFieldData, normalizedFields);
+				const fieldData = normalizeSlideFieldData({
+					fieldData: existingFieldData,
+					lyrics,
+					script,
+					translations,
+				});
 				const backgroundImageId = isString(slideVal["background_image_id"])
 					? slideVal["background_image_id"]
 					: undefined;

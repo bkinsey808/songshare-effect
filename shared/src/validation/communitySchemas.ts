@@ -42,6 +42,9 @@ export const communityFormSchema: Schema.Schema<
 	tags: Schema.optional(Schema.Array(Schema.String)),
 });
 
+/** Payload type for the community save API endpoint. */
+export type CommunityFormPayload = Schema.Schema.Type<typeof communityFormSchema>;
+
 /**
  * Schema for adding a user to a community.
  */
@@ -65,6 +68,9 @@ export const communityUserAddSchema: Schema.Schema<
 	status: Schema.optional(Schema.Literal("invited", "joined")),
 });
 
+/** Payload type for the community user add API endpoint. */
+export type CommunityUserAddPayload = Schema.Schema.Type<typeof communityUserAddSchema>;
+
 /**
  * Schema for adding an event to a community.
  */
@@ -81,6 +87,9 @@ export const communityEventAddSchema: Schema.Schema<
 	community_id: Schema.String,
 	event_id: Schema.String,
 });
+
+/** Payload type for the community event add/remove API endpoints. */
+export type CommunityEventAddPayload = Schema.Schema.Type<typeof communityEventAddSchema>;
 
 /**
  * Schema for setting (or clearing) the active event on a community.
@@ -100,6 +109,9 @@ export const communitySetActiveEventSchema: Schema.Schema<
 	event_id: Schema.optional(Schema.String),
 });
 
+/** Payload type for the community set-active-event API endpoint. */
+export type CommunitySetActiveEventPayload = Schema.Schema.Type<typeof communitySetActiveEventSchema>;
+
 /**
  * Schema for adding a song to a community.
  */
@@ -117,6 +129,9 @@ export const communitySongAddSchema: Schema.Schema<
 	song_id: Schema.String,
 });
 
+/** Payload type for the community song add/remove API endpoints. */
+export type CommunitySongAddPayload = Schema.Schema.Type<typeof communitySongAddSchema>;
+
 /**
  * Schema for adding a playlist to a community.
  */
@@ -133,6 +148,9 @@ export const communityPlaylistAddSchema: Schema.Schema<
 	community_id: Schema.String,
 	playlist_id: Schema.String,
 });
+
+/** Payload type for the community playlist add/remove API endpoints. */
+export type CommunityPlaylistAddPayload = Schema.Schema.Type<typeof communityPlaylistAddSchema>;
 
 /**
  * Schema for creating a community share request.
@@ -157,6 +175,9 @@ export const communityShareRequestCreateSchema: Schema.Schema<
 	message: Schema.optional(Schema.String),
 });
 
+/** Payload type for the community share-request create API endpoint. */
+export type CommunityShareRequestCreatePayload = Schema.Schema.Type<typeof communityShareRequestCreateSchema>;
+
 /**
  * Schema for updating a community share request status.
  */
@@ -173,3 +194,46 @@ export const communityShareRequestUpdateStatusSchema: Schema.Schema<
 	request_id: Schema.String,
 	status: Schema.Literal("accepted", "rejected"),
 });
+
+/** Payload type for the community share-request update-status API endpoint. */
+export type CommunityShareRequestUpdateStatusPayload = Schema.Schema.Type<typeof communityShareRequestUpdateStatusSchema>;
+
+/**
+ * Schema for a user leaving a community (self-remove).
+ */
+export const communityUserRemoveSchema: Schema.Schema<
+	{ readonly community_id: string },
+	{ readonly community_id: string }
+> = Schema.Struct({
+	community_id: Schema.String,
+});
+
+/** Payload type for the community user remove (leave) API endpoint. */
+export type CommunityUserRemovePayload = Schema.Schema.Type<typeof communityUserRemoveSchema>;
+
+/**
+ * Schema for an admin kicking a user from a community.
+ */
+export const communityUserKickSchema: Schema.Schema<
+	{ readonly community_id: string; readonly user_id: string },
+	{ readonly community_id: string; readonly user_id: string }
+> = Schema.Struct({
+	community_id: Schema.String,
+	user_id: Schema.String,
+});
+
+/** Payload type for the community user kick API endpoint. */
+export type CommunityUserKickPayload = Schema.Schema.Type<typeof communityUserKickSchema>;
+
+/**
+ * Schema for a user joining a community.
+ */
+export const communityUserJoinSchema: Schema.Schema<
+	{ readonly community_id: string },
+	{ readonly community_id: string }
+> = Schema.Struct({
+	community_id: Schema.String,
+});
+
+/** Payload type for the community user join API endpoint. */
+export type CommunityUserJoinPayload = Schema.Schema.Type<typeof communityUserJoinSchema>;

@@ -5,12 +5,13 @@ import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import type { SupportedLanguageType } from "@/shared/language/supported-languages";
 import {
-    apiCommunityShareRequestCreatePath,
-    communityEditPath,
-    communityManagePath,
-    communityViewPath,
-    dashboardPath,
+	apiCommunityShareRequestCreatePath,
+	communityEditPath,
+	communityManagePath,
+	communityViewPath,
+	dashboardPath,
 } from "@/shared/paths";
+import { type CommunityShareRequestCreatePayload } from "@/shared/validation/communitySchemas";
 
 type StateSetter<Value> = (value: Value | ((current: Value) => Value)) => void;
 
@@ -182,11 +183,12 @@ export default function createCommunityViewHandlers(
 		void (async (): Promise<void> => {
 			let submitted = false;
 			try {
-				await postJson(apiCommunityShareRequestCreatePath, {
+				const payload: CommunityShareRequestCreatePayload = {
 					community_id: communityId,
 					shared_item_type: "song",
 					shared_item_id: songId,
-				});
+				};
+				await Effect.runPromise(postJson(apiCommunityShareRequestCreatePath, payload));
 				submitted = true;
 			} catch {
 				// Server-side errors are surfaced through the existing community fetch state on refresh.
@@ -210,11 +212,12 @@ export default function createCommunityViewHandlers(
 		void (async (): Promise<void> => {
 			let submitted = false;
 			try {
-				await postJson(apiCommunityShareRequestCreatePath, {
+				const payload: CommunityShareRequestCreatePayload = {
 					community_id: communityId,
 					shared_item_type: "playlist",
 					shared_item_id: playlistId,
-				});
+				};
+				await Effect.runPromise(postJson(apiCommunityShareRequestCreatePath, payload));
 				submitted = true;
 			} catch {
 				// Server-side errors are surfaced through the existing community fetch state on refresh.

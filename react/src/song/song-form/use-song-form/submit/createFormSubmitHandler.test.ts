@@ -7,7 +7,7 @@ import makeNull from "@/shared/test-utils/makeNull.test-util";
 import createFormSubmitHandler from "./createFormSubmitHandler";
 
 const SONG_ID = "song-123";
-const FIELDS = ["field-a", "field-b"];
+const TRANSLATIONS = ["es", "fr"];
 const SLIDE_ORDER = ["slide-1", "slide-2"];
 const SLIDES = { "slide-1": { slide_name: "Slide 1", field_data: {} } };
 
@@ -19,7 +19,7 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: SONG_ID,
-			fields: FIELDS,
+			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
 			getTags: () => undefined,
@@ -52,7 +52,7 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: SONG_ID,
-			fields: FIELDS,
+			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
 			getTags: () => ["rock", "pop"],
@@ -68,7 +68,7 @@ describe("createFormSubmitHandler", () => {
 			song_name: "My Song",
 			song_slug: "my-slug",
 			song_id: SONG_ID,
-			fields: [...FIELDS],
+			translations: [...TRANSLATIONS],
 			slide_order: [...SLIDE_ORDER],
 			slides: SLIDES,
 			tags: ["rock", "pop"],
@@ -90,7 +90,7 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: "",
-			fields: FIELDS,
+			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
 			getTags: () => undefined,
@@ -121,7 +121,7 @@ describe("createFormSubmitHandler", () => {
 
 		const handler = createFormSubmitHandler({
 			songId: SONG_ID,
-			fields: FIELDS,
+			translations: TRANSLATIONS,
 			slideOrder: SLIDE_ORDER,
 			slides: SLIDES,
 			getTags: () => currentTags,

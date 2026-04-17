@@ -20,6 +20,11 @@ function getKeys(json: unknown): string[] {
 
 // value used to verify non-string filtering
 const BAD_FIELD_VALUE = 123;
+const LANGUAGE_PARAMS = {
+	lyrics: "en",
+	script: undefined,
+	translations: ["es"],
+} as const;
 
 // Note: we prefer verboser variable names to satisfy eslint/id-length.
 describe("sanitizeSlidesForDb", () => {
@@ -36,7 +41,11 @@ describe("sanitizeSlidesForDb", () => {
 			slideTwo: "not-a-record",
 		};
 
-		const result = sanitizeSlidesForDb(input, ["alpha"]);
+		const result = sanitizeSlidesForDb(input, {
+			lyrics: "alpha",
+			script: undefined,
+			translations: [],
+		});
 		const keys = getKeys(result);
 		expect(keys).toStrictEqual(["slideOne"]);
 	});
@@ -49,45 +58,49 @@ describe("sanitizeSlidesForDb", () => {
 			},
 		};
 
-		const result = sanitizeSlidesForDb(input);
+		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		// slide_name should fall back to empty string, field_data values coerced
 		expect(result).toStrictEqual({
 			slideX: {
 				slide_name: "",
-				field_data: { foo: "", bar: "" },
+				field_data: { en: "", es: "" },
 			},
 		});
 	});
 
-	it("adds missing required fields", () => {
+	it("normalizes legacy keys into current language-code keys", () => {
 		const input = {
-			slideOne: { slide_name: "s1", field_data: { existing: "x" } },
+			slideOne: {
+				slide_name: "s1",
+				field_data: { lyrics: "x", enTranslation: "hola" },
+			},
 		};
 
-		const result = sanitizeSlidesForDb(input, ["existing", "newField"]);
+		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
 			slideOne: {
 				slide_name: "s1",
-				field_data: { existing: "x", newField: "" },
+				field_data: { en: "x", es: "hola" },
 			},
 		});
 	});
 
-	it("ignores non-string entries in the fields array", () => {
-		const input = { slideOne: { slide_name: "", field_data: {} } };
-		// @ts-expect-error intentionally mixing types
-		const result = sanitizeSlidesForDb(input, ["keep", BAD_FIELD_VALUE]);
+	it("drops extra field_data keys that are not active languages", () => {
+		const input = {
+			slideOne: { slide_name: "", field_data: { en: "hello", chords: String(BAD_FIELD_VALUE) } },
+		};
+		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
-			slideOne: { slide_name: "", field_data: { keep: "" } },
+			slideOne: { slide_name: "", field_data: { en: "hello", es: "" } },
 		});
 	});
 
 	it("normalizes slide keys to strings when they are numbers", () => {
 		// slide keys should be stringified even if the caller uses a number
 		const input = { 0: { slide_name: "zero", field_data: {} } } as unknown;
-		const result = sanitizeSlidesForDb(input, []);
+		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
-			"0": { slide_name: "zero", field_data: {} },
+			"0": { slide_name: "zero", field_data: { en: "", es: "" } },
 		});
 	});
 
@@ -105,11 +118,11 @@ describe("sanitizeSlidesForDb", () => {
 			},
 		};
 
-		const result = sanitizeSlidesForDb(input, []);
+		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
 			slideOne: {
 				slide_name: "s1",
-				field_data: {},
+				field_data: { en: "", es: "" },
 				background_image_id: "img-1",
 				background_image_url: "/api/images/serve/images/user-1/img-1.png",
 				background_image_width: 1200,
@@ -130,11 +143,11 @@ describe("sanitizeSlidesForDb", () => {
 			},
 		};
 
-		const result = sanitizeSlidesForDb(input, []);
+		const result = sanitizeSlidesForDb(input, LANGUAGE_PARAMS);
 		expect(result).toStrictEqual({
 			slideOne: {
 				slide_name: "s1",
-				field_data: {},
+				field_data: { en: "", es: "" },
 			},
 		});
 	});

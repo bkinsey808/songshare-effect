@@ -31,12 +31,7 @@ export default function createShareEffect(
 		setShareError(undefined);
 
 		// Make API call
-		const { shareId } = yield* $(
-			Effect.tryPromise({
-				try: () => postJsonWithResult<{ shareId: string }>(apiShareCreatePath, request),
-				catch: (error) => new Error(`Failed to create share: ${String(error)}`),
-			}),
-		);
+		const { shareId } = yield* $(postJsonWithResult<{ shareId: string }>(apiShareCreatePath, request));
 
 		// Optimistically add share so "Shared with" updates immediately.
 		// fetchShares (called by ShareButton) will replace with full data (usernames, etc.).

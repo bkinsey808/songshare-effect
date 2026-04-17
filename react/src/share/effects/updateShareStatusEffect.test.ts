@@ -46,7 +46,7 @@ describe("updateShareStatusEffect", () => {
 		vi.resetAllMocks();
 
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue({ success: true });
+		mockPost.mockReturnValue(Effect.succeed({ success: true }));
 
 		const get = makeGet({ [shareId]: { status: "pending" } });
 		await Effect.runPromise(updateShareStatusEffect(request, get));
@@ -62,7 +62,7 @@ describe("updateShareStatusEffect", () => {
 		vi.resetAllMocks();
 
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue({ success: true });
+		mockPost.mockReturnValue(Effect.succeed({ success: true }));
 
 		const get = makeGet();
 		await Effect.runPromise(updateShareStatusEffect(request, get));
@@ -76,12 +76,12 @@ describe("updateShareStatusEffect", () => {
 
 		const errorMessage = "network fail";
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockRejectedValue(new Error(errorMessage));
+		mockPost.mockReturnValue(Effect.fail(new Error(errorMessage)));
 
 		const get = makeGet({ [shareId]: { status: "pending" } });
 		const eff = updateShareStatusEffect(request, get);
 
-		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to update share status/);
+		await expect(Effect.runPromise(eff)).rejects.toThrow(errorMessage);
 
 		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(
 			FIRST_CALL,
@@ -101,12 +101,12 @@ describe("updateShareStatusEffect", () => {
 		vi.resetAllMocks();
 
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockRejectedValue(new Error("fail"));
+		mockPost.mockReturnValue(Effect.fail(new Error("fail")));
 
 		const get = makeGet();
 		const eff = updateShareStatusEffect(request, get);
 
-		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to update share status/);
+		await expect(Effect.runPromise(eff)).rejects.toThrow("fail");
 
 		expect(updateShareStatusOptimistically).toHaveBeenNthCalledWith(
 			SECOND_CALL,
@@ -123,7 +123,7 @@ describe("updateShareStatusEffect", () => {
 			status: "rejected",
 		};
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue({ success: true });
+		mockPost.mockReturnValue(Effect.succeed({ success: true }));
 
 		const get = makeGet({ [shareId]: { status: "pending" } });
 		await Effect.runPromise(updateShareStatusEffect(rejectRequest, get));

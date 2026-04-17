@@ -24,14 +24,10 @@ export default function rejectAcceptedSharesForItem(
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* rejectAcceptedSharesForItemGen($) {
 		yield* $(
-			Effect.tryPromise({
-				try: () =>
-					postJsonWithResult<{ success: boolean; rejected_count: number }>(
-						apiShareRejectByItemPath,
-						{ shared_item_type: itemType, shared_item_id: itemId },
-					),
-				catch: (err) => new Error(String(err)),
-			}).pipe(
+			postJsonWithResult<{ success: boolean; rejected_count: number }>(
+				apiShareRejectByItemPath,
+				{ shared_item_type: itemType, shared_item_id: itemId },
+			).pipe(
 				Effect.catchAll((err) =>
 					Effect.sync(() => {
 						console.warn(

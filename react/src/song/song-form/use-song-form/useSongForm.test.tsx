@@ -7,6 +7,7 @@ import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import makeMockLocation from "@/react/lib/test-utils/makeMockLocation.test-util";
 import useItemTags from "@/react/tag/useItemTags";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 
 import type { SongFormChordPickerRequest } from "../song-form-types";
 import deleteSongEffect from "./submit/deleteSongRequest";
@@ -117,7 +118,7 @@ function setupEditMode(): void {
  * - Tag list display with an add-tag action button
  * - Reset button wired to resetForm
  * - Cancel button wired to handleCancel
- * - Toggle-chords-field button wired to toggleField
+ * - Script-language button wired to setFormValue
  * - Boolean state flags rendered as text for assertions
  * @returns A small DOM fragment used by harness tests
  */
@@ -134,7 +135,7 @@ function Harness(): ReactElement {
 		isSlidesExpanded, // collapsible slides section state
 		isGridExpanded, // collapsible grid section state
 		tags, // current tag list
-		fields, // active lyric/chord field list
+		fields, // active display-language field list
 		setFormValue, // updates a single controlled field
 		handleSongNameBlur, // auto-generates slug when blurring the name input
 		handleCancel, // navigates back without saving
@@ -146,7 +147,6 @@ function Harness(): ReactElement {
 		insertChordFromPicker, // inserts a chord and closes the picker
 		resetForm, // resets the form to an empty create state
 		setTags, // replaces the current tag list
-		toggleField, // adds or removes a lyric/chord field
 	} = useSongForm();
 
 	return (
@@ -265,15 +265,15 @@ function Harness(): ReactElement {
 				add rock tag
 			</button>
 
-			{/* Field toggle */}
+			{/* Language-derived field control */}
 			<button
 				type="button"
-				data-testid="toggle-chords-field"
+				data-testid="enable-script-language"
 				onClick={() => {
-					toggleField("chords", !fields.includes("chords"));
+					setFormValue("script", "es");
 				}}
 			>
-				toggle chords field
+				enable script language
 			</button>
 		</div>
 	);
@@ -430,7 +430,7 @@ describe("useSongForm — Harness", () => {
 		});
 	});
 
-	it("toggling the chords field adds it to the fields list", async () => {
+	it("setting the script language adds it to the derived fields list", async () => {
 		cleanup();
 		setupCreateMode();
 
@@ -438,15 +438,17 @@ describe("useSongForm — Harness", () => {
 		const rendered = render(<Harness />);
 
 		await waitFor(() => {
-			expect(within(rendered.container).getByTestId("fields").textContent).toBe("lyrics");
+			expect(within(rendered.container).getByTestId("fields").textContent).toBe(defaultLanguage);
 		});
 
 		// Act
-		fireEvent.click(within(rendered.container).getByTestId("toggle-chords-field"));
+		fireEvent.click(within(rendered.container).getByTestId("enable-script-language"));
 
 		// Assert
 		await waitFor(() => {
-			expect(within(rendered.container).getByTestId("fields").textContent).toContain("chords");
+			expect(within(rendered.container).getByTestId("fields").textContent).toBe(
+				`${defaultLanguage},es`,
+			);
 		});
 	});
 });

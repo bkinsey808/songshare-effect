@@ -12,7 +12,7 @@ vi.mock("@/shared/fetch/postJson");
 describe("acceptCommunityInvitation", () => {
 	it("calls join API and optimistically updates slice", async () => {
 		const mockedPost = vi.mocked(postJson);
-		mockedPost.mockResolvedValueOnce(undefined);
+		mockedPost.mockReturnValueOnce(Effect.succeed(undefined));
 
 		const setPendingCommunityInvitations = vi.fn();
 		const setInvitationError = vi.fn();
@@ -44,7 +44,7 @@ describe("acceptCommunityInvitation", () => {
 
 	it("sets error message on failure", async () => {
 		const mockedPost = vi.mocked(postJson);
-		mockedPost.mockRejectedValueOnce(new Error("boom"));
+		mockedPost.mockReturnValueOnce(Effect.fail(new Error("boom")));
 
 		const setInvitationError = vi.fn();
 

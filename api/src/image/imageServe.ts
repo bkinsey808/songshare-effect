@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { Effect } from "effect";
 import type { Context } from "hono";
 
 import {
@@ -33,38 +34,60 @@ const R2_BACKEND = "r2";
  * (not Effect-based) because it streams binary data rather than returning JSON.
  *
  * @param ctx - The Hono request context with R2 Bindings.
- * @returns - An HTTP response containing or redirecting to the image.
+ * @returns An Effect that resolves to an HTTP response containing or redirecting to the image.
  */
-export default async function imageServe(ctx: Context<{ Bindings: Bindings }>): Promise<Response> {
-	const imageKey = ctx.req.param("*");
-	if (typeof imageKey !== "string" || imageKey.trim() === "") {
-		return ctx.json({ error: "image_key is required" }, HTTP_BAD_REQUEST);
-	}
+export default function imageServe(
+	ctx: Context<{ Bindings: Bindings }>,
+): Effect.Effect<Response> {
+	return Effect.gen(function* imageServeGen() {
+		const imageKey = ctx.req.param("*");
+		if (typeof imageKey !== "string" || imageKey.trim() === "") {
+			return ctx.json({ error: "image_key is required" }, HTTP_BAD_REQUEST);
+		}
 
-	// Supabase Storage: redirect to the public CDN URL (no R2 binding needed)
-	if (ctx.env.STORAGE_BACKEND !== R2_BACKEND) {
-		const supabase = createClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
-		const path = imageKey.startsWith(IMAGES_KEY_PREFIX)
-			? imageKey.slice(IMAGES_KEY_PREFIX.length)
-			: imageKey;
-		const { data } = supabase.storage.from(IMAGES_BUCKET).getPublicUrl(path);
-		return Response.redirect(data.publicUrl, HTTP_TEMP_REDIRECT);
-	}
+		// Supabase Storage: redirect to the public CDN URL (no R2 binding needed)
+		if (ctx.env.STORAGE_BACKEND !== R2_BACKEND) {
+			const supabase = createClient(ctx.env.VITE_SUPABASE_URL, ctx.env.SUPABASE_SERVICE_KEY);
+			const path = imageKey.startsWith(IMAGES_KEY_PREFIX)
+				? imageKey.slice(IMAGES_KEY_PREFIX.length)
+				: imageKey;
+			const { data } = supabase.storage.from(IMAGES_BUCKET).getPublicUrl(path);
+			return Response.redirect(data.publicUrl, HTTP_TEMP_REDIRECT);
+		}
 
-	// R2: stream file directly
-	if (ctx.env.BUCKET === undefined) {
-		return ctx.json({ error: "Storage not configured: BUCKET binding is missing" }, HTTP_INTERNAL);
-	}
+		// R2: stream file directly
+		if (ctx.env.BUCKET === undefined) {
+			return ctx.json(
+				{ error: "Storage not configured: BUCKET binding is missing" },
+				HTTP_INTERNAL,
+			);
+		}
 
-	const object = await ctx.env.BUCKET.get(imageKey);
-	if (object === null) {
-		return ctx.json({ error: "Image not found" }, HTTP_NOT_FOUND);
-	}
+		const object = yield* Effect.tryPromise({
+			try: () => {
+				if (ctx.env.BUCKET === undefined) {
+					throw new Error("BUCKET not configured");
+				}
+				return ctx.env.BUCKET.get(imageKey);
+			},
+			catch: (error) =>
+				new Error(`Failed to get object from R2: ${String(error)}`),
+		});
 
-	const headers = new Headers();
-	object.writeHttpMetadata(headers);
-	headers.set("etag", object.httpEtag);
-	headers.set("cache-control", "public, max-age=31536000, immutable");
+		if (object === null) {
+			return ctx.json({ error: "Image not found" }, HTTP_NOT_FOUND);
+		}
 
-	return new Response(object.body, { headers });
+		const headers = new Headers();
+		object.writeHttpMetadata(headers);
+		headers.set("etag", object.httpEtag);
+		headers.set("cache-control", "public, max-age=31536000, immutable");
+
+		return new Response(object.body, { headers });
+	}).pipe(
+		Effect.catchAll((error) => {
+			const message = error instanceof Error ? error.message : String(error);
+			return Effect.succeed(ctx.json({ error: message }, HTTP_INTERNAL));
+		}),
+	);
 }

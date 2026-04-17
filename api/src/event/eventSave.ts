@@ -6,35 +6,13 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import { EventSaveSchema, type EventSavePayload } from "@/shared/event/event-save-schema";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import { getEventRoleCapabilities } from "../event-user/eventRoleCapabilities";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-
-/**
- * Schema validating event save form payload.
- *
- * Validates optional `event_id` and required fields like `event_name` and
- * `event_slug`, along with optional metadata and active item ids.
- */
-const EventFormSchema = Schema.Struct({
-	event_id: Schema.optional(Schema.String),
-	event_name: Schema.optional(Schema.String),
-	event_slug: Schema.optional(Schema.String),
-	event_description: Schema.optional(Schema.String),
-	event_date: Schema.optional(Schema.String),
-	is_public: Schema.optional(Schema.Boolean),
-	active_playlist_id: Schema.optional(Schema.NullishOr(Schema.String)),
-	active_song_id: Schema.optional(Schema.NullishOr(Schema.String)),
-	active_slide_position: Schema.optional(Schema.NullishOr(Schema.Number)),
-	public_notes: Schema.optional(Schema.String),
-	private_notes: Schema.optional(Schema.String),
-	tags: Schema.optional(Schema.Array(Schema.String)),
-});
-
-type EventFormData = Schema.Schema.Type<typeof EventFormSchema>;
 
 /**
  * Server-side handler for saving an event. This Effect-based handler:
@@ -70,9 +48,9 @@ export default function eventSave(
 		);
 
 		// Validate form payload
-		const validated: EventFormData = yield* $(
+		const validated: EventSavePayload = yield* $(
 			validateFormEffect({
-				schema: EventFormSchema,
+				schema: EventSaveSchema,
 				data: body,
 				i18nMessageKey: "EVENT_FORM",
 			}).pipe(
@@ -159,7 +137,7 @@ export default function eventSave(
 			}
 
 			if (!roleCapabilities.canUpdateEventAllFields) {
-				const restrictedFields: (keyof EventFormData)[] = [
+				const restrictedFields: (keyof EventSavePayload)[] = [
 					"event_name",
 					"event_description",
 					"event_slug",

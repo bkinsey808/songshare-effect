@@ -8,6 +8,8 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 import useFormSubmission from "./useFormSubmission";
 
+const ONE_CALL = 1;
+
 describe("useFormSubmission — renderHook", () => {
 	it("handleCancel navigates back", () => {
 		const handleApiResponseEffect = vi.fn(() => Effect.succeed(false));
@@ -44,7 +46,7 @@ describe("useFormSubmission — renderHook", () => {
 
 		const resetFormState = vi.fn();
 		const onSaveSuccess = vi.fn();
-		const handleApiResponseEffect = vi.fn((_res: Response, _onError: () => void) =>
+		const handleApiResponseEffect = vi.fn((_res: Response, _onError: (message: string) => void) =>
 			Effect.succeed(true),
 		);
 
@@ -67,7 +69,8 @@ describe("useFormSubmission — renderHook", () => {
 		const formData = {
 			song_name: "Test",
 			song_slug: "test",
-			fields: ["lyrics"],
+			lyrics: "en",
+			translations: [],
 			slide_order: ["s1"],
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
 		};
@@ -95,9 +98,11 @@ describe("useFormSubmission — renderHook", () => {
 	});
 
 	it("returns handleCancel and onSubmit", () => {
+		// Arrange
 		const handleApiResponseEffect = vi.fn(() => Effect.succeed(false));
 		const resetFormState = vi.fn();
 
+		// Act
 		const { result } = renderHook(
 			() =>
 				useFormSubmission({
@@ -113,8 +118,68 @@ describe("useFormSubmission — renderHook", () => {
 			},
 		);
 
+		// Assert
 		expect(typeof result.current.handleCancel).toBe("function");
 		expect(typeof result.current.onSubmit).toBe("function");
+	});
+
+	it("surfaces submit errors when the API returns a general failure", async () => {
+		// Arrange
+		vi.stubGlobal(
+			"fetch",
+			vi.fn().mockResolvedValue({
+				ok: false,
+				json: () => promiseResolved({ error: "Song slug already exists" }),
+			}),
+		);
+
+		const resetFormState = vi.fn();
+		const setSubmitError = vi.fn();
+		const clearSubmitError = vi.fn();
+		const handleApiResponseEffect = vi.fn((_res: Response, onError: (message: string) => void) =>
+			Effect.sync(() => {
+				onError("Song slug already exists");
+				return false;
+			}),
+		);
+
+		const { result } = renderHook(
+			() =>
+				useFormSubmission({
+					handleApiResponseEffect,
+					resetFormState,
+					setSubmitError,
+					clearSubmitError,
+				}),
+			{
+				wrapper: ({ children }) => (
+					<RouterWrapper initialEntries={["/en/song/new/edit"]} path="*">
+						{children}
+					</RouterWrapper>
+				),
+			},
+		);
+
+		const formData = {
+			song_name: "Test",
+			song_slug: "test",
+			lyrics: "en",
+			translations: [],
+			slide_order: ["s1"],
+			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
+		};
+
+		// Act
+		await result.current.onSubmit(formData);
+
+		// Assert
+		await waitFor(() => {
+			expect(clearSubmitError).toHaveBeenCalledTimes(ONE_CALL);
+			expect(setSubmitError).toHaveBeenCalledWith("Song slug already exists");
+			expect(resetFormState).not.toHaveBeenCalled();
+		});
+
+		vi.unstubAllGlobals();
 	});
 });
 
@@ -128,7 +193,7 @@ describe("useFormSubmission — Harness", () => {
 			}),
 		);
 
-		const handleApiResponseEffect = vi.fn((_res: Response, _onError: () => void) =>
+		const handleApiResponseEffect = vi.fn((_res: Response, _onError: (message: string) => void) =>
 			Effect.succeed(true),
 		);
 		const resetFormState = vi.fn();
@@ -136,7 +201,8 @@ describe("useFormSubmission — Harness", () => {
 		const MINIMAL_FORM_DATA = {
 			song_name: "",
 			song_slug: "",
-			fields: ["lyrics"],
+			lyrics: "en",
+			translations: [],
 			slide_order: ["s1"],
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
 		};

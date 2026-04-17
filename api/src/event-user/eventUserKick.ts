@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
@@ -10,13 +10,10 @@ import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import { getEventRoleCapabilities } from "./eventRoleCapabilities";
-
-const EventUserKickSchema = Schema.Struct({
-	event_id: Schema.String,
-	user_id: Schema.String,
-});
-
-type EventUserKickData = Schema.Schema.Type<typeof EventUserKickSchema>;
+import {
+	eventUserKickSchema,
+	type EventUserKickPayload,
+} from "@/shared/validation/eventUserSchemas";
 
 /**
  * Sets a participant membership status to kicked.
@@ -43,9 +40,9 @@ export default function eventUserKick(
 			}),
 		);
 
-		const validated: EventUserKickData = yield* $(
+		const validated: EventUserKickPayload = yield* $(
 			validateFormEffect({
-				schema: EventUserKickSchema,
+				schema: eventUserKickSchema,
 				data: body,
 				i18nMessageKey: "EVENT_USER_KICK",
 			}).pipe(

@@ -1,8 +1,9 @@
 import { Schema } from "effect";
 
 import { songPublicSchema, type SongPublic } from "@/react/song/song-schema";
-import { isSongKey } from "@/shared/song/songKeyOptions";
 import isRecord from "@/shared/type-guards/isRecord";
+
+import normalizeSongRecord from "./normalizeSongRecord";
 
 /**
  * Normalize and decode a raw song object and add it to the output map.
@@ -36,113 +37,7 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 	console.warn(`[addActivePublicSongIds] Failed to decode song ${id}:`, decodeResult.left);
 
 	try {
-		// Normalize the raw song so missing slide fields become empty strings
-		const rawSlides = isRecord(song["slides"]) ? song["slides"] : {};
-		const rawFields = Array.isArray(song["fields"])
-			? song["fields" as keyof typeof song]
-			: undefined;
-
-		// Determine allowed fields (fall back to defaults)
-		const rawFieldsArray = Array.isArray(rawFields)
-			? rawFields.filter((value): value is string => typeof value === "string")
-			: ["lyrics", "script", "enTranslation"];
-
-		// Required fields for slide field_data
-		const allRequiredFields = ["lyrics", "script", "enTranslation"] as const;
-		const normalizedSlides: Record<
-			string,
-			{
-				slide_name: string;
-				field_data: Record<string, string>;
-				background_image_id?: string | undefined;
-				background_image_url?: string | undefined;
-				background_image_width?: number | undefined;
-				background_image_height?: number | undefined;
-				background_image_focal_point_x?: number | undefined;
-				background_image_focal_point_y?: number | undefined;
-			}
-		> = {};
-		for (const key of Object.keys(rawSlides)) {
-			const slide = isRecord(rawSlides[key]) ? rawSlides[key] : {};
-			const rawFieldData = isRecord(slide["field_data"]) ? slide["field_data"] : {};
-			const field_data: Record<string, string> = {};
-			for (const field of allRequiredFields) {
-				field_data[field] = typeof rawFieldData[field] === "string" ? rawFieldData[field] : "";
-			}
-			const backgroundImageWidth =
-				typeof slide["background_image_width"] === "number"
-					? slide["background_image_width"]
-					: undefined;
-			const backgroundImageHeight =
-				typeof slide["background_image_height"] === "number"
-					? slide["background_image_height"]
-					: undefined;
-			const backgroundImageFocalPointX =
-				typeof slide["background_image_focal_point_x"] === "number"
-					? slide["background_image_focal_point_x"]
-					: undefined;
-			const backgroundImageFocalPointY =
-				typeof slide["background_image_focal_point_y"] === "number"
-					? slide["background_image_focal_point_y"]
-					: undefined;
-			normalizedSlides[key] = {
-				slide_name: typeof slide["slide_name"] === "string" ? slide["slide_name"] : "",
-				field_data,
-				...(typeof slide["background_image_id"] === "string" &&
-				typeof slide["background_image_url"] === "string"
-					? {
-							background_image_id: slide["background_image_id"],
-							background_image_url: slide["background_image_url"],
-						}
-					: {}),
-				...(backgroundImageWidth === undefined ? {} : { background_image_width: backgroundImageWidth }),
-				...(backgroundImageHeight === undefined ? {} : { background_image_height: backgroundImageHeight }),
-				...(backgroundImageFocalPointX === undefined
-					? {}
-					: { background_image_focal_point_x: backgroundImageFocalPointX }),
-				...(backgroundImageFocalPointY === undefined
-					? {}
-					: { background_image_focal_point_y: backgroundImageFocalPointY }),
-			};
-		}
-
-		// Ensure slide_order contains all slide keys (preserving incoming order when present)
-		const rawOrder = Array.isArray(song["slide_order"])
-			? song["slide_order"]
-			: Object.keys(normalizedSlides);
-		const slideOrder = Array.isArray(rawOrder)
-			? [...new Set([...rawOrder.map(String), ...Object.keys(normalizedSlides)])]
-			: Object.keys(normalizedSlides);
-
-		// Ensure fields contains all required fields
-		const normalizedFields = [...new Set([...rawFieldsArray, ...allRequiredFields])];
-
-		let userId = "";
-		if (typeof song["user_id"] === "string") {
-			userId = song["user_id"];
-		} else if (typeof song["song_owner_id"] === "string") {
-			userId = song["song_owner_id"];
-		}
-
-		const normalizedSong = {
-			...song,
-			song_name: typeof song["song_name"] === "string" ? song["song_name"] : "",
-			song_slug: typeof song["song_slug"] === "string" ? song["song_slug"] : "",
-			fields: normalizedFields,
-			slide_order: slideOrder,
-			slides: normalizedSlides,
-			/* oxlint-disable-next-line unicorn/no-null */
-			key: isSongKey(song["key"]) ? song["key"] : null,
-			scale: typeof song["scale"] === "string" ? song["scale"] : "",
-			user_id: userId,
-			short_credit: typeof song["short_credit"] === "string" ? song["short_credit"] : "",
-			long_credit: typeof song["long_credit"] === "string" ? song["long_credit"] : "",
-			public_notes: typeof song["public_notes"] === "string" ? song["public_notes"] : "",
-			created_at:
-				typeof song["created_at"] === "string" ? song["created_at"] : new Date().toISOString(),
-			updated_at:
-				typeof song["updated_at"] === "string" ? song["updated_at"] : new Date().toISOString(),
-		};
+		const { normalizedSong, minimalSong, absolutelyMinimalSong } = normalizeSongRecord(song, id);
 
 		decodeResult = Schema.decodeUnknownEither(songPublicSchema)(normalizedSong);
 		if (decodeResult._tag === "Right") {
@@ -158,105 +53,17 @@ export default function processSong(song: unknown, out: Record<string, SongPubli
 
 		// Attempt minimal fallbacks (kept concise here — match previous behavior)
 		try {
-			const MIN_SONG_NAME_LENGTH = 2;
-			const MAX_SONG_NAME_LENGTH = 100;
-			const MIN_STRING_LENGTH = 0;
-			let songName = typeof song["song_name"] === "string" ? song["song_name"].trim() : "";
-			if (
-				songName.length < MIN_SONG_NAME_LENGTH ||
-				songName.length > MAX_SONG_NAME_LENGTH ||
-				/\s{2}/.test(songName)
-			) {
-				songName =
-					songName.length > MIN_STRING_LENGTH && songName.length <= MAX_SONG_NAME_LENGTH
-						? songName.trim().replaceAll(/\s{2,}/g, " ")
-						: "Untitled Song";
-			}
-
-			let songSlug = typeof song["song_slug"] === "string" ? song["song_slug"] : "";
-			if (
-				!/^[a-z0-9-]+$/.test(songSlug) ||
-				songSlug.startsWith("-") ||
-				songSlug.endsWith("-") ||
-				songSlug.includes("--")
-			) {
-				songSlug =
-					songName
-						.toLowerCase()
-						.replaceAll(/[^a-z0-9]+/g, "-")
-						.replaceAll(/^-+|-+$/g, "")
-						.replaceAll(/-{2,}/g, "-") || "untitled";
-			}
-
-			const shortCredit = typeof song["short_credit"] === "string" ? song["short_credit"] : "";
-			const longCredit = typeof song["long_credit"] === "string" ? song["long_credit"] : "";
-			const publicNotes = typeof song["public_notes"] === "string" ? song["public_notes"] : "";
-			const userId2 = typeof song["user_id"] === "string" ? song["user_id"] : "";
-			/* oxlint-disable-next-line unicorn/no-null */
-			const key = isSongKey(song["key"]) ? song["key"] : null;
-			const scale = typeof song["scale"] === "string" ? song["scale"] : "";
-			const createdAt =
-				typeof song["created_at"] === "string" ? song["created_at"] : new Date().toISOString();
-			const updatedAt =
-				typeof song["updated_at"] === "string" ? song["updated_at"] : new Date().toISOString();
-
-			const minimalSong = {
-				song_id: id,
-				song_name: songName,
-				song_slug: songSlug,
-				fields: normalizedFields,
-				slide_order: slideOrder,
-				slides: normalizedSlides,
-				key,
-				scale,
-				user_id: userId2,
-				short_credit: shortCredit,
-				long_credit: longCredit,
-				public_notes: publicNotes,
-				created_at: createdAt,
-				updated_at: updatedAt,
-			};
-
 			let minimalDecodeResult = Schema.decodeUnknownEither(songPublicSchema)(minimalSong);
 			if (minimalDecodeResult._tag === "Right") {
-				console.warn(`[addActivePublicSongIds] Created minimal song for ${id} with basic fields`);
+				console.warn(`[addActivePublicSongIds] Created minimal song for ${id} with normalized slides`);
 				out[id] = minimalDecodeResult.right;
 				return;
 			}
 
-			const allRequiredFields2 = ["lyrics", "script", "enTranslation"] as const;
-			const minimalFieldData: Record<string, string> = {};
-			for (const field of allRequiredFields2) {
-				minimalFieldData[field] = "";
-			}
-
-			const absolutelyMinimalSong = {
-				song_id: id,
-				song_name: songName,
-				song_slug: songSlug,
-				fields: ["lyrics", "script", "enTranslation"],
-				slide_order: ["minimal-slide"],
-				slides: {
-					"minimal-slide": {
-						slide_name: "Slide 1",
-						field_data: minimalFieldData,
-					},
-				},
-				/* oxlint-disable-next-line unicorn/no-null */
-				key: null,
-				scale: "",
-				user_id: userId2,
-				short_credit: shortCredit,
-				long_credit: longCredit,
-				public_notes: publicNotes,
-				created_at: createdAt,
-				updated_at: updatedAt,
-			};
-
 			minimalDecodeResult = Schema.decodeUnknownEither(songPublicSchema)(absolutelyMinimalSong);
 			if (minimalDecodeResult._tag === "Right") {
 				console.warn(
-					`[addActivePublicSongIds] Created absolutely minimal song for ${id} with basic fields`,
+					`[addActivePublicSongIds] Created absolutely minimal song for ${id} with normalized slides`,
 				);
 				out[id] = minimalDecodeResult.right;
 				return;

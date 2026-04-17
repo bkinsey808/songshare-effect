@@ -25,7 +25,7 @@ describe("addMember", () => {
 
 	it("sets loading and clears error on success", async () => {
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		const eff = addMember({ communityId: "c1", userId: "u1", role: "member", get });
 
@@ -42,7 +42,7 @@ describe("addMember", () => {
 
 	it("clears loading and sets error on failure", async () => {
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockRejectedValue(new Error("boom"));
+		mockPost.mockReturnValue(Effect.fail(new Error("boom")));
 
 		const eff = addMember({ communityId: "c1", userId: "u1", role: "member", get });
 

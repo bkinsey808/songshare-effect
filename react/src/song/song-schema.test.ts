@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import {
-	songFieldsSchema,
 	songNameSchema,
 	songPublicSchema,
 	songSchema,
@@ -67,32 +66,16 @@ describe("songSlugSchema", () => {
 	});
 });
 
-describe("songFieldsSchema", () => {
-	it("accepts valid field arrays", () => {
-		expect(Schema.decodeSync(songFieldsSchema)(["lyrics"])).toStrictEqual(["lyrics"]);
-		expect(Schema.decodeSync(songFieldsSchema)(["lyrics", "script"])).toStrictEqual([
-			"lyrics",
-			"script",
-		]);
-	});
-
-	it("rejects invalid field names", () => {
-		expect(() => Schema.decodeUnknownSync(songFieldsSchema)(["invalid"])).toThrow(SCHEMA_ERROR);
-		expect(() => Schema.decodeUnknownSync(songFieldsSchema)(["lyrics", "unknown"])).toThrow(
-			SCHEMA_ERROR,
-		);
-	});
-});
-
 describe("songPublicSchema", () => {
 	const VALID_BASE = {
 		song_id: "s1",
 		song_name: "My Song",
 		song_slug: "my-song",
-		fields: ["lyrics"] as const,
+		lyrics: "en",
+		translations: [] as const,
 		slide_order: ["s1"],
 		slides: {
-			s1: { slide_name: "Slide 1", field_data: { lyrics: "verse 1" } },
+			s1: { slide_name: "Slide 1", field_data: { en: "verse 1" } },
 		},
 		key: makeNull(),
 		scale: makeNull(),
@@ -118,18 +101,16 @@ describe("songPublicSchema", () => {
 		expect(() => Schema.decodeSync(songPublicSchema)(invalid)).toThrow(SCHEMA_ERROR);
 	});
 
-	it("rejects when field_data has key not in fields", () => {
+	it("rejects legacy slide field keys that do not match the song languages", () => {
 		const invalid = {
 			...VALID_BASE,
 			slides: {
-				s1: {
-					slide_name: "Slide 1",
-					field_data: { lyrics: "ok", invalidField: "bad" },
-				},
+				s1: { slide_name: "Slide 1", field_data: { lyrics: "legacy value" } },
 			},
 		};
-		expect(() => Schema.decodeUnknownSync(songPublicSchema)(invalid)).toThrow(SCHEMA_ERROR);
+		expect(() => Schema.decodeSync(songPublicSchema)(invalid)).toThrow(SCHEMA_ERROR);
 	});
+
 });
 
 describe("songSchema", () => {

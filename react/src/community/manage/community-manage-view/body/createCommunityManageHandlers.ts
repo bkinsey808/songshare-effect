@@ -17,6 +17,15 @@ import {
     apiCommunityUserKickPath,
     communityViewPath,
 } from "@/shared/paths";
+import {
+	type CommunityEventAddPayload,
+	type CommunityPlaylistAddPayload,
+	type CommunitySetActiveEventPayload,
+	type CommunityShareRequestUpdateStatusPayload,
+	type CommunitySongAddPayload,
+	type CommunityUserAddPayload,
+	type CommunityUserKickPayload,
+} from "@/shared/validation/communitySchemas";
 
 import type { CommunityActionState } from "../CommunityActionState.type";
 import runCommunityAction from "./runCommunityAction";
@@ -108,15 +117,15 @@ export default function createCommunityManageHandlers(
 			inviteUserIdInput !== ""
 		) {
 			void (async (): Promise<void> => {
+				const invitePayload: CommunityUserAddPayload = {
+					community_id: currentCommunity.community_id,
+					user_id: inviteUserIdInput,
+					role: "member",
+					status: "invited",
+				};
 				await runCommunityAction({
 					key: "invite",
-					action: () =>
-						postJson(apiCommunityUserAddPath, {
-							community_id: currentCommunity.community_id,
-							user_id: inviteUserIdInput,
-							role: "member",
-							status: "invited",
-						}),
+					action: () => postJson(apiCommunityUserAddPath, invitePayload),
 					successMessage: "Member invited successfully",
 					setActionState,
 					refreshFn: refreshCommunity,
@@ -134,13 +143,13 @@ export default function createCommunityManageHandlers(
 	function onAddEventClick(): void {
 		if (currentCommunity !== undefined && addEventIdInput !== undefined && addEventIdInput !== "") {
 			void (async (): Promise<void> => {
+				const addEventPayload: CommunityEventAddPayload = {
+					community_id: currentCommunity.community_id,
+					event_id: addEventIdInput,
+				};
 				await runCommunityAction({
 					key: "add-event",
-					action: () =>
-						postJson(apiCommunityEventAddPath, {
-							community_id: currentCommunity.community_id,
-							event_id: addEventIdInput,
-						}),
+					action: () => postJson(apiCommunityEventAddPath, addEventPayload),
 					successMessage: "Event added successfully",
 					setActionState,
 					refreshFn: refreshCommunity,
@@ -158,13 +167,13 @@ export default function createCommunityManageHandlers(
 	 */
 	function onRemoveEventClick(eventId: string): void {
 		if (currentCommunity !== undefined) {
+			const removeEventPayload: CommunityEventAddPayload = {
+				community_id: currentCommunity.community_id,
+				event_id: eventId,
+			};
 			void runCommunityAction({
 				key: `remove-event:${eventId}`,
-				action: () =>
-					postJson(apiCommunityEventRemovePath, {
-						community_id: currentCommunity.community_id,
-						event_id: eventId,
-					}),
+				action: () => postJson(apiCommunityEventRemovePath, removeEventPayload),
 				successMessage: "Event removed successfully",
 				setActionState,
 				refreshFn: refreshCommunity,
@@ -180,13 +189,13 @@ export default function createCommunityManageHandlers(
 	function onAddSongClick(): void {
 		if (currentCommunity !== undefined && addSongIdInput !== undefined && addSongIdInput !== "") {
 			void (async (): Promise<void> => {
+				const addSongPayload: CommunitySongAddPayload = {
+					community_id: currentCommunity.community_id,
+					song_id: addSongIdInput,
+				};
 				await runCommunityAction({
 					key: "add-song",
-					action: () =>
-						postJson(apiCommunitySongAddPath, {
-							community_id: currentCommunity.community_id,
-							song_id: addSongIdInput,
-						}),
+					action: () => postJson(apiCommunitySongAddPath, addSongPayload),
 					successMessage: "Song added successfully",
 					setActionState,
 					refreshFn: refreshCommunity,
@@ -204,13 +213,13 @@ export default function createCommunityManageHandlers(
 	 */
 	function onRemoveSongClick(songId: string): void {
 		if (currentCommunity !== undefined) {
+			const removeSongPayload: CommunitySongAddPayload = {
+				community_id: currentCommunity.community_id,
+				song_id: songId,
+			};
 			void runCommunityAction({
 				key: `remove-song:${songId}`,
-				action: () =>
-					postJson(apiCommunitySongRemovePath, {
-						community_id: currentCommunity.community_id,
-						song_id: songId,
-					}),
+				action: () => postJson(apiCommunitySongRemovePath, removeSongPayload),
 				successMessage: "Song removed successfully",
 				setActionState,
 				refreshFn: refreshCommunity,
@@ -230,13 +239,13 @@ export default function createCommunityManageHandlers(
 			addPlaylistIdInput !== ""
 		) {
 			void (async (): Promise<void> => {
+				const addPlaylistPayload: CommunityPlaylistAddPayload = {
+					community_id: currentCommunity.community_id,
+					playlist_id: addPlaylistIdInput,
+				};
 				await runCommunityAction({
 					key: "add-playlist",
-					action: () =>
-						postJson(apiCommunityPlaylistAddPath, {
-							community_id: currentCommunity.community_id,
-							playlist_id: addPlaylistIdInput,
-						}),
+					action: () => postJson(apiCommunityPlaylistAddPath, addPlaylistPayload),
 					successMessage: "Playlist added successfully",
 					setActionState,
 					refreshFn: refreshCommunity,
@@ -254,13 +263,13 @@ export default function createCommunityManageHandlers(
 	 */
 	function onRemovePlaylistClick(playlistId: string): void {
 		if (currentCommunity !== undefined) {
+			const removePlaylistPayload: CommunityPlaylistAddPayload = {
+				community_id: currentCommunity.community_id,
+				playlist_id: playlistId,
+			};
 			void runCommunityAction({
 				key: `remove-playlist:${playlistId}`,
-				action: () =>
-					postJson(apiCommunityPlaylistRemovePath, {
-						community_id: currentCommunity.community_id,
-						playlist_id: playlistId,
-					}),
+				action: () => postJson(apiCommunityPlaylistRemovePath, removePlaylistPayload),
 				successMessage: "Playlist removed successfully",
 				setActionState,
 				refreshFn: refreshCommunity,
@@ -276,13 +285,13 @@ export default function createCommunityManageHandlers(
 	 * @returns void
 	 */
 	function onReviewShareRequestClick(requestId: string, status: "accepted" | "rejected"): void {
+		const reviewPayload: CommunityShareRequestUpdateStatusPayload = {
+			request_id: requestId,
+			status,
+		};
 		void runCommunityAction({
 			key: `review-share-request:${requestId}:${status}`,
-			action: () =>
-				postJson(apiCommunityShareRequestUpdateStatusPath, {
-					request_id: requestId,
-					status,
-				}),
+			action: () => postJson(apiCommunityShareRequestUpdateStatusPath, reviewPayload),
 			successMessage:
 				status === "accepted" ? "Share request accepted successfully" : "Share request rejected",
 			setActionState,
@@ -298,13 +307,13 @@ export default function createCommunityManageHandlers(
 	 */
 	function onSetActiveEventClick(eventId: string | undefined): void {
 		if (currentCommunity !== undefined) {
+			const activeEventPayload: CommunitySetActiveEventPayload = {
+				community_id: currentCommunity.community_id,
+				...(eventId === undefined ? {} : { event_id: eventId }),
+			};
 			void runCommunityAction({
 				key: `set-active-event:${eventId ?? "unset"}`,
-				action: () =>
-					postJson(apiCommunitySetActiveEventPath, {
-						community_id: currentCommunity.community_id,
-						...(eventId === undefined ? {} : { event_id: eventId }),
-					}),
+				action: () => postJson(apiCommunitySetActiveEventPath, activeEventPayload),
 				successMessage:
 					eventId === undefined ? "Active event cleared" : "Active event set successfully",
 				setActionState,
@@ -322,13 +331,13 @@ export default function createCommunityManageHandlers(
 	function onKickClick(userId: string): void {
 		if (currentCommunity !== undefined) {
 			const isInvited = members.find((member) => member.user_id === userId)?.status === "invited";
+			const kickPayload: CommunityUserKickPayload = {
+				community_id: currentCommunity.community_id,
+				user_id: userId,
+			};
 			void runCommunityAction({
 				key: `kick:${userId}`,
-				action: () =>
-					postJson(apiCommunityUserKickPath, {
-						community_id: currentCommunity.community_id,
-						user_id: userId,
-					}),
+				action: () => postJson(apiCommunityUserKickPath, kickPayload),
 				successMessage: isInvited ? "Invitation cancelled" : "Member kicked successfully",
 				setActionState,
 				refreshFn: refreshCommunity,

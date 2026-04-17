@@ -354,10 +354,24 @@ function renderHarnessWithParticipants(
 	participants: EventParticipant[],
 	initialEntries: string[] = [INITIAL_EVENT_ROUTE],
 ): void {
+	const activeSongId = "song-1";
+	const seededSong = forceCast<Record<string, unknown>>({
+		song_name: "",
+		lyrics: "lyrics",
+		script: "script",
+		translations: ["enTranslation"],
+		// leave slide_order undefined so total slides remain zero in derived state
+	});
+
 	prepareStore({
 		currentEvent: makeCurrentEvent({
 			participants,
+			public: forceCast<NonNullable<ReturnType<typeof makeCurrentEvent>["public"]>>({
+				...makeCurrentEvent().public,
+				active_song_id: activeSongId,
+			}),
 		}),
+		publicSongs: { [activeSongId]: seededSong } as Record<string, unknown>,
 	});
 	vi.mocked(useCurrentUserId).mockReturnValue(USER_ID);
 	cleanup();

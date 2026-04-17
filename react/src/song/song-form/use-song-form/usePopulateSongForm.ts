@@ -15,7 +15,6 @@ import { safeGet } from "@/shared/utils/safe";
 import computeSlideOrder from "../slides-editor/computeSlideOrder";
 import computeSlides from "../slides-editor/computeSlides";
 import type { Slide, SongFormValues } from "../song-form-types";
-import computeFieldsArray from "./computeFieldsArray";
 import setFieldValue from "./setFieldValue";
 
 const DOM_READY_TIMEOUT_MS = 100;
@@ -31,18 +30,17 @@ type UsePopulateSongFormParams = {
 	readonly formRef: React.RefObject<HTMLFormElement | null>;
 	readonly songNameRef: React.RefObject<HTMLInputElement | null>;
 	readonly songSlugRef: React.RefObject<HTMLInputElement | null>;
-	readonly fields: readonly string[];
 	readonly setIsLoadingData: (loading: boolean) => void;
 	readonly setFormValuesState: React.Dispatch<React.SetStateAction<SongFormValues>>;
 	readonly setSlideOrder: (order: readonly string[]) => void;
 	readonly setSlides: (slides: Readonly<Record<string, Slide>>) => void;
-	readonly toggleField: (field: string, checked: boolean) => void;
 	readonly initialSlideId: string;
 };
 
 /**
  * Hook that populates the form when song data becomes available.
- * Handles ownership checks, form value population, and slide/field updates.
+ * Handles ownership checks, form value population (including `lyrics` and
+ * `script` language codes), and slide updates.
  *
  * @param songId - Optional song id being edited
  * @param publicSongs - Map of public song payloads used to populate public fields
@@ -53,12 +51,10 @@ type UsePopulateSongFormParams = {
  * @param formRef - Ref to the HTML form element for DOM value syncing
  * @param songNameRef - Ref to the song name input element
  * @param songSlugRef - Ref to the song slug input element
- * @param fields - Currently enabled form fields array
  * @param setIsLoadingData - Setter to toggle loading spinner state
  * @param setFormValuesState - Setter for controlled form values state
  * @param setSlideOrder - Setter to update slide order array
  * @param setSlides - Setter to replace the slides map
- * @param toggleField - Handler to enable/disable a field
  * @param initialSlideId - Initial slide id used as fallback when no slides present
  * @returns void
  */
@@ -72,12 +68,10 @@ export default function usePopulateSongForm({
 	formRef,
 	songNameRef,
 	songSlugRef,
-	fields,
 	setIsLoadingData,
 	setFormValuesState,
 	setSlideOrder,
 	setSlides,
-	toggleField,
 	initialSlideId,
 }: UsePopulateSongFormParams): void {
 	const navigate = useNavigate();
@@ -85,31 +79,18 @@ export default function usePopulateSongForm({
 	// Populate form state when song data becomes available and verify ownership
 	useEffect(() => {
 		if (songId === undefined || songId.trim() === "") {
-			// If not editing, ensure loading is false
 			setIsLoadingData(false);
 			return;
 		}
 
-		// Only populate if fetch has completed (or if we're not currently fetching)
-		// This ensures we only use fresh data from the completed fetch
 		if (isFetching) {
-			// Still fetching - wait for it to complete
-			// The effect will re-run when isFetching transitions to false
 			return;
 		}
-
-		// Note: We don't check formRef.current here because the form might not be rendered yet
-		// (it's hidden behind the spinner). We'll check it only when needed for DOM updates.
 
 		const songPublic = safeGet(publicSongs, songId);
 		const songPrivate = safeGet(privateSongs, songId);
 
-		// Only require private song to be loaded (it's needed for private_notes)
-		// Public song may fail to decode, but we can still populate what we can
 		if (songPrivate === undefined) {
-			// Data not ready yet, keep loading state true and wait
-			// The effect will re-run when privateSongs updates
-			// Set a fallback timeout to prevent spinner from being stuck forever
 			const fallbackTimeout = setTimeout((): void => {
 				setIsLoadingData(false);
 			}, FALLBACK_TIMEOUT_MS);
@@ -119,17 +100,14 @@ export default function usePopulateSongForm({
 		}
 
 		// CRITICAL: Check ownership before allowing edit access
-		// If the song's user_id doesn't match the current user, redirect to dashboard
 		if (isRecord(songPublic) && currentUserId !== undefined) {
 			const songUserId = songPublic["user_id"];
 			if (isString(songUserId) && songUserId !== currentUserId) {
-				// User doesn't own this song - redirect to dashboard with alert
 				try {
 					sessionStorage.setItem(justUnauthorizedAccessKey, SIGNAL_ONE);
 				} catch {
 					// ignore storage errors
 				}
-				// Get current language from pathname for navigation
 				const PATH_SEGMENT_INDEX = 1;
 				const currentLang =
 					typeof globalThis === "undefined"
@@ -142,24 +120,28 @@ export default function usePopulateSongForm({
 			}
 		}
 
-		// If we've already populated, we're done (subsequent updates handled by realtime subscriptions)
 		if (hasPopulatedRef.current) {
 			setIsLoadingData(false);
 			return;
 		}
 
-		// First time populating after fetch - this is guaranteed to be fresh data
-		// because fetchInitiatedRef was set BEFORE the fetch, so any data arriving
-		// now must be from the fresh fetch
 		hasPopulatedRef.current = true;
 
-		// Update controlled form values immediately when data is available
-		// Public song has song_name, song_slug, etc. Private song only has private_notes
+		// Update controlled form values from song data, including language fields
 		if (isRecord(songPublic)) {
-			// Update form values state from public song data
+			const lyrics = isString(songPublic["lyrics"]) ? songPublic["lyrics"] : defaultLanguage;
+			const script = isString(songPublic["script"]) ? songPublic["script"] : undefined;
+			const rawTranslations = songPublic["translations"];
+			const translations: readonly string[] = Array.isArray(rawTranslations)
+				? rawTranslations.filter((value): value is string => isString(value))
+				: [];
+
 			const newFormValues: SongFormValues = {
 				song_name: isString(songPublic["song_name"]) ? songPublic["song_name"] : "",
 				song_slug: isString(songPublic["song_slug"]) ? songPublic["song_slug"] : "",
+				lyrics,
+				script,
+				translations,
 				key: isSongKey(songPublic["key"]) ? songPublic["key"] : "",
 				short_credit: isString(songPublic["short_credit"]) ? songPublic["short_credit"] : "",
 				long_credit: isString(songPublic["long_credit"]) ? songPublic["long_credit"] : "",
@@ -173,7 +155,6 @@ export default function usePopulateSongForm({
 			};
 			setFormValuesState(newFormValues);
 		} else if (isRecord(songPrivate) && "private_notes" in songPrivate) {
-			// If no public song, at least set private notes if available
 			const privateNotes = songPrivate["private_notes"];
 			if (isString(privateNotes)) {
 				setFormValuesState((prev) => ({
@@ -183,19 +164,14 @@ export default function usePopulateSongForm({
 			}
 		}
 
-		// Use requestAnimationFrame to ensure form is fully updated before showing
-		// This prevents flash of partially populated form
 		requestAnimationFrame(() => {
 			requestAnimationFrame(() => {
 				setIsLoadingData(false);
 			});
 		});
 
-		// Also update DOM elements for form submission compatibility
 		const timeoutId = setTimeout(() => {
-			// Only public song has song_name, song_slug, etc.
 			if (isRecord(songPublic) && formRef.current) {
-				// Access song_name safely
 				if ("song_name" in songPublic) {
 					const songName = songPublic["song_name"];
 					if (isString(songName)) {
@@ -206,7 +182,6 @@ export default function usePopulateSongForm({
 					}
 				}
 
-				// Access song_slug safely
 				if ("song_slug" in songPublic) {
 					const songSlug = songPublic["song_slug"];
 					if (isString(songSlug)) {
@@ -247,7 +222,6 @@ export default function usePopulateSongForm({
 				}
 			}
 
-			// Populate private_notes from songPrivate
 			if (isRecord(songPrivate) && "private_notes" in songPrivate && formRef.current) {
 				const privateNotes = songPrivate["private_notes"];
 				if (isString(privateNotes)) {
@@ -259,30 +233,11 @@ export default function usePopulateSongForm({
 			}
 		}, DOM_READY_TIMEOUT_MS);
 
-		// Populate slides and fields from songPublic (only public song has this data)
+		// Populate slides from songPublic
 		if (isRecord(songPublic)) {
-			// Compute and apply fields
-			const fieldsArray = computeFieldsArray(songPublic);
-			const allPossibleFields = ["lyrics", "script", "enTranslation"];
-			for (const field of allPossibleFields) {
-				if (typeof field === "string") {
-					const shouldBeEnabled = fieldsArray.includes(field);
-					const isCurrentlyEnabled = fields.includes(field);
-					if (shouldBeEnabled !== isCurrentlyEnabled) {
-						toggleField(field, shouldBeEnabled);
-					}
-				}
-			}
-
-			// Slide order
 			setSlideOrder(computeSlideOrder(songPublic));
-
-			// Slides
 			setSlides(computeSlides(songPublic));
 		}
-
-		// Note: isLoadingData is already set to false above after populating form values
-		// This ensures the form only shows after all data (including slides) is populated
 
 		/**
 		 * Cleanup side-effects scheduled by this effect (timeouts).
@@ -299,8 +254,6 @@ export default function usePopulateSongForm({
 		privateSongs,
 		setSlideOrder,
 		setSlides,
-		toggleField,
-		fields,
 		currentUserId,
 		navigate,
 		setIsLoadingData,

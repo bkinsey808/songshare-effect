@@ -4,15 +4,11 @@ import { Effect, Schema } from "effect";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import { communityUserKickSchema } from "@/shared/validation/communitySchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import getCommunityRoleCapabilities from "./getCommunityRoleCapabilities";
-
-const CommunityUserKickSchema = Schema.Struct({
-	community_id: Schema.String,
-	user_id: Schema.String,
-});
 
 /**
  * Server-side handler for kicking a user from a community.
@@ -35,7 +31,7 @@ export default function communityUserKick(
 		);
 
 		const { community_id, user_id } = yield* $(
-			Schema.decodeUnknown(CommunityUserKickSchema)(body).pipe(
+			Schema.decodeUnknown(communityUserKickSchema)(body).pipe(
 				Effect.mapError(
 					() => new ValidationError({ message: "community_id and user_id are required" }),
 				),

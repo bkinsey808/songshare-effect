@@ -7,6 +7,9 @@ import useInitialFormState from "./useInitialFormState";
 const DEFAULT_FORM_VALUES: SongFormValues = {
 	song_name: "Test",
 	song_slug: "test",
+	lyrics: "en",
+	script: undefined,
+	translations: [],
 	key: "",
 	short_credit: "",
 	long_credit: "",
@@ -16,7 +19,6 @@ const DEFAULT_FORM_VALUES: SongFormValues = {
 
 const DEFAULT_FORM_STATE = {
 	formValues: DEFAULT_FORM_VALUES,
-	fields: ["lyrics"] as readonly string[],
 	slideOrder: ["slide-1"] as readonly string[],
 	tags: [] as readonly string[],
 	slides: {
@@ -38,7 +40,7 @@ describe("useInitialFormState", () => {
 			useInitialFormState({
 				songId: undefined,
 				formValues: DEFAULT_FORM_STATE.formValues,
-				fields: DEFAULT_FORM_STATE.fields,
+
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
 				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
@@ -55,7 +57,7 @@ describe("useInitialFormState", () => {
 			expect(setInitialState).toHaveBeenCalledWith(
 				expect.objectContaining({
 					formValues: DEFAULT_FORM_STATE.formValues,
-					fields: DEFAULT_FORM_STATE.fields,
+	
 					slideOrder: DEFAULT_FORM_STATE.slideOrder,
 					tags: DEFAULT_FORM_STATE.tags,
 				}),
@@ -76,7 +78,7 @@ describe("useInitialFormState", () => {
 			useInitialFormState({
 				songId: undefined,
 				formValues: DEFAULT_FORM_STATE.formValues,
-				fields: DEFAULT_FORM_STATE.fields,
+
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
 				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
@@ -107,7 +109,7 @@ describe("useInitialFormState", () => {
 			useInitialFormState({
 				songId: "song-123",
 				formValues: DEFAULT_FORM_STATE.formValues,
-				fields: DEFAULT_FORM_STATE.fields,
+
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
 				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,
@@ -147,7 +149,7 @@ describe("useInitialFormState", () => {
 			useInitialFormState({
 				songId: undefined,
 				formValues: DEFAULT_FORM_STATE.formValues,
-				fields: DEFAULT_FORM_STATE.fields,
+
 				slideOrder: DEFAULT_FORM_STATE.slideOrder,
 				tags: DEFAULT_FORM_STATE.tags,
 				slides: DEFAULT_FORM_STATE.slides,

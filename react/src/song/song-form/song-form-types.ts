@@ -17,6 +17,9 @@ export type Slide = Readonly<{
 export type SongFormValues = {
 	song_name: string;
 	song_slug: string;
+	lyrics: string;
+	script: string | undefined;
+	translations: readonly string[];
 	key: SongKey | "";
 	short_credit: string;
 	long_credit: string;
@@ -30,7 +33,6 @@ export type GetFieldError = (
 
 export type FormState = {
 	formValues: SongFormValues;
-	fields: readonly string[];
 	slideOrder: readonly string[];
 	tags: readonly string[];
 	slides: Record<string, Slide>;
@@ -40,12 +42,12 @@ export type UseSongFormReturn = {
 	getFieldError: GetFieldError;
 	isSubmitting: boolean;
 	isLoadingData: boolean;
+	submitError: string | undefined;
 	slideOrder: readonly string[];
 	slides: Record<string, Slide>;
 	fields: readonly string[];
 	setSlideOrder: (newOrder: readonly string[]) => void;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
-	toggleField: (field: string, checked: boolean) => void;
 
 	handleFormSubmit: (formElement: HTMLFormElement | null) => Promise<void>;
 	formRef: React.RefObject<HTMLFormElement | null>;

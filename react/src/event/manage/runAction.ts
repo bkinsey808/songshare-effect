@@ -1,3 +1,5 @@
+import { Effect } from "effect";
+
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 import type { ActionState } from "./ActionState.type";
@@ -9,8 +11,7 @@ import type { ActionState } from "./ActionState.type";
  * @param actionKey - key used in `ActionState` to track the current
  *   operation
  * @param successMessage - message to display on successful completion
- * @param action - async function performing the operation (API call,
- *   etc.)
+ * @param action - effect performing the operation (API call, etc.)
  * @param setActionState - setter returned by `useState<ActionState>`
  * @param refreshFn - function to call when the event should be refreshed
  * @returns void
@@ -24,7 +25,7 @@ export default async function runAction({
 }: {
 	actionKey: string;
 	successMessage: string;
-	action: () => Promise<void>;
+	action: () => Effect.Effect<void, Error>;
 	setActionState: (state: ActionState) => void;
 	refreshFn: () => Promise<void>;
 }): Promise<void> {
@@ -35,7 +36,7 @@ export default async function runAction({
 		setActionState({ loadingKey: actionKey, error: undefined, success: undefined });
 	}
 	try {
-		await action();
+		await Effect.runPromise(action());
 		if (shouldRefreshEvent) {
 			await refreshFn();
 		}

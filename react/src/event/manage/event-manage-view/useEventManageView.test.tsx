@@ -202,7 +202,7 @@ describe("useEventManageState", () => {
 		installEventStoreMocks({ currentEvent: event, currentUserId: "u1" });
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 		const mockPostJson = vi.mocked(postJson);
-		mockPostJson.mockResolvedValue();
+		mockPostJson.mockReturnValue(Effect.succeed(undefined));
 
 		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		result.current.updateActivePlaylist("playlist-123");
@@ -230,7 +230,7 @@ describe("useEventManageState", () => {
 		installEventStoreMocks({ currentEvent: event, currentUserId: "u1" });
 		vi.mocked(useCurrentLang).mockReturnValue("en");
 		const mockPostJson = vi.mocked(postJson);
-		mockPostJson.mockResolvedValue();
+		mockPostJson.mockReturnValue(Effect.succeed(undefined));
 
 		const { result } = renderHook(() => useEventManageView(), { wrapper: RouterWrapper });
 		result.current.updateActiveSong("song-abc");

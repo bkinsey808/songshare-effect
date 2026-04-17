@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
-import { mockExtractErrorMessage } from "@/react/lib/test-utils/mockExtractErrorMessage";
+import { mockExtractErrorMessage } from "@/react/lib/test-utils/mockExtractErrorMessage.test-util";
 import mockFetchResponse from "@/react/lib/test-utils/mockFetchResponse";
 
 import saveItemTagsEffect from "./saveItemTagsRequest";

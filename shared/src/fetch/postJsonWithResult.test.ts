@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import promiseResolved, { promiseRejected } from "@/shared/test-utils/promiseResolved.test-util";
@@ -23,7 +24,7 @@ describe("postJsonWithResult", () => {
 		);
 		try {
 			// Act
-			const result = await postJsonWithResult<typeof data>(PATH, BODY);
+			const result = await Effect.runPromise(postJsonWithResult<typeof data>(PATH, BODY));
 
 			// Assert
 			expect(result).toStrictEqual(data);
@@ -51,7 +52,7 @@ describe("postJsonWithResult", () => {
 		);
 		try {
 			// Act
-			const result = await postJsonWithResult<{ count: number }>(PATH, BODY);
+			const result = await Effect.runPromise(postJsonWithResult<{ count: number }>(PATH, BODY));
 
 			// Assert
 			expect(result).toStrictEqual({ count: 3 });
@@ -74,7 +75,7 @@ describe("postJsonWithResult", () => {
 		);
 		try {
 			// Assert
-			await expect(postJsonWithResult(PATH, BODY)).rejects.toThrow("Bad request message");
+			await expect(Effect.runPromise(postJsonWithResult(PATH, BODY))).rejects.toThrow("Bad request message");
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
 		}
@@ -94,7 +95,7 @@ describe("postJsonWithResult", () => {
 		);
 		try {
 			// Assert
-			await expect(postJsonWithResult(PATH, BODY)).rejects.toThrow(plainText);
+			await expect(Effect.runPromise(postJsonWithResult(PATH, BODY))).rejects.toThrow(plainText);
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
 		}
@@ -113,7 +114,7 @@ describe("postJsonWithResult", () => {
 		);
 		try {
 			// Assert
-			await expect(postJsonWithResult(PATH, BODY)).rejects.toThrow(/Request failed \(500\)/);
+			await expect(Effect.runPromise(postJsonWithResult(PATH, BODY))).rejects.toThrow(/Request failed \(500\)/);
 		} finally {
 			vi.stubGlobal("fetch", originalFetch);
 		}

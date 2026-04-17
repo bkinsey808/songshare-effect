@@ -9,6 +9,7 @@ describe("songSchema", () => {
 		it("has expected field names", () => {
 			expect(songFormFields).toContain("song_id");
 			expect(songFormFields).toContain("song_name");
+			expect(songFormFields).toContain("translations");
 			expect(songFormFields).toContain("key");
 			expect(songFormFields).toContain("tags");
 			expect(songFormFields).toContain("slides");
@@ -49,8 +50,9 @@ describe("songSchema", () => {
 			const input = {
 				song_name: "My Song",
 				song_slug: "my-song",
+				lyrics: "en",
+				translations: ["es"],
 				key: "Bb",
-				fields: ["verse", "chorus"],
 				slide_order: ["s1", "s2"],
 				tags: ["worship", "fast"],
 				slides: { s1: { slide_name: "Verse", field_data: {} } },
@@ -58,20 +60,41 @@ describe("songSchema", () => {
 
 			const result = decodeUnknownSyncOrThrow(songFormSchema, input);
 
-			expect(result.song_name).toBe("My Song");
-			expect(result.song_slug).toBe("my-song");
-			expect(result.key).toBe("Bb");
-			expect(result.slide_order).toStrictEqual(["s1", "s2"]);
-			expect(result.tags).toStrictEqual(["worship", "fast"]);
-			expect(result.slides["s1"]?.slide_name).toBe("Verse");
+			expect(result).toMatchObject({
+				song_name: "My Song",
+				song_slug: "my-song",
+				translations: ["es"],
+				key: "Bb",
+				slide_order: ["s1", "s2"],
+				tags: ["worship", "fast"],
+				slides: {
+					s1: {
+						slide_name: "Verse",
+					},
+				},
+			});
+		});
+
+		it("throws when lyrics is not a valid language code", () => {
+			const input = {
+				song_name: "My Song",
+				song_slug: "my-song",
+				lyrics: "",
+				translations: [],
+				slide_order: [],
+				slides: {},
+			} as unknown;
+
+			expect(() => decodeUnknownSyncOrThrow(songFormSchema, input)).toThrow(/lyrics|language|decode/i);
 		});
 
 		it("throws when key is not in the allowed list", () => {
 			const input = {
 				song_name: "My Song",
 				song_slug: "my-song",
+				lyrics: "en",
+				translations: [],
 				key: "H",
-				fields: [],
 				slide_order: [],
 				slides: {},
 			} as unknown;
@@ -82,7 +105,8 @@ describe("songSchema", () => {
 		it("throws when song_name is missing", () => {
 			const input = {
 				song_slug: "slug",
-				fields: [],
+				lyrics: "en",
+				translations: [],
 				slide_order: [],
 				slides: {},
 			} as unknown;

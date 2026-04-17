@@ -46,7 +46,10 @@ export default function useSongFormValues({
 		setFormValuesState((previousValues) => ({ ...previousValues, [field]: value }));
 		// React will update the DOM automatically via the value prop.
 		// We also write through to the form element so FormData sees the latest value.
-		if (formRef.current) {
+		if (
+			formRef.current &&
+			(typeof value === "string" || value === undefined)
+		) {
 			setFieldValue(formRef.current, field, value);
 		}
 	}

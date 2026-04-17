@@ -20,6 +20,24 @@ vi.mock("@/api/user-session/getVerifiedSession");
 const SAMPLE_USER_ID = TEST_USER_ID;
 const EMPTY_ROWS: [] = [];
 
+/**
+ * Build a minimally valid song-save request body for tests.
+ *
+ * @param overrides - Per-test field overrides
+ * @returns Song form payload including required language fields
+ */
+function makeSongBody(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+	return {
+		song_name: "n",
+		song_slug: "s",
+		lyrics: "en",
+		translations: [],
+		slide_order: [],
+		slides: {},
+		...overrides,
+	};
+}
+
 describe("songSave handler", () => {
 	const SAMPLE_SESSION: UserSessionData = makeUserSessionData({
 		user: {
@@ -51,7 +69,7 @@ describe("songSave handler", () => {
 	it("fails when required fields are missing", async () => {
 		// Arrange
 		initDefaultMocks();
-		const ctx = makeCtx({ body: { song_slug: "s" } });
+		const ctx = makeCtx({ body: { song_slug: "s", translations: [] } });
 
 		// Act & Assert: validation error
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/is missing/);
@@ -68,9 +86,7 @@ describe("songSave handler", () => {
 	it("creates a new song successfully", async () => {
 		// Arrange
 		initDefaultMocks();
-		const ctx = makeCtx({
-			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
-		});
+		const ctx = makeCtx({ body: makeSongBody() });
 
 		const fake = makeSupabaseClient({
 			songInsertRows: [{ song_id: "new", user_id: SAMPLE_USER_ID }],
@@ -88,14 +104,7 @@ describe("songSave handler", () => {
 	it("persists an allowed key when creating a song", async () => {
 		initDefaultMocks();
 		const ctx = makeCtx({
-			body: {
-				song_name: "n",
-				song_slug: "s",
-				key: "Bb",
-				fields: [],
-				slide_order: [],
-				slides: {},
-			},
+			body: makeSongBody({ key: "Bb" }),
 		});
 
 		const songPublicInsert = vi.fn((rows: unknown[]) => {
@@ -158,14 +167,7 @@ describe("songSave handler", () => {
 		// Arrange
 		initDefaultMocks();
 		const ctx = makeCtx({
-			body: {
-				song_id: "old",
-				song_name: "n",
-				song_slug: "s",
-				fields: [],
-				slide_order: [],
-				slides: {},
-			},
+			body: makeSongBody({ song_id: "old" }),
 		});
 
 		const fake = makeSupabaseClient({
@@ -181,14 +183,7 @@ describe("songSave handler", () => {
 		// Arrange
 		initDefaultMocks();
 		const ctx = makeCtx({
-			body: {
-				song_id: "old",
-				song_name: "n",
-				song_slug: "s",
-				fields: [],
-				slide_order: [],
-				slides: {},
-			},
+			body: makeSongBody({ song_id: "old" }),
 		});
 
 		const fake = makeSupabaseClient({
@@ -209,13 +204,7 @@ describe("songSave handler", () => {
 		// Arrange
 		initDefaultMocks();
 		const ctx = makeCtx({
-			body: {
-				song_name: "n",
-				song_slug: "duplicate-slug",
-				fields: [],
-				slide_order: [],
-				slides: {},
-			},
+			body: makeSongBody({ song_slug: "duplicate-slug" }),
 		});
 
 		const fake = makeSupabaseClient({
@@ -247,13 +236,7 @@ describe("songSave handler", () => {
 		// Arrange
 		initDefaultMocks();
 		const ctx = makeCtx({
-			body: {
-				song_name: "n",
-				song_slug: "s",
-				fields: [],
-				slide_order: [],
-				slides: "not-an-object",
-			},
+			body: makeSongBody({ slides: "not-an-object" }),
 		});
 
 		// Act & Assert
@@ -263,14 +246,7 @@ describe("songSave handler", () => {
 	it("rejects a key outside the allowed list", async () => {
 		initDefaultMocks();
 		const ctx = makeCtx({
-			body: {
-				song_name: "n",
-				song_slug: "s",
-				key: "H",
-				fields: [],
-				slide_order: [],
-				slides: {},
-			},
+			body: makeSongBody({ key: "H" }),
 		});
 
 		await expect(Effect.runPromise(songSave(ctx))).rejects.toThrow(/key|Expected|Validation/i);
@@ -279,9 +255,7 @@ describe("songSave handler", () => {
 	it("fails when private insert errors", async () => {
 		// Arrange
 		initDefaultMocks();
-		const ctx = makeCtx({
-			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
-		});
+		const ctx = makeCtx({ body: makeSongBody() });
 
 		const fake = makeSupabaseClient({
 			songInsertError: { message: "oops" },
@@ -295,9 +269,7 @@ describe("songSave handler", () => {
 	it("fails when public insert errors and cleans up", async () => {
 		// Arrange
 		initDefaultMocks();
-		const ctx = makeCtx({
-			body: { song_name: "n", song_slug: "s", fields: [], slide_order: [], slides: {} },
-		});
+		const ctx = makeCtx({ body: makeSongBody() });
 
 		const fake = makeSupabaseClient({
 			songInsertRows: [{ song_id: "new" }],
@@ -327,15 +299,10 @@ describe("songSave handler", () => {
 	it("fails when song tag persistence fails during save", async () => {
 		// Arrange
 		const ctx = makeCtx({
-			body: {
+			body: makeSongBody({
 				song_id: "old",
-				song_name: "n",
-				song_slug: "s",
-				fields: [],
-				slide_order: [],
-				slides: {},
 				tags: ["live-tag"],
-			},
+			}),
 		});
 
 		const fake = makeSupabaseClient({

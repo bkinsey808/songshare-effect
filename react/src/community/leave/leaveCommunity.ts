@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import rejectAcceptedSharesForItem from "@/react/share/effects/rejectAcceptedSharesForItem";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserRemovePath } from "@/shared/paths";
+import { type CommunityUserRemovePayload } from "@/shared/validation/communitySchemas";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
@@ -30,12 +31,8 @@ export default function leaveCommunity(
 		}
 		setCommunityError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () => postJson(apiCommunityUserRemovePath, { community_id: communityId }),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityUserRemovePayload = { community_id: communityId };
+		yield* $(postJson(apiCommunityUserRemovePath, payload));
 
 		// Reject any accepted shares for this community (non-fatal)
 		yield* $(

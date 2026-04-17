@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import forceCast from "@/react/lib/test-utils/forceCast";
+import postJson from "@/shared/fetch/postJson";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 
 import runAction from "../runAction";
@@ -18,6 +19,7 @@ vi.mock("../refreshEvent");
 
 const mockedUseAppStore = vi.mocked(useAppStore);
 const mockedRunAction = vi.mocked(runAction);
+const mockedPostJson = vi.mocked(postJson);
 
 // Store slices accessed by this hook — used to build a typed mock state.
 const mockFetchUserLibrary = vi.fn(() => Effect.sync(() => undefined));
@@ -139,11 +141,12 @@ describe("useEventParticipantManagement — Harness", () => {
 	it("invite button runs runAction with actionKey invite and clears the input", async () => {
 		cleanup();
 		mockedRunAction.mockReset();
+		mockedPostJson.mockReturnValue(Effect.succeed(undefined));
 		installStore();
 
 		// Execute the action the hook passes so state updates propagate.
 		mockedRunAction.mockImplementation(async (opts: RunOpts) => {
-			await opts.action();
+			await Effect.runPromise(opts.action());
 		});
 
 		const rendered = render(<Harness currentEventId={EVT_ID} event_slug={EVENT_SLUG} />);
@@ -171,7 +174,7 @@ describe("useEventParticipantManagement — Harness", () => {
 		installStore();
 
 		mockedRunAction.mockImplementation(async (opts: RunOpts) => {
-			await opts.action();
+			await Effect.runPromise(opts.action());
 		});
 
 		const rendered = render(<Harness currentEventId={EVT_ID} event_slug={EVENT_SLUG} />);
@@ -243,9 +246,10 @@ describe("useEventParticipantManagement", () => {
 
 	it("calls runAction with actionKey invite and clears inviteUserIdInput when action runs", async () => {
 		mockedRunAction.mockReset();
+		mockedPostJson.mockReturnValue(Effect.succeed(undefined));
 		installStore();
 		mockedRunAction.mockImplementation(async (opts: RunOpts) => {
-			await opts.action();
+			await Effect.runPromise(opts.action());
 		});
 
 		const { result } = renderHook(() =>
@@ -277,7 +281,7 @@ describe("useEventParticipantManagement", () => {
 		mockedRunAction.mockReset();
 		installStore();
 		mockedRunAction.mockImplementation(async (opts: RunOpts) => {
-			await opts.action();
+			await Effect.runPromise(opts.action());
 		});
 
 		const { result } = renderHook(() =>

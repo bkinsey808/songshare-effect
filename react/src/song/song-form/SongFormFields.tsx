@@ -7,6 +7,8 @@ import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
 import TagInput from "@/react/tag/input/TagInput";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
+import LanguagePicker from "./language-picker/LanguagePicker";
+import TranslationLanguagePicker from "./language-picker/TranslationLanguagePicker";
 import SongKeyFormField from "./SongKeyFormField";
 
 type SongFormFieldsProps = Readonly<{
@@ -14,9 +16,12 @@ type SongFormFieldsProps = Readonly<{
 		fieldName: keyof {
 			song_name: string;
 			song_slug: string;
+			lyrics: string;
+			script?: string;
 			key?: SongKey;
 			short_credit?: string;
 			long_credit?: string;
+			translations: readonly string[];
 		},
 	) => { message: string; params?: Record<string, unknown> } | undefined;
 	onSongNameBlur: () => void;
@@ -25,6 +30,9 @@ type SongFormFieldsProps = Readonly<{
 	formValues: {
 		song_name: string;
 		song_slug: string;
+		lyrics: string;
+		script: string | undefined;
+		translations: readonly string[];
 		key: SongKey | "";
 		short_credit: string;
 		long_credit: string;
@@ -160,6 +168,80 @@ export default function SongFormFields({
 					name="song_slug"
 					value={formValues.song_slug}
 					onChange={handleSongSlugChange}
+				/>
+			</FormField>
+
+			<FormField
+				label={t("song.lyricsLanguage", "Lyrics Language")}
+				error={(() => {
+					const lyricsError = getFieldError("lyrics");
+					return lyricsError
+						? t(lyricsError.message, {
+								...lyricsError.params,
+								defaultValue: lyricsError.message,
+							})
+						: undefined;
+				})()}
+			>
+				<input type="hidden" name="lyrics" value={formValues.lyrics} />
+				<LanguagePicker
+					value={formValues.lyrics}
+					onChange={(code) => {
+						if (code !== undefined) {
+							setFormValue("lyrics", code);
+						}
+					}}
+					excludedCodes={formValues.script === undefined ? [] : [formValues.script]}
+				/>
+			</FormField>
+
+			<FormField
+				label={t("song.scriptLanguage", "Script Language")}
+				error={(() => {
+					const scriptError = getFieldError("script");
+					return scriptError
+						? t(scriptError.message, {
+								...scriptError.params,
+								defaultValue: scriptError.message,
+							})
+						: undefined;
+				})()}
+			>
+				{formValues.script === undefined ? undefined : (
+					<input type="hidden" name="script" value={formValues.script} />
+				)}
+				<LanguagePicker
+					value={formValues.script}
+					onChange={(code) => {
+						setFormValue("script", code);
+					}}
+					excludedCodes={[formValues.lyrics]}
+					optional
+					placeholder={t("song.languagePicker.none", "None")}
+				/>
+			</FormField>
+
+			<FormField
+				label={t("song.translationLanguages", "Translation Languages")}
+				error={(() => {
+					const translationsError = getFieldError("translations");
+					return translationsError
+						? t(translationsError.message, {
+								...translationsError.params,
+								defaultValue: translationsError.message,
+							})
+						: undefined;
+				})()}
+			>
+				<TranslationLanguagePicker
+					value={formValues.translations}
+					onChange={(codes) => {
+						setFormValue("translations", codes);
+					}}
+					excludedCodes={[
+						formValues.lyrics,
+						...(formValues.script === undefined ? [] : [formValues.script]),
+					]}
 				/>
 			</FormField>
 

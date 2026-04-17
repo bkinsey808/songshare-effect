@@ -1,11 +1,12 @@
 import { Effect } from "effect";
 import { useNavigate } from "react-router-dom";
 
-import type { Slide } from "@/react/song/song-schema";
+import type { SongFormValuesFromSchema as SongFormData } from "@/react/song/song-form/songSchema";
 import { apiSongsSavePath } from "@/shared/paths";
 import isRecord from "@/shared/type-guards/isRecord";
 
 const NAVIGATE_BACK = -1;
+const DEFAULT_SUBMIT_ERROR_MESSAGE = "Something went wrong. Please try again.";
 
 /**
  * Parse response JSON and call `onSaveSuccess` with `data` when present.
@@ -34,27 +35,18 @@ async function parseSaveResponseAndNotify(
 	}
 }
 
-type SongFormData = {
-	song_id?: string | undefined;
-	song_name: string;
-	song_slug: string;
-	short_credit?: string | undefined;
-	long_credit?: string | undefined;
-	private_notes?: string | undefined;
-	public_notes?: string | undefined;
-	fields: readonly string[];
-	slide_order: readonly string[];
-	slides: Record<string, Slide>;
-};
-
 type UseFormSubmissionOptions = {
 	readonly handleApiResponseEffect: (
 		response: Response,
-		onError: () => void,
+		onError: (message: string) => void,
 	) => Effect.Effect<boolean>;
 	readonly resetFormState: () => void;
 	/** Called with the API response body’s `data` when save succeeds. Use to update the store immediately. */
 	readonly onSaveSuccess?: (data: unknown) => void;
+	/** Called when a submit-level error should be surfaced to the user. */
+	readonly setSubmitError?: (message: string) => void;
+	/** Clears any previously visible submit-level error before a new attempt or after success. */
+	readonly clearSubmitError?: () => void;
 };
 
 type UseFormSubmissionReturn = {
@@ -69,14 +61,41 @@ type UseFormSubmissionReturn = {
  * @param handleApiResponseEffect - Effect-based response handler for API errors
  * @param resetFormState - Resets form state after successful save
  * @param onSaveSuccess - Optional callback invoked with API response `data` on success
+ * @param setSubmitError - Optional callback used to surface submit-level errors in the UI
+ * @param clearSubmitError - Optional callback used to clear a previous submit-level error
  * @returns Object with `onSubmit` and `handleCancel` handlers
  */
 export default function useFormSubmission({
 	handleApiResponseEffect,
 	resetFormState,
 	onSaveSuccess,
+	setSubmitError,
+	clearSubmitError,
 }: UseFormSubmissionOptions): UseFormSubmissionReturn {
 	const navigate = useNavigate();
+
+	/**
+	 * Clear any visible submit-level error if the caller provided a handler.
+	 *
+	 * @returns void
+	 */
+	function clearVisibleSubmitError(): void {
+		if (clearSubmitError !== undefined) {
+			clearSubmitError();
+		}
+	}
+
+	/**
+	 * Surface a submit-level error if the caller provided a handler.
+	 *
+	 * @param message - User-facing error message to display
+	 * @returns void
+	 */
+	function setVisibleSubmitError(message: string): void {
+		if (setSubmitError !== undefined) {
+			setSubmitError(message);
+		}
+	}
 
 	/**
 	 * Submit form data to the API and run the provided API response effect handler.
@@ -85,6 +104,8 @@ export default function useFormSubmission({
 	 * @returns Promise<void>
 	 */
 	async function onSubmit(rawData: Readonly<SongFormData>): Promise<void> {
+		clearVisibleSubmitError();
+
 		try {
 			const response = await fetch(apiSongsSavePath, {
 				method: "POST",
@@ -94,17 +115,19 @@ export default function useFormSubmission({
 			});
 
 			const isSuccess = await Effect.runPromise(
-				handleApiResponseEffect(response, () => {
-					// API error handler
+				handleApiResponseEffect(response, (message) => {
+					setVisibleSubmitError(message);
 				}),
 			);
 
 			if (isSuccess) {
+				clearVisibleSubmitError();
 				await parseSaveResponseAndNotify(response, onSaveSuccess);
 				resetFormState();
 				void navigate(NAVIGATE_BACK);
 			}
 		} catch (error) {
+			setVisibleSubmitError(DEFAULT_SUBMIT_ERROR_MESSAGE);
 			console.error("❌ Network error in onSubmit:", error);
 		}
 	}

@@ -1,7 +1,10 @@
+import { Effect } from "effect";
+
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
 /**
- * Perform an HTTP POST with a JSON body and throw when the response is not ok.
+ * Perform an HTTP POST with a JSON body and return an Effect that resolves
+ * when the request succeeds.
  *
  * This function performs network I/O via `fetch` and therefore is not pure.
  * It reads the response body and will attempt to parse JSON error information
@@ -9,35 +12,48 @@ import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
  *
  * @param path - Request path or full URL
  * @param body - Value to JSON.stringify and send as the request body
- * @returns Resolves when the request succeeds.
- * @throws Error - When the response is not ok or the request fails. The error
- *   message prefers parsed JSON error text when available,
- *   otherwise includes the HTTP status.
+ * @returns Effect that resolves when the request succeeds; fails with Error
+ *   when the response is not ok or the request fails. Error message prefers
+ *   parsed JSON error text when available, otherwise includes the HTTP status.
  */
-export default async function postJson(path: string, body: unknown): Promise<void> {
-	type RequestInitWithCredentials = RequestInit & { credentials?: string };
-	const init: RequestInitWithCredentials = {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		credentials: "include",
-		body: JSON.stringify(body),
-	};
+export default function postJson(path: string, body: unknown): Effect.Effect<void, Error> {
+	return Effect.gen(function* postJsonEffect() {
+		type RequestInitWithCredentials = RequestInit & { credentials?: string };
+		const init: RequestInitWithCredentials = {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			credentials: "include",
+			body: JSON.stringify(body),
+		};
 
-	const response = await fetch(path, init);
+		const response = yield* Effect.tryPromise({
+			try: () => fetch(path, init),
+			catch: (reason) =>
+				reason instanceof Error ? reason : new Error(String(reason)),
+		});
 
-	if (!response.ok) {
-		let errorText = "";
-		try {
-			errorText = await response.text();
+		if (!response.ok) {
+			let errorText = "";
 			try {
-				const json: unknown = JSON.parse(errorText);
-				errorText = extractErrorMessage(json, errorText);
+				errorText = yield* Effect.tryPromise({
+					try: () => response.text(),
+					catch: () =>
+						new Error(`Request failed (${response.status})`),
+				});
+				if (errorText) {
+					try {
+						const json: unknown = JSON.parse(errorText);
+						errorText = extractErrorMessage(json, errorText);
+					} catch {
+						// Not JSON, use as-is
+					}
+				}
 			} catch {
-				// Not JSON, use as-is
+				errorText = `Request failed (${response.status})`;
 			}
-		} catch {
-			errorText = `Request failed (${response.status})`;
+			yield* Effect.fail(
+				new Error(errorText === "" ? `Request failed (${response.status})` : errorText),
+			);
 		}
-		throw new Error(errorText === "" ? `Request failed (${response.status})` : errorText);
-	}
+	});
 }

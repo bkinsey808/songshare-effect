@@ -44,6 +44,9 @@ export const tagAddToItemSchema: Schema.Schema<
 	item_id: Schema.String,
 });
 
+/** Payload type for the tag add-to-item API endpoint. */
+export type TagAddToItemPayload = Schema.Schema.Type<typeof tagAddToItemSchema>;
+
 /**
  * Schema for removing a tag from an item (DELETE /api/tags/remove-from-item).
  */

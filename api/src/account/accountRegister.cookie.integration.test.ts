@@ -47,10 +47,12 @@ describe("accountRegister cookie integration", () => {
 			resHeadersAppend: appendSpy,
 		});
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData(),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData(),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		const typedFakeClient = makeSupabaseClient({
 			userPublicMaybe: undefined,
@@ -97,10 +99,12 @@ describe("accountRegister cookie integration", () => {
 			resHeadersAppend: appendSpy,
 		});
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData(),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData(),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		const typedFakeClient = makeSupabaseClient({
 			userPublicMaybe: undefined,
@@ -145,10 +149,12 @@ describe("accountRegister cookie integration", () => {
 			req: { url: "http://example.test/api/test" },
 		});
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData(),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData(),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		const typedFakeClient = makeSupabaseClient({
 			userPublicMaybe: undefined,

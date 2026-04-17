@@ -26,12 +26,7 @@ export default function saveCommunity(
 		setCommunitySaving(true);
 		setCommunityError(undefined);
 
-		const result = yield* $(
-			Effect.tryPromise({
-				try: () => postJsonWithResult<CommunityEntry>(apiCommunitySavePath, request),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const result = yield* $(postJsonWithResult<CommunityEntry>(apiCommunitySavePath, request));
 
 		setCommunitySaving(false);
 		return result;

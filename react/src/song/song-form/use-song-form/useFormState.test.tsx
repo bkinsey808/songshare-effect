@@ -14,7 +14,6 @@ describe("useFormState — renderHook", () => {
 		expect(result.current.slides).toStrictEqual({
 			"fixed-id-1": { slide_name: "Slide 1", field_data: {} },
 		});
-		expect(result.current.fields).toStrictEqual(["lyrics"]);
 		expect(result.current.initialSlideId).toBe("fixed-id-1");
 	});
 
@@ -32,46 +31,12 @@ describe("useFormState — renderHook", () => {
 		vi.mocked(generateId).mockReturnValue("fixed-id-1");
 		const { result } = renderHook(() => useFormState());
 		const newSlides = {
-			"id-x": { slide_name: "Custom", field_data: { lyrics: "Hello" } },
+			"id-x": { slide_name: "Custom", field_data: { en: "Hello" } },
 		};
 		result.current.setSlides(newSlides);
 
 		await waitFor(() => {
 			expect(result.current.slides).toStrictEqual(newSlides);
-		});
-	});
-
-	it("toggleField adds field when checked", async () => {
-		vi.mocked(generateId).mockReturnValue("fixed-id-1");
-		const { result } = renderHook(() => useFormState());
-		result.current.toggleField("chords", true);
-
-		await waitFor(() => {
-			expect(result.current.fields).toStrictEqual(["lyrics", "chords"]);
-		});
-	});
-
-	it("toggleField does not duplicate field when already present", async () => {
-		vi.mocked(generateId).mockReturnValue("fixed-id-1");
-		const { result } = renderHook(() => useFormState());
-		result.current.toggleField("lyrics", true);
-
-		await waitFor(() => {
-			expect(result.current.fields).toStrictEqual(["lyrics"]);
-		});
-	});
-
-	it("toggleField removes field when unchecked", async () => {
-		vi.mocked(generateId).mockReturnValue("fixed-id-1");
-		const { result } = renderHook(() => useFormState());
-		result.current.toggleField("chords", true);
-		await waitFor(() => {
-			expect(result.current.fields).toStrictEqual(["lyrics", "chords"]);
-		});
-		result.current.toggleField("chords", false);
-
-		await waitFor(() => {
-			expect(result.current.fields).toStrictEqual(["lyrics"]);
 		});
 	});
 
@@ -93,7 +58,6 @@ describe("useFormState — renderHook", () => {
 			expect(result.current.slides).toStrictEqual({
 				"fixed-id-2": { slide_name: "Slide 1", field_data: {} },
 			});
-			expect(result.current.fields).toStrictEqual(["lyrics"]);
 		});
 	});
 });

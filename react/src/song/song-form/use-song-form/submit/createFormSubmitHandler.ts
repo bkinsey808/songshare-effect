@@ -6,7 +6,7 @@ import toStringArray from "@/shared/utils/toStringArray";
 
 type CreateFormSubmitHandlerParams<FormData> = {
 	readonly songId: string | undefined;
-	readonly fields: readonly string[];
+	readonly translations: readonly string[];
 	readonly slideOrder: readonly string[];
 	readonly slides: Record<string, Slide>;
 	readonly getTags?: () => readonly string[] | undefined;
@@ -23,8 +23,8 @@ type CreateFormSubmitHandlerParams<FormData> = {
  * `handleSubmit`/`onSubmit` pipeline.
  *
  * @param songId - optional song id to include when editing
- * @param fields - list of field keys to include
  * @param slideOrder - ordered list of slide ids
+ * @param translations - Translation language codes present on the form
  * @param slides - map of slide id to `Slide` objects
  * @param getTags - optional callback returning the current tags list
  * @param handleSubmit - wrapper that executes the actual submit logic and returns an Effect
@@ -34,7 +34,7 @@ type CreateFormSubmitHandlerParams<FormData> = {
  */
 export default function createFormSubmitHandler<FormData>({
 	songId,
-	fields,
+	translations,
 	slideOrder,
 	slides,
 	getTags,
@@ -71,7 +71,7 @@ export default function createFormSubmitHandler<FormData>({
 		if (songId !== undefined && songId.trim() !== "") {
 			currentFormData["song_id"] = songId;
 		}
-		currentFormData["fields"] = toStringArray(fields);
+		currentFormData["translations"] = [...translations];
 		currentFormData["slide_order"] = toStringArray(slideOrder);
 		currentFormData["slides"] = slides;
 		const tags = getTags?.();

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { mockExtractErrorMessage } from "@/react/lib/test-utils/mockExtractErrorMessage";
+import { mockExtractErrorMessage } from "@/react/lib/test-utils/mockExtractErrorMessage.test-util";
 
 /**
  * Sanity helper: module should install a stubbed version of

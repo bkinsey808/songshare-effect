@@ -5,7 +5,6 @@ import type { FormState } from "../song-form-types";
 type UseInitialFormStateParams = {
 	readonly songId: string | undefined;
 	readonly formValues: FormState["formValues"];
-	readonly fields: FormState["fields"];
 	readonly slideOrder: FormState["slideOrder"];
 	readonly tags: FormState["tags"];
 	readonly slides: FormState["slides"];
@@ -20,7 +19,6 @@ type UseInitialFormStateParams = {
  *
  * @param songId - Optional song id being edited
  * @param formValues - Current controlled form values
- * @param fields - Currently enabled fields array
  * @param slideOrder - Current slide order array
  * @param tags - Current tag list
  * @param slides - Slide map used to build a deep copy
@@ -32,7 +30,6 @@ type UseInitialFormStateParams = {
 export default function useInitialFormState({
 	songId,
 	formValues,
-	fields,
 	slideOrder,
 	tags,
 	slides,
@@ -61,7 +58,6 @@ export default function useInitialFormState({
 			// Set initial state with current form values (deep copy)
 			setInitialState({
 				formValues: { ...formValues },
-				fields: [...fields],
 				slideOrder: [...slideOrder],
 				tags: [...tags],
 				slides: Object.fromEntries(
@@ -92,7 +88,6 @@ export default function useInitialFormState({
 		// Set initial state with current form values (deep copy)
 		setInitialState({
 			formValues: { ...formValues },
-			fields: [...fields],
 			slideOrder: [...slideOrder],
 			tags: [...tags],
 			slides: Object.fromEntries(
@@ -108,7 +103,6 @@ export default function useInitialFormState({
 		hasSetInitialStateRef.current = songId;
 	}, [
 		formValues,
-		fields,
 		slideOrder,
 		tags,
 		slides,

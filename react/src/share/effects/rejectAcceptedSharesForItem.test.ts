@@ -12,10 +12,10 @@ const FIRST_CALL = 1;
 
 describe("rejectAcceptedSharesForItem", () => {
 	it("calls postJsonWithResult with correct path and body", async () => {
-		vi.mocked(postJsonWithResult).mockResolvedValue({
+		vi.mocked(postJsonWithResult).mockReturnValue(Effect.succeed({
 			success: true,
 			rejected_count: 2,
-		});
+		}));
 
 		await Effect.runPromise(rejectAcceptedSharesForItem("song", "song-123"));
 
@@ -27,7 +27,7 @@ describe("rejectAcceptedSharesForItem", () => {
 	});
 
 	it("succeeds even when postJsonWithResult fails (non-fatal)", async () => {
-		vi.mocked(postJsonWithResult).mockRejectedValue(new Error("network error"));
+		vi.mocked(postJsonWithResult).mockReturnValue(Effect.fail(new Error("network error")));
 		const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
 		await Effect.runPromise(rejectAcceptedSharesForItem("playlist", "playlist-456"));

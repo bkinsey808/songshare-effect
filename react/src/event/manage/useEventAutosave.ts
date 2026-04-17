@@ -4,6 +4,7 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import useThrottle from "@/react/lib/hooks/useThrottle";
 import postJson from "@/shared/fetch/postJson";
 import { apiEventSavePath } from "@/shared/paths";
+import { type EventSavePayload } from "@/shared/event/event-save-schema";
 
 import type { ActionState } from "./ActionState.type";
 import refreshEvent from "./refreshEvent";
@@ -69,20 +70,12 @@ export default function useEventAutosave({
 	 */
 	function sendSongSave(songId: string | undefined): void {
 		const shouldSetFirstSlide = songId !== "" && latestSlidePositionRef.current === undefined;
-		const payload: {
-			event_id: string;
-			active_song_id: string | null;
-			active_slide_position?: number | null;
-		} = {
+		const payload: EventSavePayload = {
 			event_id: currentEventIdRef.current ?? "",
-			/* oxlint-disable unicorn/no-null */
+			/* oxlint-disable-next-line unicorn/no-null */
 			active_song_id: songId === "" || songId === undefined ? null : songId,
-			/* oxlint-enable unicorn/no-null */
+			...(shouldSetFirstSlide ? { active_slide_position: FIRST_SLIDE_POSITION } : {}),
 		};
-
-		if (shouldSetFirstSlide) {
-			payload.active_slide_position = FIRST_SLIDE_POSITION;
-		}
 
 		void runAction({
 			actionKey: "song",
@@ -100,15 +93,15 @@ export default function useEventAutosave({
 	 * @returns void
 	 */
 	function sendSlideSave(slidePosition: number | undefined): void {
+		const payload: EventSavePayload = {
+			event_id: currentEventIdRef.current ?? "",
+			/* oxlint-disable-next-line unicorn/no-null */
+			active_slide_position: slidePosition === undefined ? null : slidePosition,
+		};
 		void runAction({
 			actionKey: "slide",
 			successMessage: "Active slide position updated",
-			action: () =>
-				/* oxlint-disable unicorn/no-null */
-				postJson(apiEventSavePath, {
-					event_id: currentEventIdRef.current ?? "",
-					active_slide_position: slidePosition === undefined ? null : slidePosition,
-				}),
+			action: () => postJson(apiEventSavePath, payload),
 			setActionState,
 			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
 		});

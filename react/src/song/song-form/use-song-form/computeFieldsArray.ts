@@ -1,30 +1,26 @@
+import isString from "@/shared/type-guards/isString";
+
 /**
- * Extracts and normalizes a fields array from a publication object.
+ * Derive the ordered list of active language codes from a public song object.
  *
- * @param pub - An optional object that may contain a "fields" property. The fields property
- *              should be an array of strings or numbers.
- * @returns An array of strings. Returns an empty array if:
- *          - `pub` is undefined or null
- *          - `pub.fields` is not an array
- *          - All items in the fields array are filtered out (non-string, non-number values)
+ * Returns `[lyrics, script?, ...translations]` using the new language-based
+ * schema. Falls back to an empty array when the required `lyrics` field is
+ * absent or not a string.
  *
- * @remarks
- * - String values are included as-is
- * - Number values are converted to strings
- * - Other types (objects, booleans, etc.) are ignored
+ * @param pub - An optional object that may contain `lyrics`, `script`, and
+ *   `translations` properties sourced from the public song record.
+ * @returns An ordered array of BCP 47 language codes active for this song.
  */
 export default function computeFieldsArray(pub?: Record<string, unknown>): string[] {
-	if (!pub || !Array.isArray(pub["fields"])) {
+	if (pub === undefined) {
 		return [];
 	}
-	const out: string[] = [];
-	const fields = pub["fields"] as unknown[];
-	for (const raw of fields) {
-		if (typeof raw === "string") {
-			out.push(raw);
-		} else if (typeof raw === "number") {
-			out.push(String(raw));
-		}
+	const { lyrics, script, translations } = pub;
+	if (!isString(lyrics) || lyrics === "") {
+		return [];
 	}
-	return out;
+	const translationCodes: string[] = Array.isArray(translations)
+		? translations.filter((value): value is string => isString(value))
+		: [];
+	return [lyrics, ...(isString(script) && script !== "" ? [script] : []), ...translationCodes];
 }

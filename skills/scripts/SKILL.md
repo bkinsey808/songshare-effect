@@ -99,8 +99,8 @@ export async function checkSkillFiles(repoRoot: string, opts: CheckOptions = {})
   ```ts
   import { readFileSync } from "node:fs";
   ```
-- Prefer running scripts via `npx bun` so CI environments without a global Bun install still work:
-  - `npx bun ./scripts/my-script/my-script.bun.ts`
+ - Always run Bun-based scripts via `npx bun` so CI and local environments behave consistently; do not rely on a global `bun` binary. Example:
+   - `npx bun ./scripts/my-script/my-script.bun.ts`
 - Add a `package.json` entry to simplify invocation:
   ```json
   "scripts": {

@@ -5,13 +5,10 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import { communityUserJoinSchema } from "@/shared/validation/communitySchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-
-const CommunityUserJoinSchema = Schema.Struct({
-	community_id: Schema.String,
-});
 
 /**
  * Server-side handler for joining a community.
@@ -34,7 +31,7 @@ export default function communityUserJoin(
 		);
 
 		const { community_id } = yield* $(
-			Schema.decodeUnknown(CommunityUserJoinSchema)(body).pipe(
+			Schema.decodeUnknown(communityUserJoinSchema)(body).pipe(
 				Effect.mapError(() => new ValidationError({ message: "community_id is required" })),
 			),
 		);

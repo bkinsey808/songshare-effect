@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { Hono } from "hono";
 
 import oauthCallbackHandler from "@/api/oauth/oauthCallbackHandler";
@@ -37,11 +38,6 @@ import {
 	apiImageLibraryAddPath,
 	apiImageLibraryRemovePath,
 	apiImageServeBasePath,
-	apiTagAddToItemPath,
-	apiTagLibraryAddPath,
-	apiTagLibraryRemovePath,
-	apiTagRemoveFromItemPath,
-	apiTagSearchPath,
 	apiImageUpdatePath,
 	apiImageUploadPath,
 	apiMePath,
@@ -59,9 +55,14 @@ import {
 	apiSongLibraryRemovePath,
 	apiSongsDeletePath,
 	apiSongsSavePath,
+	apiTagAddToItemPath,
+	apiTagLibraryAddPath,
+	apiTagLibraryRemovePath,
+	apiTagRemoveFromItemPath,
+	apiTagSearchPath,
 	apiUploadPath,
-	apiUserLibraryAddPath,
 	apiUserChordDisplayModePath,
+	apiUserLibraryAddPath,
 	apiUserLibraryLookupPath,
 	apiUserLibraryRemovePath,
 	apiUserSlideNumberPreferencePath,
@@ -284,7 +285,7 @@ app.post(apiImageDeletePath, handleHttpEndpoint(imageDelete));
 app.post(apiImageUpdatePath, handleHttpEndpoint(imageUpdate));
 
 // Image serve endpoint — streams file from R2
-app.get(`${apiImageServeBasePath}/*`, imageServe);
+app.get(`${apiImageServeBasePath}/*`, (ctx) => Effect.runPromise(imageServe(ctx)));
 
 // Image library endpoints
 app.post(apiImageLibraryAddPath, handleHttpEndpoint(addImageToLibrary));
@@ -309,7 +310,7 @@ app.post(apiUploadPath, (ctx) => ctx.json({ message: "Upload endpoint - to be im
 // This endpoint is intentionally gated to non-production environments.
 // Dev-only helper to update song_public rows and trigger realtime events.
 // Extracted to `api/src/dev/updateSongPublicHandler.ts`
-app.post("/api/dev/song-public/update", updateSongPublicHandler);
+app.post("/api/dev/song-public/update", (ctx) => Effect.runPromise(updateSongPublicHandler(ctx)));
 // Current user/session endpoint
 app.get(apiMePath, handleHttpEndpoint(me));
 

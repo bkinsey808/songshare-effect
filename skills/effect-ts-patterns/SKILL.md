@@ -253,7 +253,10 @@ const data =
 
 ## Deep Reference
 
-For detailed technical reference on Effect combinators, dependency injection, schema validation, and HTTP integration patterns, see [the reference guide](/skills/effect-ts-patterns/references/REFERENCE.md).
+For detailed technical reference on Effect combinators, dependency injection, schema validation, HTTP integration, and Promise-to-Effect refactoring patterns, see [Effect-TS Best Practices](/docs/effect-ts-best-practices.md).
+
+Key sections:
+- [Refactoring Promise-Returning Functions to Effect](/docs/effect-ts-best-practices.md#refactoring-promise-to-effect) — Step-by-step guide for converting async functions
 
 ## Validation Commands
 
@@ -272,8 +275,8 @@ npm run build:api
 
 ## References
 
-- Reference guide: [references/REFERENCE.md](/skills/effect-ts-patterns/references/REFERENCE.md) - Detailed Effect patterns
-- Complete implementation guide: [docs/effect-ts-best-practices.md](/docs/effect-ts-best-practices.md)
+For detailed patterns and conversion workflows:
+- Complete implementation guide: [docs/effect-ts-best-practices.md](/docs/effect-ts-best-practices.md) — Typed errors, schemas, DI, HTTP integration, and Promise-to-Effect refactoring
 - Effect documentation: https://effect.website/
 - Hono API integration: See `api/src/server.ts`
 - Error types: See `api/src/api-errors.ts`

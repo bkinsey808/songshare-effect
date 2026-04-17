@@ -54,12 +54,12 @@ Normal local API dev no longer needs `.dev.vars` files. The `dev:api:*` scripts:
 
 1. Load the selected environment from keyring via `run-with-env.bun.ts`
 2. Delete stale `api/.dev.vars*` files so Wrangler cannot read them by mistake
-3. Start `wrangler dev` with:
-   - `CLOUDFLARE_INCLUDE_PROCESS_ENV=true`
-   - `CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV=false`
+3. Start `wrangler dev` with `CLOUDFLARE_INCLUDE_PROCESS_ENV=true`
 
-This keeps local Worker secrets in the process environment instead of writing
-them to disk.
+Wrangler 4.79 merges `process.env` into local Worker bindings through the same
+dotenv-loading path it uses for `.env` files, so local Worker dev keeps dotenv
+loading enabled while still relying on keyring-backed process env as the source
+of truth.
 
 ### Vite dev / builds
 

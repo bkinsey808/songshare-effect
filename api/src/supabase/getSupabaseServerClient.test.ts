@@ -30,4 +30,16 @@ describe("getSupabaseServerClient", () => {
 			}),
 		);
 	});
+
+	it("throws a helpful error when the Supabase URL is missing", () => {
+		expect(() => getSupabaseServerClient("", SERVICE_KEY)).toThrow(
+			/Missing required Supabase config: VITE_SUPABASE_URL/,
+		);
+	});
+
+	it("throws a helpful error when the Supabase service key is missing", () => {
+		expect(() => getSupabaseServerClient(SUPABASE_URL, "")).toThrow(
+			/Missing required Supabase config: SUPABASE_SERVICE_KEY/,
+		);
+	});
 });

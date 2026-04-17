@@ -2,6 +2,7 @@ import { Effect } from "effect";
 
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityEventAddPath } from "@/shared/paths";
+import { type CommunityEventAddPayload } from "@/shared/validation/communitySchemas";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
@@ -23,16 +24,11 @@ export default function addEventToCommunity(
 		setCommunityLoading(true);
 		setCommunityError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () =>
-					postJson(apiCommunityEventAddPath, {
-						community_id: communityId,
-						event_id: eventId,
-					}),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityEventAddPayload = {
+			community_id: communityId,
+			event_id: eventId,
+		};
+		yield* $(postJson(apiCommunityEventAddPath, payload));
 
 		setCommunityLoading(false);
 	}).pipe(

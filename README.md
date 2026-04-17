@@ -24,6 +24,8 @@ A modern song sharing platform built with React, Vite, and Hono for Cloudflare d
 - Supabase account (for database)
 - Cloudflare account (for deployment)
 
+Note: Many repository scripts are Bun-executable. To ensure consistent behavior across environments and CI, run Bun-based scripts via `npx bun` (e.g. `npx bun ./scripts/my-script.bun.ts`) rather than relying on a globally installed `bun` binary.
+
 ### Installation
 
 1. Install PostgreSQL client tools (required for database schema export):

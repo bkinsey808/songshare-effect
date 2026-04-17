@@ -26,7 +26,7 @@ describe("kickMember", () => {
 
 	it("sets loading and clears error on success", async () => {
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		const eff = kickMember("c1", "u1", get);
 
@@ -43,7 +43,7 @@ describe("kickMember", () => {
 
 	it("clears loading and sets error on failure", async () => {
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockRejectedValue(new Error("boom"));
+		mockPost.mockReturnValue(Effect.fail(new Error("boom")));
 
 		const eff = kickMember("c1", "u1", get);
 

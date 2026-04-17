@@ -1,15 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
+import { Effect } from "effect";
 import type { Context } from "hono";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Bindings } from "@/api/env";
-import forceCast from "@/shared/test-utils/forceCast.test-util";
 import {
 	HTTP_BAD_REQUEST,
 	HTTP_INTERNAL,
 	HTTP_NOT_FOUND,
 	HTTP_TEMP_REDIRECT,
 } from "@/shared/constants/http";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
@@ -46,14 +47,14 @@ function makeCtx(opts: {
 describe("imageServe", () => {
 	it("returns 400 when image key is missing", async () => {
 		const ctx = makeCtx({ imageKey: "" });
-		const res = await imageServe(ctx);
+		const res = await Effect.runPromise(imageServe(ctx));
 		expect(res.status).toBe(HTTP_BAD_REQUEST);
 		await expect(res.json()).resolves.toStrictEqual({ error: "image_key is required" });
 	});
 
 	it("returns 400 when image key is whitespace only", async () => {
 		const ctx = makeCtx({ imageKey: "   " });
-		const res = await imageServe(ctx);
+		const res = await Effect.runPromise(imageServe(ctx));
 		expect(res.status).toBe(HTTP_BAD_REQUEST);
 	});
 
@@ -67,7 +68,7 @@ describe("imageServe", () => {
 		});
 		vi.mocked(createClient).mockReturnValue(fakeClient);
 
-		const res = await imageServe(ctx);
+		const res = await Effect.runPromise(imageServe(ctx));
 
 		expect(res.status).toBe(HTTP_TEMP_REDIRECT);
 		expect(res.headers.get("Location")).toContain(SAMPLE_URL);
@@ -75,7 +76,7 @@ describe("imageServe", () => {
 
 	it("returns 500 when R2 backend but BUCKET binding is missing", async () => {
 		const ctx = makeCtx({ imageKey: SAMPLE_KEY, storageBackend: "r2", bucket: undefined });
-		const res = await imageServe(ctx);
+		const res = await Effect.runPromise(imageServe(ctx));
 		expect(res.status).toBe(HTTP_INTERNAL);
 		await expect(res.json()).resolves.toStrictEqual({
 			error: "Storage not configured: BUCKET binding is missing",
@@ -88,7 +89,7 @@ describe("imageServe", () => {
 			storageBackend: "r2",
 			bucket: { get: () => promiseResolved(makeNull()) },
 		});
-		const res = await imageServe(ctx);
+		const res = await Effect.runPromise(imageServe(ctx));
 		expect(res.status).toBe(HTTP_NOT_FOUND);
 		await expect(res.json()).resolves.toStrictEqual({ error: "Image not found" });
 	});

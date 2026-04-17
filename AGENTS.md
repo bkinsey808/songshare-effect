@@ -31,6 +31,8 @@ shared system.
 ## Workflow
 
 - Before starting any task, run `npm run qmd -- search "<task description>"` to find the relevant skill and doc files. Load only those.
+ - Before starting any task, run `npm run qmd -- search "<task description>"` to find the relevant skill and doc files. Load only those.
+ - When running repository Bun scripts or CI helpers, prefer invoking them via `npx bun` (for example `npx bun ./scripts/playwright/playwright-run-and-test.bun.ts`). This ensures reproducible execution in environments that do not have a global `bun` installed.
 - Inspect only the files relevant to the task.
 - Prefer minimal, root-cause fixes over surface patches.
 - Run the narrowest relevant validation first, then broader checks if needed.

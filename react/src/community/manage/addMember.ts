@@ -2,6 +2,7 @@ import { Effect } from "effect";
 
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserAddPath } from "@/shared/paths";
+import { type CommunityUserAddPayload } from "@/shared/validation/communitySchemas";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
@@ -37,18 +38,13 @@ export default function addMember({
 		setCommunityLoading(true);
 		setCommunityError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () =>
-					postJson(apiCommunityUserAddPath, {
-						community_id: communityId,
-						user_id: userId,
-						role,
-						status: "invited",
-					}),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityUserAddPayload = {
+			community_id: communityId,
+			user_id: userId,
+			role,
+			status: "invited",
+		};
+		yield* $(postJson(apiCommunityUserAddPath, payload));
 
 		setCommunityLoading(false);
 	}).pipe(

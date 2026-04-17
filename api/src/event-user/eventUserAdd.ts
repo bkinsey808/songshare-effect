@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
@@ -10,20 +10,10 @@ import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import { getEventRoleCapabilities } from "./eventRoleCapabilities";
-
-/**
- * Schema validating payload for adding a user to an event.
- *
- * Expected fields: `event_id`, `user_id`, and `role`.
- */
-const EventUserAddSchema = Schema.Struct({
-	event_id: Schema.String,
-	user_id: Schema.String,
-	role: Schema.Literal("participant", "event_admin", "event_playlist_admin"),
-	status: Schema.optional(Schema.Literal("invited", "joined")),
-});
-
-type EventUserAddData = Schema.Schema.Type<typeof EventUserAddSchema>;
+import {
+	eventUserAddSchema,
+	type EventUserAddPayload,
+} from "@/shared/validation/eventUserSchemas";
 
 /**
  * Server-side handler for adding a user to an event. This Effect-based handler:
@@ -55,9 +45,9 @@ export default function eventUserAdd(
 		);
 
 		// Validate request payload
-		const validated: EventUserAddData = yield* $(
+		const validated: EventUserAddPayload = yield* $(
 			validateFormEffect({
-				schema: EventUserAddSchema,
+				schema: eventUserAddSchema,
 				data: body,
 				i18nMessageKey: "EVENT_USER_ADD",
 			}).pipe(

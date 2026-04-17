@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import postJson from "./postJson";
@@ -9,7 +10,7 @@ describe("postJson", () => {
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(undefined, { status: 200 })));
 
 		// Assert
-		await expect(postJson("/x", { val: 1 })).resolves.toBeUndefined();
+		await expect(Effect.runPromise(postJson("/x", { val: 1 }))).resolves.toBeUndefined();
 
 		expect(globalThis.fetch).toHaveBeenCalledWith("/x", {
 			method: "POST",
@@ -19,21 +20,21 @@ describe("postJson", () => {
 		});
 	});
 
-	it("throws server-provided text when response not ok", async () => {
+	it("fails with server-provided text when response not ok", async () => {
 		// Arrange
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("bad", { status: 500 })));
 
 		// Assert
-		await expect(postJson("/x", {})).rejects.toThrow("bad");
+		await expect(Effect.runPromise(postJson("/x", {}))).rejects.toThrow("bad");
 	});
 
-	it("throws status message when response.text() is empty", async () => {
+	it("fails with status message when response.text() is empty", async () => {
 		// Arrange
 		vi.resetAllMocks();
 		vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("", { status: 418 })));
 
 		// Assert
-		await expect(postJson("/x", {})).rejects.toThrow("Request failed (418)");
+		await expect(Effect.runPromise(postJson("/x", {}))).rejects.toThrow("Request failed (418)");
 	});
 });

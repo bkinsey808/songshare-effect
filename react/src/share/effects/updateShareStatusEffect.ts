@@ -36,12 +36,7 @@ export default function updateShareStatusEffect(
 		updateShareStatusOptimistically(request.share_id, request.status);
 
 		// Make API call
-		yield* $(
-			Effect.tryPromise({
-				try: () => postJsonWithResult<{ success: boolean }>(apiShareUpdateStatusPath, request),
-				catch: (error) => new Error(`Failed to update share status: ${String(error)}`),
-			}),
-		);
+		yield* $(postJsonWithResult<{ success: boolean }>(apiShareUpdateStatusPath, request));
 
 		// Success - the optimistic update was correct
 		// Real-time subscription will sync any additional changes

@@ -20,7 +20,12 @@ import {
 	apiSongsSavePath,
 	apiTagAddToItemPath,
 } from "@/shared/paths";
+import { type EventSavePayload } from "@/shared/event/event-save-schema";
+import { type PlaylistSavePayload } from "@/shared/playlist/playlist-save-schema";
+import { type SongSavePayload } from "@/shared/song/song-save-schema";
 import isRecord from "@/shared/type-guards/isRecord";
+import { type CommunityFormPayload } from "@/shared/validation/communitySchemas";
+import { type TagAddToItemPayload } from "@/shared/validation/tagSchemas";
 
 const missingSession = !existsSync(GOOGLE_USER_SESSION_PATH);
 
@@ -162,10 +167,10 @@ function expectItemInLibrary(
  */
 function createSong(page: Page, songName: string, songSlug: string): Effect.Effect<string, Error> {
 	return Effect.gen(function* createSongEffect($) {
-		const payload = {
+		const payload: SongSavePayload = {
 			song_name: songName,
 			song_slug: songSlug,
-			fields: ["lyrics"],
+			translations: [],
 			slide_order: ["verse-1"],
 			slides: {
 				"verse-1": {
@@ -200,13 +205,12 @@ function createPlaylist(
 	playlistSlug: string,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* createPlaylistEffect($) {
-		yield* $(
-			postJson(page, apiPlaylistSavePath, {
-				playlist_name: playlistName,
-				playlist_slug: playlistSlug,
-				song_order: [],
-			}),
-		);
+		const payload: PlaylistSavePayload = {
+			playlist_name: playlistName,
+			playlist_slug: playlistSlug,
+			song_order: [],
+		};
+		yield* $(postJson(page, apiPlaylistSavePath, payload));
 	});
 }
 
@@ -220,14 +224,13 @@ function createPlaylist(
  */
 function createEvent(page: Page, eventName: string, eventSlug: string): Effect.Effect<void, Error> {
 	return Effect.gen(function* createEventEffect($) {
-		yield* $(
-			postJson(page, apiEventSavePath, {
-				event_name: eventName,
-				event_slug: eventSlug,
-				event_description: "Library auto-add E2E event",
-				is_public: false,
-			}),
-		);
+		const payload: EventSavePayload = {
+			event_name: eventName,
+			event_slug: eventSlug,
+			event_description: "Library auto-add E2E event",
+			is_public: false,
+		};
+		yield* $(postJson(page, apiEventSavePath, payload));
 	});
 }
 
@@ -245,14 +248,13 @@ function createCommunity(
 	communitySlug: string,
 ): Effect.Effect<void, Error> {
 	return Effect.gen(function* createCommunityEffect($) {
-		yield* $(
-			postJson(page, apiCommunitySavePath, {
-				name: communityName,
-				slug: communitySlug,
-				description: "Library auto-add E2E community",
-				is_public: false,
-			}),
-		);
+		const payload: CommunityFormPayload = {
+			name: communityName,
+			slug: communitySlug,
+			description: "Library auto-add E2E community",
+			is_public: false,
+		};
+		yield* $(postJson(page, apiCommunitySavePath, payload));
 	});
 }
 
@@ -315,13 +317,12 @@ function uploadImage(page: Page, imageName: string): Effect.Effect<string, Error
  */
 function createTagViaSong(page: Page, songId: string, tagSlug: string): Effect.Effect<void, Error> {
 	return Effect.gen(function* createTagViaSongEffect($) {
-		yield* $(
-			postJson(page, apiTagAddToItemPath, {
-				item_id: songId,
-				item_type: "song",
-				tag_slug: tagSlug,
-			}),
-		);
+		const payload: TagAddToItemPayload = {
+			item_id: songId,
+			item_type: "song",
+			tag_slug: tagSlug,
+		};
+		yield* $(postJson(page, apiTagAddToItemPath, payload));
 	});
 }
 

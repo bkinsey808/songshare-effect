@@ -148,6 +148,8 @@
 	"song": {
 		"songName": "歌曲名称",
 		"songSlug": "歌曲链接",
+		"lyricsLanguage": "歌词语言",
+		"scriptLanguage": "脚本语言",
 		"shortCredit": "简短署名",
 		"longCredit": "详细署名",
 		"publicNotes": "公开备注",
@@ -168,7 +170,31 @@
 		"chordMaxNotes": "最多音数",
 		"chordNoResults": "没有匹配此搜索的和弦结构。",
 		"script": "脚本",
+		"translationLanguages": "翻译语言",
+		"translationLanguagePicker": {
+			"empty": "尚未选择翻译语言。",
+			"addPlaceholder": "添加翻译语言...",
+			"removeAria": "移除 {{language}}"
+		},
+		"languagePicker": {
+			"none": "无",
+			"placeholder": "选择语言...",
+			"searchPlaceholder": "搜索语言...",
+			"noResults": "未找到语言"
+		},
 		"enTranslation": "英文翻译",
+		"validation": {
+			"invalidLanguageCode": "请选择有效的语言。",
+			"noLeadingTrailingSpaces": "歌曲名称不能以空格开头或结尾。",
+			"nameLength": "歌曲名称长度必须在 {{minLength}} 到 {{maxLength}} 个字符之间。",
+			"noConsecutiveSpaces": "歌曲名称不能包含连续空格。",
+			"invalidSlugFormat": "歌曲链接只能包含小写字母、数字和单个连字符。",
+			"slideKeysInOrder": "每张幻灯片都必须出现在幻灯片顺序中。",
+			"lyricsNotInTranslations": "歌词语言不能同时作为翻译语言。",
+			"scriptMustBeDisjoint": "脚本语言必须不同于歌词语言和翻译语言。",
+			"translationsNoDuplicates": "翻译语言必须唯一。",
+			"fieldDataKeysMatchLanguages": "幻灯片内容键必须与所选歌曲语言一致。"
+		},
 		"slidesGridDescription": "这些是您实际看到的幻灯片，可以包含同一幻灯片多次。如果您编辑了显示多次的幻灯片，所有实例都会被编辑。如果不希望这样，请复制现有幻灯片或添加一个新幻灯片。",
 		"slidesGridTitle": "幻灯片演示网格",
 		"addNewSlide": "添加新幻灯片",

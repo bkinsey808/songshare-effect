@@ -5,29 +5,12 @@ import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import { PlaylistSaveSchema, type PlaylistSavePayload } from "@/shared/playlist/playlist-save-schema";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-
-/**
- * Schema validating playlist form payload.
- *
- * Validates optional `playlist_id`, required `playlist_name` and `playlist_slug`,
- * optional notes, and a `song_order` array of song IDs.
- */
-const PlaylistFormSchema = Schema.Struct({
-	playlist_id: Schema.optional(Schema.String),
-	playlist_name: Schema.String,
-	playlist_slug: Schema.String,
-	public_notes: Schema.optional(Schema.String),
-	private_notes: Schema.optional(Schema.String),
-	song_order: Schema.Array(Schema.String),
-	tags: Schema.optional(Schema.Array(Schema.String)),
-});
-
-type PlaylistFormData = Schema.Schema.Type<typeof PlaylistFormSchema>;
 
 /**
  * Server-side handler for saving a playlist. This Effect-based handler:
@@ -62,9 +45,9 @@ export default function playlistSave(
 		);
 
 		// Validate form payload
-		const validated: PlaylistFormData = yield* $(
+		const validated: PlaylistSavePayload = yield* $(
 			validateFormEffect({
-				schema: PlaylistFormSchema,
+				schema: PlaylistSaveSchema,
 				data: body,
 				i18nMessageKey: "PLAYLIST_FORM",
 			}).pipe(

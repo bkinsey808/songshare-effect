@@ -148,6 +148,8 @@
 	"song": {
 		"songName": "Nombre de la Canción",
 		"songSlug": "URL de la Canción",
+		"lyricsLanguage": "Idioma de la letra",
+		"scriptLanguage": "Idioma del guion",
 		"shortCredit": "Crédito Corto",
 		"longCredit": "Crédito Largo",
 		"publicNotes": "Notas Públicas",
@@ -168,7 +170,31 @@
 		"chordMaxNotes": "Notas máx.",
 		"chordNoResults": "Ninguna forma de acorde coincide con esta búsqueda.",
 		"script": "Guión",
+		"translationLanguages": "Idiomas de traducción",
+		"translationLanguagePicker": {
+			"empty": "Aún no se han seleccionado idiomas de traducción.",
+			"addPlaceholder": "Agregar idioma de traducción...",
+			"removeAria": "Eliminar {{language}}"
+		},
+		"languagePicker": {
+			"none": "Ninguno",
+			"placeholder": "Selecciona un idioma...",
+			"searchPlaceholder": "Buscar idiomas...",
+			"noResults": "No se encontraron idiomas"
+		},
 		"enTranslation": "Traducción al Inglés",
+		"validation": {
+			"invalidLanguageCode": "Elige un idioma válido.",
+			"noLeadingTrailingSpaces": "El nombre de la canción no puede comenzar ni terminar con espacios.",
+			"nameLength": "El nombre de la canción debe tener entre {{minLength}} y {{maxLength}} caracteres.",
+			"noConsecutiveSpaces": "El nombre de la canción no puede contener espacios consecutivos.",
+			"invalidSlugFormat": "La URL de la canción solo puede contener letras minúsculas, números y guiones simples.",
+			"slideKeysInOrder": "Cada diapositiva debe aparecer en el orden de diapositivas.",
+			"lyricsNotInTranslations": "El idioma de la letra no puede ser también un idioma de traducción.",
+			"scriptMustBeDisjoint": "El idioma del guion debe ser diferente del idioma de la letra y de las traducciones.",
+			"translationsNoDuplicates": "Los idiomas de traducción deben ser únicos.",
+			"fieldDataKeysMatchLanguages": "Las claves del contenido de las diapositivas deben coincidir con los idiomas seleccionados."
+		},
 		"slidesGridDescription": "Estas son las diapositivas tal como las ves y pueden incluir la misma diapositiva más de una vez. Si editas una diapositiva que se muestra más de una vez, se editarán todas las instancias de esa diapositiva. Si no quieres este comportamiento, puedes duplicar una diapositiva existente o añadir una nueva.",
 		"slidesGridTitle": "Cuadrícula de presentación de diapositivas",
 		"addNewSlide": "Agregar nueva diapositiva",

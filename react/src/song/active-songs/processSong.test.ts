@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
+import makeNull from "@/shared/test-utils/makeNull.test-util";
 
 import processSong from "./processSong";
 
@@ -29,12 +30,11 @@ describe("processSong", () => {
 			song_id: "s1",
 			song_name: "Test Song",
 			song_slug: "test-song",
-			fields: ["lyrics", "script", "enTranslation"],
 			slide_order: ["slide-1"],
 			slides: {
 				"slide-1": {
 					slide_name: "Verse 1",
-					field_data: { lyrics: "x", script: "", enTranslation: "" },
+					field_data: { en: "x" },
 				},
 			},
 		});
@@ -57,7 +57,8 @@ describe("processSong", () => {
 			song_id: "s2",
 			song_name: "Raw Song",
 			song_slug: "raw-song",
-			fields: ["lyrics", "script", "enTranslation"],
+			lyrics: "sa",
+			script: "sa-Latn",
 			slide_order: ["s1"],
 			slides: {
 				s1: {
@@ -84,6 +85,55 @@ describe("processSong", () => {
 			song_id: "s2",
 			song_name: "Raw Song",
 			song_slug: "raw-song",
+			lyrics: "sa",
+			script: "sa-Latn",
+			translations: ["en"],
+		});
+		expect(out["s2"]?.slides["s1"]?.field_data).toStrictEqual({
+			sa: "a",
+			"sa-Latn": "b",
+			en: "c",
+		});
+		spyWarn.mockRestore();
+	});
+
+	it("normalizes nullable script values returned by Supabase", () => {
+		const rawSong = {
+			song_id: "s3",
+			song_name: "Scriptless Song",
+			song_slug: "scriptless-song",
+			lyrics: "en",
+			script: makeNull(),
+			translations: [],
+			slide_order: ["slide-1"],
+			slides: {
+				"slide-1": {
+					slide_name: "Verse 1",
+					field_data: { lyrics: "Hello", script: "", enTranslation: "" },
+				},
+			},
+			key: makeNull(),
+			scale: makeNull(),
+			user_id: "u1",
+			short_credit: makeNull(),
+			long_credit: makeNull(),
+			public_notes: makeNull(),
+			created_at: "2025-01-01T00:00:00Z",
+			updated_at: "2025-01-01T00:00:00Z",
+		};
+		const out: Record<string, ReturnType<typeof makeSongPublic>> = {};
+		const spyWarn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+		processSong(rawSong, out);
+
+		expect(out["s3"]).toMatchObject({
+			song_id: "s3",
+			song_slug: "scriptless-song",
+			lyrics: "en",
+		});
+		expect(out["s3"]?.script).toBeUndefined();
+		expect(out["s3"]?.slides["slide-1"]?.field_data).toStrictEqual({
+			en: "Hello",
 		});
 		spyWarn.mockRestore();
 	});

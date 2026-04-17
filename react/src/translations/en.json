@@ -188,6 +188,8 @@
 	"song": {
 		"songName": "Song Name",
 		"songSlug": "Song Slug",
+		"lyricsLanguage": "Lyrics Language",
+		"scriptLanguage": "Script Language",
 		"key": "Key",
 		"noKey": "No key",
 		"shortCredit": "Short Credit",
@@ -212,7 +214,31 @@
 		"chordMaxNotes": "Max Notes",
 		"chordNoResults": "No chord shapes match this search.",
 		"script": "Script",
+		"translationLanguages": "Translation Languages",
+		"translationLanguagePicker": {
+			"empty": "No translation languages selected yet.",
+			"addPlaceholder": "Add translation language...",
+			"removeAria": "Remove {{language}}"
+		},
+		"languagePicker": {
+			"none": "None",
+			"placeholder": "Select language...",
+			"searchPlaceholder": "Search languages...",
+			"noResults": "No languages found"
+		},
 		"enTranslation": "English Translation",
+		"validation": {
+			"invalidLanguageCode": "Choose a valid language.",
+			"noLeadingTrailingSpaces": "Song name cannot start or end with spaces.",
+			"nameLength": "Song name must be between {{minLength}} and {{maxLength}} characters.",
+			"noConsecutiveSpaces": "Song name cannot contain consecutive spaces.",
+			"invalidSlugFormat": "Song slug can only contain lowercase letters, numbers, and single dashes.",
+			"slideKeysInOrder": "Every slide must appear in the slide order.",
+			"lyricsNotInTranslations": "Lyrics language cannot also be a translation language.",
+			"scriptMustBeDisjoint": "Script language must be different from lyrics and translations.",
+			"translationsNoDuplicates": "Translation languages must be unique.",
+			"fieldDataKeysMatchLanguages": "Slide content keys must match the selected song languages."
+		},
 		"slidesGridDescription": "These are the slides as you actually see them and can include the same slide more than once. If you edit a slide that is displayed more than once, it will edit all instances of the slide. If you don't want this behavior, you can duplicate an existing slide or add a new one.",
 		"slidesGridTitle": "Slides Presentation Grid",
 		"addNewSlide": "Add New Slide",

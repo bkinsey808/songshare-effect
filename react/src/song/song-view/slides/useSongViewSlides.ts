@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
-import { type SongPublic, songFields } from "@/react/song/song-schema";
+import { type SongPublic } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -71,7 +71,6 @@ export type UseSongViewSlidesResult = {
 export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongViewSlidesResult {
 	const slideOrder = songPublic?.slide_order ?? [];
 	const slides = songPublic?.slides ?? {};
-	const fields = songPublic?.fields ?? [];
 	const totalSlides = slideOrder.length;
 
 	const [currentIndex, setCurrentIndex] = useState(MIN_SLIDE_INDEX);
@@ -237,10 +236,19 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 			: safeGet(slides as Record<string, unknown>, currentSlideId);
 
 	/**
-	 * Determine which fields to display for the slide.
-	 * Fall back to `songFields` defaults when the song doesn't provide custom fields.
+	 * Derive which fields to display from the song's language pickers.
+	 * `lyrics` is always present; `script` and `translations` are optional.
 	 */
-	const displayFields = fields.length > MIN_SLIDE_INDEX ? [...fields] : [...songFields];
+	const displayFields: readonly string[] =
+		songPublic === undefined
+			? []
+			: [
+					songPublic.lyrics,
+					...(songPublic.script === undefined || songPublic.script === null
+						? []
+						: [songPublic.script]),
+					...songPublic.translations,
+				];
 
 	return {
 		canPortalFullScreen,

@@ -49,7 +49,7 @@ describe("createShareEffect", () => {
 		vi.resetAllMocks();
 
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue({ shareId });
+		mockPost.mockReturnValue(Effect.succeed({ shareId }));
 
 		const get = makeGet();
 		const eff = createShareEffect(request, get);
@@ -77,7 +77,7 @@ describe("createShareEffect", () => {
 		vi.resetAllMocks();
 
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue({ shareId });
+		mockPost.mockReturnValue(Effect.succeed({ shareId }));
 
 		const get = makeGet();
 		await Effect.runPromise(createShareEffect(request, get));
@@ -92,7 +92,7 @@ describe("createShareEffect", () => {
 
 		const requestWithMessage = { ...request, message: "Check this out!" };
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue({ shareId });
+		mockPost.mockReturnValue(Effect.succeed({ shareId }));
 
 		const get = makeGet();
 		const eff = createShareEffect(requestWithMessage, get);
@@ -111,12 +111,12 @@ describe("createShareEffect", () => {
 
 		const errorMessage = "network fail";
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockRejectedValue(new Error(errorMessage));
+		mockPost.mockReturnValue(Effect.fail(new Error(errorMessage)));
 
 		const get = makeGet();
 		const eff = createShareEffect(request, get);
 
-		await expect(Effect.runPromise(eff)).rejects.toThrow(/Failed to create share/);
+		await expect(Effect.runPromise(eff)).rejects.toThrow(errorMessage);
 
 		expect(setSharesLoading).toHaveBeenNthCalledWith(FIRST_CALL, true);
 		expect(setShareError).toHaveBeenCalledWith(expect.stringMatching(new RegExp(errorMessage)));

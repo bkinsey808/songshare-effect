@@ -4,6 +4,7 @@ import { sign } from "hono/jwt";
 import { nanoid } from "nanoid";
 import { describe, expect, it, vi } from "vitest";
 
+import { ValidationError } from "@/api/api-errors";
 import buildSessionCookie from "@/api/cookie/buildSessionCookie";
 import { parseDataFromCookie } from "@/api/cookie/parseDataFromCookie";
 import getIpAddress from "@/api/getIpAddress";
@@ -39,10 +40,12 @@ describe("accountRegister", () => {
 		const appendSpy = vi.fn();
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: appendSpy });
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData(),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData(),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		const rawUserPublic = { user_id: SAMPLE_USER_ID, username: "freshuser" };
 
@@ -76,10 +79,12 @@ describe("accountRegister", () => {
 		// Arrange
 		const ctx = makeCtx({ body: { username: "taken" }, resHeadersAppend: vi.fn() });
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		mockCreateSupabaseClient(vi.mocked(createClient), { userPublicMaybe: { user_id: "u-exists" } });
 
@@ -93,7 +98,9 @@ describe("accountRegister", () => {
 	it("fails when register cookie is missing or invalid", async () => {
 		// Arrange
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: vi.fn() });
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce(undefined);
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.fail(new ValidationError({ message: "Failed to extract token from cookie" })),
+		);
 
 		// Act
 		const promise = Effect.runPromise(accountRegister(ctx));
@@ -117,10 +124,12 @@ describe("accountRegister", () => {
 		// Arrange
 		const ctx = makeCtx({ body: { username: "freshuser" }, resHeadersAppend: vi.fn() });
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
 			userPublicMaybe: undefined,
@@ -139,10 +148,12 @@ describe("accountRegister", () => {
 		// Arrange
 		const ctx = makeCtx({ body: { username: "freshuser" }, env: { SUPABASE_JWT_SECRET: "" } });
 
-		vi.mocked(parseDataFromCookie).mockResolvedValueOnce({
-			oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
-			oauthState: makeOauthState(),
-		});
+		vi.mocked(parseDataFromCookie).mockReturnValueOnce(
+			Effect.succeed({
+				oauthUserData: makeOauthUserData({ name: undefined, sub: undefined }),
+				oauthState: makeOauthState(),
+			}),
+		);
 
 		mockCreateSupabaseClient(vi.mocked(createClient), {
 			userPublicMaybe: undefined,

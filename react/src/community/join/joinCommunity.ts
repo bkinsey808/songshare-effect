@@ -3,6 +3,7 @@ import { Effect } from "effect";
 import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserJoinPath } from "@/shared/paths";
+import { type CommunityUserJoinPayload } from "@/shared/validation/communitySchemas";
 
 import type { CommunitySlice } from "../slice/CommunitySlice.type";
 
@@ -30,12 +31,8 @@ export default function joinCommunity(
 		}
 		setCommunityError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () => postJson(apiCommunityUserJoinPath, { community_id: communityId }),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityUserJoinPayload = { community_id: communityId };
+		yield* $(postJson(apiCommunityUserJoinPath, payload));
 
 		// Accept any pending shares for this community (non-fatal)
 		yield* $(

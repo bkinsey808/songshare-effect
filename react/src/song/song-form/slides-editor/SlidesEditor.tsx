@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
 import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
-import { songFields } from "@/react/song/song-schema";
 import { ONE } from "@/shared/constants/shared-constants";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
@@ -14,12 +13,13 @@ import useSlidesEditor from "./useSlidesEditor";
 type SlidesEditorProps = Readonly<
 	ReadonlyDeep<{
 		fields: readonly string[];
-		toggleField: (field: string, checked: boolean) => void;
 		slideOrder: readonly string[];
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 		openChordPicker?: OpenChordPicker;
+		lyricsLanguage: string;
+		scriptLanguage: string | undefined;
 	}>
 >;
 
@@ -36,23 +36,25 @@ function noopOpenChordPicker(): void {
  * Slides editor UI that renders slide detail cards and per-field editors.
  * Also exposes controls to add, duplicate, and delete slides and to change their order.
  *
- * @param fields - Which dynamic fields are enabled for each slide
- * @param toggleField - Toggle a field on/off in the form
+ * @param fields - Which dynamic fields are active for each slide (derived from lyrics/script/translations)
  * @param slideOrder - Ordered array of slide ids (presentation order)
  * @param setSlideOrder - Setter to update the presentation order
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to replace the slides map
  * @param openChordPicker - Optional callback to open the chord picker UI
+ * @param lyricsLanguage - BCP 47 language code for the lyrics field.
+ * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element rendering the Slide Editor UI
  */
 export default function SlidesEditor({
 	fields,
-	toggleField,
 	slideOrder,
 	setSlideOrder,
 	slides,
 	setSlides,
 	openChordPicker = noopOpenChordPicker,
+	lyricsLanguage,
+	scriptLanguage,
 }: SlidesEditorProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -103,28 +105,7 @@ export default function SlidesEditor({
 
 	return (
 		<div className="@container w-full">
-			{/* Header with Fields */}
-			<div className="mb-6">
-				<fieldset className="flex flex-col gap-2">
-					<legend className="text-sm font-bold text-gray-300">{t("song.fields", "Fields")}</legend>
-					<div className="mt-2 flex flex-col gap-2">
-						{songFields.map((field) => (
-							<label key={field} className="flex items-center gap-2">
-								<input
-									type="checkbox"
-									checked={fields.includes(field)}
-									onChange={(event) => {
-										toggleField(field, event.target.checked);
-									}}
-								/>
-								{t(`song.${field}`, field)}
-							</label>
-						))}
-					</div>
-				</fieldset>
-			</div>
-
-			<h2 className="mb-2 text-sm font-bold text-gray-300">Slides</h2>
+			<h2 className="mb-2 text-sm font-bold text-gray-300">{t("song.slides", "Slides")}</h2>
 			{
 				// One card per position in slideOrder (same order and duplicates as the grid)
 				slideOrder.map((slideId, idx) => {
@@ -140,6 +121,8 @@ export default function SlidesEditor({
 							slides={slides}
 							uiState={slideDetailUiState}
 							actions={slideDetailActions}
+							lyricsLanguage={lyricsLanguage}
+							scriptLanguage={scriptLanguage}
 						/>
 					);
 				})

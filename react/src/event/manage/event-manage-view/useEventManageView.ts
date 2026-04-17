@@ -1,9 +1,10 @@
-import { Effect as EffectRuntime } from "effect";
+import { Effect } from "effect";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import useCurrentLang from "@/react/lib/language/useCurrentLang";
+import { type EventSavePayload } from "@/shared/event/event-save-schema";
 import postJson from "@/shared/fetch/postJson";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { apiEventSavePath, eventViewPath } from "@/shared/paths";
@@ -117,7 +118,7 @@ export default function useEventManageView(): UseEventManageStateResult {
 			// oxlint-disable-next-line no-empty-function -- no fetch when undefined; return fn for React 19 HMR
 			return;
 		}
-		void EffectRuntime.runPromise(fetchPlaylistById(activePlaylistIdForEffect));
+		void Effect.runPromise(fetchPlaylistById(activePlaylistIdForEffect));
 		// oxlint-disable-next-line no-empty-function -- no cleanup for fetch; return fn for React 19 HMR
 		return;
 	}, [activePlaylistIdForEffect, fetchPlaylistById]);
@@ -175,16 +176,16 @@ export default function useEventManageView(): UseEventManageStateResult {
 	 * @returns void
 	 */
 	function updateActivePlaylist(playlistId: string): void {
+		/* oxlint-disable-next-line unicorn/no-null */
+		const payload: EventSavePayload = {
+			event_id: currentEventIdRequired,
+			/* oxlint-disable-next-line unicorn/no-null */
+			active_playlist_id: playlistId === "" ? null : playlistId,
+		};
 		void runAction({
 			actionKey: "playlist",
 			successMessage: "Active playlist updated",
-			action: () =>
-				/* oxlint-disable unicorn/no-null */
-				postJson(apiEventSavePath, {
-					event_id: currentEventIdRequired,
-					active_playlist_id: playlistId === "" ? null : playlistId,
-				}),
-			/* oxlint-enable unicorn/no-null */
+			action: () => postJson(apiEventSavePath, payload),
 			setActionState,
 			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
 		});

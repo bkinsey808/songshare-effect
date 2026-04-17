@@ -2,6 +2,7 @@ import { Effect } from "effect";
 
 import postJson from "@/shared/fetch/postJson";
 import { apiCommunityUserRemovePath } from "@/shared/paths";
+import { type CommunityUserRemovePayload } from "@/shared/validation/communitySchemas";
 
 import type { InvitationSlice } from "../slice/InvitationSlice.type";
 
@@ -23,12 +24,8 @@ export default function declineCommunityInvitation(
 			get();
 		setInvitationError(undefined);
 
-		yield* $(
-			Effect.tryPromise({
-				try: () => postJson(apiCommunityUserRemovePath, { community_id: communityId }),
-				catch: (error) => new Error(error instanceof Error ? error.message : String(error)),
-			}),
-		);
+		const payload: CommunityUserRemovePayload = { community_id: communityId };
+		yield* $(postJson(apiCommunityUserRemovePath, payload));
 
 		// Remove the declined invitation from the list
 		const updated = pendingCommunityInvitations.filter((inv) => inv.community_id !== communityId);

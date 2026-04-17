@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { Effect } from "effect";
+
 import forceCast from "@/react/lib/test-utils/forceCast";
 
 import type { CommunityActionState } from "../CommunityActionState.type";
@@ -15,7 +17,7 @@ const EXPECTED_SUCCESS_PATH_CALL_COUNT = 2;
 describe("runCommunityAction", () => {
 	it("sets loading state, runs action, refreshes, then sets success on success", async () => {
 		const setActionState = vi.fn();
-		const action = vi.fn().mockResolvedValue(undefined);
+		const action = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const refreshFn = vi.fn().mockResolvedValue(undefined);
 
 		await runCommunityAction({
@@ -49,7 +51,7 @@ describe("runCommunityAction", () => {
 	it("sets error state when action throws", async () => {
 		const setActionState = vi.fn();
 		const errorMsg = "Action failed";
-		const action = vi.fn().mockRejectedValue(new Error(errorMsg));
+		const action = vi.fn().mockReturnValue(Effect.fail(new Error(errorMsg)));
 		const refreshFn = vi.fn();
 
 		await runCommunityAction({
@@ -73,7 +75,7 @@ describe("runCommunityAction", () => {
 
 	it("converts non-Error throw to string in error state", async () => {
 		const setActionState = vi.fn();
-		const action = vi.fn().mockRejectedValue("string error");
+		const action = vi.fn().mockReturnValue(Effect.fail(new Error("string error")));
 
 		await runCommunityAction({
 			key: ACTION_KEY,
@@ -91,7 +93,7 @@ describe("runCommunityAction", () => {
 
 	it("sets success state even when refresh fails after successful action", async () => {
 		const setActionState = vi.fn();
-		const action = vi.fn().mockResolvedValue(undefined);
+		const action = vi.fn().mockReturnValue(Effect.succeed(undefined));
 		const refreshFn = vi.fn().mockRejectedValue(new Error("Refresh failed"));
 
 		await runCommunityAction({

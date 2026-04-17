@@ -8,6 +8,7 @@ import useFormChanges from "@/react/lib/form/useFormChanges";
 import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import useItemTags from "@/react/tag/useItemTags";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
+import { defaultLanguage } from "@/shared/language/supported-languages";
 
 import { type FormState, type Slide, type UseSongFormReturn } from "../song-form-types";
 import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
@@ -45,6 +46,7 @@ export default function useSongForm(): UseSongFormReturn {
 	const hasPopulatedRef = useRef(false);
 	// Track if we're currently fetching fresh data (state so changes trigger re-renders)
 	const [isFetching, setIsFetching] = useState(false);
+	const [submitError, setSubmitError] = useState<string | undefined>(undefined);
 
 	// Loading state - true when editing and waiting for fresh data
 	// Initialize to true if we're editing (songId exists) to prevent flash of stale data
@@ -73,13 +75,18 @@ export default function useSongForm(): UseSongFormReturn {
 	const {
 		slideOrder,
 		slides,
-		fields,
 		setSlideOrder,
 		setSlides,
-		toggleField,
 		resetFormState,
 		initialSlideId,
 	} = useFormState();
+
+	// Derive active display fields from language pickers in formValues
+	const fields: readonly string[] = [
+		formValues.lyrics,
+		...(formValues.script === undefined ? [] : [formValues.script]),
+		...formValues.translations,
+	];
 
 	const {
 		isFormFieldsExpanded,
@@ -93,7 +100,6 @@ export default function useSongForm(): UseSongFormReturn {
 	// Combine all form state for change tracking
 	const currentFormState: FormState = {
 		formValues,
-		fields,
 		slideOrder,
 		tags,
 		slides,
@@ -113,11 +119,13 @@ export default function useSongForm(): UseSongFormReturn {
 		song_id: songId,
 		song_name: "",
 		song_slug: "",
+		lyrics: defaultLanguage,
+		script: undefined,
+		translations: [],
 		short_credit: "",
 		long_credit: "",
 		private_notes: "",
 		public_notes: "",
-		fields: ["lyrics"],
 		slide_order: [initialSlideId],
 		tags: [],
 		slides: {
@@ -138,6 +146,12 @@ export default function useSongForm(): UseSongFormReturn {
 	const { onSubmit, handleCancel } = useFormSubmission({
 		handleApiResponseEffect,
 		resetFormState,
+		setSubmitError: (message) => {
+			setSubmitError(message);
+		},
+		clearSubmitError: () => {
+			setSubmitError(undefined);
+		},
 		onSaveSuccess: (data: unknown) => {
 			const decoded = Schema.decodeUnknownEither(songPublicSchema)(data);
 			if (decoded._tag === "Right") {
@@ -181,19 +195,16 @@ export default function useSongForm(): UseSongFormReturn {
 		formRef,
 		songNameRef,
 		songSlugRef,
-		fields,
 		setIsLoadingData,
 		setFormValuesState,
 		setSlideOrder,
 		setSlides,
-		toggleField,
 		initialSlideId,
 	});
 
 	useInitialFormState({
 		songId,
 		formValues,
-		fields,
 		slideOrder,
 		tags,
 		slides,
@@ -205,7 +216,7 @@ export default function useSongForm(): UseSongFormReturn {
 	// Handle form submission with data collection
 	const handleFormSubmit = createFormSubmitHandler<SongFormData>({
 		songId,
-		fields,
+		translations: formValues.translations,
 		slideOrder,
 		slides,
 		getTags,
@@ -259,7 +270,6 @@ export default function useSongForm(): UseSongFormReturn {
 		// Sync initial state with the new reset state so hasUnsavedChanges clears
 		setInitialFormState({
 			formValues: emptyFormValues,
-			fields: ["lyrics"],
 			slideOrder: [newFirstId],
 			tags: [],
 			slides: {
@@ -305,12 +315,12 @@ export default function useSongForm(): UseSongFormReturn {
 		getFieldError,
 		isSubmitting,
 		isLoadingData,
+		submitError,
 		slideOrder,
 		slides,
 		fields,
 		setSlideOrder: updateSlideOrder,
 		setSlides: updateSlides,
-		toggleField,
 		handleFormSubmit,
 		formRef,
 		resetForm,

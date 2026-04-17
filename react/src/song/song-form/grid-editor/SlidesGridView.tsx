@@ -22,6 +22,8 @@ type SlidesGridViewProps = Readonly<
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 		openChordPicker?: OpenChordPicker;
+		lyricsLanguage: string;
+		scriptLanguage: string | undefined;
 	}>
 >;
 
@@ -52,6 +54,8 @@ function noopOpenChordPicker(): void {
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to update slides map
  * @param openChordPicker - Optional callback to open the chord picker
+ * @param lyricsLanguage - BCP 47 language code for the lyrics field.
+ * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element rendering the slides grid view
  */
 export default function SlidesGridView({
@@ -61,6 +65,8 @@ export default function SlidesGridView({
 	slides,
 	setSlides,
 	openChordPicker = noopOpenChordPicker,
+	lyricsLanguage,
+	scriptLanguage,
 }: SlidesGridViewProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -118,8 +124,8 @@ export default function SlidesGridView({
 				toggleBackgroundPicker={toggleBackgroundPicker}
 				selectSlideBackgroundImage={selectSlideBackgroundImage}
 				clearSlideBackgroundImage={clearSlideBackgroundImage}
-				openChordPicker={openChordPicker}
-			/>
+				openChordPicker={openChordPicker}			lyricsLanguage={lyricsLanguage}
+			scriptLanguage={scriptLanguage}			/>
 			{/* Add New Slide Button */}
 			<div className="mt-4 flex justify-start">
 				<Button

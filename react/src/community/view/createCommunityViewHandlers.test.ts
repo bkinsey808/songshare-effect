@@ -176,7 +176,7 @@ describe("createCommunityViewHandlers", () => {
 
 	it("onShareSongClick posts share request and refreshes on success", async () => {
 		const params = makeParams();
-		vi.mocked(postJson).mockResolvedValue(undefined);
+		vi.mocked(postJson).mockReturnValue(Effect.succeed(undefined));
 		const { onShareSongClick } = createCommunityViewHandlers(params);
 
 		onShareSongClick(SONG_ID);
@@ -210,7 +210,7 @@ describe("createCommunityViewHandlers", () => {
 
 	it("onSharePlaylistClick posts share request and refreshes on success", async () => {
 		const params = makeParams();
-		vi.mocked(postJson).mockResolvedValue(undefined);
+		vi.mocked(postJson).mockReturnValue(Effect.succeed(undefined));
 		const { onSharePlaylistClick } = createCommunityViewHandlers(params);
 
 		onSharePlaylistClick(PLAYLIST_ID);

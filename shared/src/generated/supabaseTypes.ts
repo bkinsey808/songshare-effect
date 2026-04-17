@@ -1103,49 +1103,55 @@ export type Database = {
       song_public: {
         Row: {
           created_at: string | null
-          fields: string[]
           key: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit: string | null
+          lyrics: string
           public_notes: string | null
           scale: string | null
+          script: string | null
           short_credit: string | null
           slide_order: string[]
           slides: Json
           song_id: string
           song_name: string
           song_slug: string
+          translations: string[]
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
-          fields: string[]
           key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
+          lyrics?: string
           public_notes?: string | null
           scale?: string | null
+          script?: string | null
           short_credit?: string | null
           slide_order: string[]
           slides: Json
           song_id: string
           song_name: string
           song_slug: string
+          translations?: string[]
           updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
-          fields?: string[]
           key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
+          lyrics?: string
           public_notes?: string | null
           scale?: string | null
+          script?: string | null
           short_credit?: string | null
           slide_order?: string[]
           slides?: Json
           song_id?: string
           song_name?: string
           song_slug?: string
+          translations?: string[]
           updated_at?: string | null
           user_id?: string
         }
@@ -1372,6 +1378,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      are_all_valid_bcp47: { Args: { codes: string[] }; Returns: boolean }
+      array_has_no_duplicates: { Args: { arr: string[] }; Returns: boolean }
       debug_jwt: {
         Args: never
         Returns: {
@@ -1388,6 +1396,7 @@ export type Database = {
         Args: { p_community_id: string; p_user_id: string }
         Returns: boolean
       }
+      is_valid_bcp47: { Args: { code: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

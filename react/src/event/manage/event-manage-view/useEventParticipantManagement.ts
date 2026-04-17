@@ -1,9 +1,13 @@
-import { Effect as EffectRuntime } from "effect";
+import { Effect } from "effect";
 import { useEffect, useState } from "react";
 
 import useAppStore from "@/react/app-store/useAppStore";
 import postJson from "@/shared/fetch/postJson";
 import { apiEventUserAddPath, apiEventUserKickPath } from "@/shared/paths";
+import {
+    type EventUserAddPayload,
+    type EventUserKickPayload,
+} from "@/shared/validation/eventUserSchemas";
 
 import type { ActionState } from "../ActionState.type";
 import refreshEvent from "../refreshEvent";
@@ -12,7 +16,7 @@ import runAction from "../runAction";
 type UseEventParticipantManagementProps = {
 	readonly currentEventId: string | undefined;
 	readonly event_slug: string | undefined;
-	readonly fetchEventBySlug: (eventSlug: string) => EffectRuntime.Effect<void, unknown>;
+	readonly fetchEventBySlug: (eventSlug: string) => Effect.Effect<void, unknown>;
 	readonly setActionState: React.Dispatch<React.SetStateAction<ActionState>>;
 };
 
@@ -47,7 +51,7 @@ export default function useEventParticipantManagement({
 	useEffect(() => {
 		void (async (): Promise<void> => {
 			try {
-				await EffectRuntime.runPromise(fetchUserLibrary());
+				await Effect.runPromise(fetchUserLibrary());
 			} catch {
 				// Keep manager usable even if user library fails to load
 			}
@@ -76,11 +80,6 @@ export default function useEventParticipantManagement({
 			return;
 		}
 
-		/**
-		 * Click handler that sends an invite for the currently selected user id.
-		 *
-		 * @returns void
-		 */
 		const userId = inviteUserIdInput?.trim() ?? "";
 		if (userId === "") {
 			return;
@@ -88,14 +87,20 @@ export default function useEventParticipantManagement({
 		void runAction({
 			actionKey: "invite",
 			successMessage: "Participant invited",
-			action: async () => {
-				await postJson(apiEventUserAddPath, {
+			action: (): Effect.Effect<void, Error> => {
+				const payload: EventUserAddPayload = {
 					event_id: currentEventId,
 					user_id: userId,
 					role: "participant",
 					status: "invited",
-				});
-				setInviteUserIdInput(undefined);
+				};
+				return postJson(apiEventUserAddPath, payload).pipe(
+					Effect.tap(() =>
+						Effect.sync(() => {
+							setInviteUserIdInput(undefined);
+						}),
+					),
+				);
 			},
 			setActionState,
 			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
@@ -113,20 +118,14 @@ export default function useEventParticipantManagement({
 			return;
 		}
 
-		/**
-		 * Kick a participant by user id.
-		 *
-		 * @param userId - id of the user to remove from the event
-		 * @returns void
-		 */
+		const kickPayload: EventUserKickPayload = {
+			event_id: currentEventId,
+			user_id: userId,
+		};
 		void runAction({
 			actionKey: `kick:${userId}`,
 			successMessage: "Participant kicked",
-			action: () =>
-				postJson(apiEventUserKickPath, {
-					event_id: currentEventId,
-					user_id: userId,
-				}),
+			action: () => postJson(apiEventUserKickPath, kickPayload),
 			setActionState,
 			refreshFn: () => refreshEvent(event_slug, fetchEventBySlug),
 		});

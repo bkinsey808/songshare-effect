@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import cssVars from "@/react/lib/utils/cssVars";
+import { findLanguageByTag } from "@/shared/language/translationLanguages";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -24,6 +25,8 @@ type SlidesGridTableProps = Readonly<
 		readonly slideOrder: readonly string[];
 		slides: Readonly<Record<string, Slide>>;
 		horizontalScrollThreshold: number;
+		lyricsLanguage: string;
+		scriptLanguage: string | undefined;
 
 		editSlideName: ({ slideId, newName }: { slideId: string; newName: string }) => void;
 		editFieldValue: ({
@@ -86,6 +89,8 @@ type SlidesGridTableProps = Readonly<
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
  * @param openChordPicker - Callback to open the chord picker for a slide row
+ * @param lyricsLanguage - BCP 47 language code for the lyrics field.
+ * @param scriptLanguage - Optional BCP 47 language code for the script field.
  * @returns React element for the slides grid table and DnD container.
  */
 export default function SlidesGridTable({
@@ -106,6 +111,8 @@ export default function SlidesGridTable({
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
 	openChordPicker,
+	lyricsLanguage,
+	scriptLanguage,
 }: SlidesGridTableProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -191,7 +198,24 @@ export default function SlidesGridTable({
 										className="relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--slides-grid-field-width) min-w-(--slides-grid-field-width) max-w-(--slides-grid-field-width)"
 										style={thStyle}
 									>
-										{t(`song.${field}`, field)}
+										{(() => {
+											if (field === "lyrics") {
+												return t(`song.${field}`, field);
+											}
+											if (field === "script") {
+												return `Script: ${t(`song.${field}`, field)}`;
+											}
+											if (field === scriptLanguage) {
+												const langEntry = findLanguageByTag(field);
+												return langEntry ? `Script: ${langEntry.name}` : t(`song.${field}`, field);
+											}
+											if (field === lyricsLanguage) {
+												const langEntry = findLanguageByTag(field);
+												return langEntry ? `Lyrics: ${langEntry.name}` : t(`song.${field}`, field);
+											}
+											const langEntry = findLanguageByTag(field);
+											return langEntry ? langEntry.name : t(`song.${field}`, field);
+										})()}
 										{/* Resize Handle */}
 										<ResizeHandle
 											field={field}

@@ -4,15 +4,11 @@ import { Effect, Schema } from "effect";
 import type { ReadonlyContext } from "@/api/hono/ReadonlyContext.type";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { type Database } from "@/shared/generated/supabaseTypes";
+import { communityEventAddSchema } from "@/shared/validation/communitySchemas";
 
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getCommunityRoleCapabilities from "../community-user/getCommunityRoleCapabilities";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
-
-const CommunityEventRemoveSchema = Schema.Struct({
-	community_id: Schema.String,
-	event_id: Schema.String,
-});
 
 /**
  * Server-side handler for removing an event from a community.
@@ -35,7 +31,7 @@ export default function communityEventRemove(
 		);
 
 		const { community_id, event_id } = yield* $(
-			Schema.decodeUnknown(CommunityEventRemoveSchema)(body).pipe(
+			Schema.decodeUnknown(communityEventAddSchema)(body).pipe(
 				Effect.mapError(
 					() => new ValidationError({ message: "community_id and event_id are required" }),
 				),

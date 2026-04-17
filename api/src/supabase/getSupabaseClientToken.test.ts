@@ -1,7 +1,8 @@
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { MS_PER_SECOND, ONE_HOUR_SECONDS, TOKEN_CACHE_SKEW_SECONDS } from "@/shared/constants/http";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import { TEST_VISITOR_ID } from "@/shared/test-utils/testUserConstants";
 
 import getSupabaseClientToken from "./getSupabaseClientToken";
@@ -33,7 +34,7 @@ describe("getSupabaseClientToken", () => {
 			realtimeToken: undefined,
 		});
 
-		const result = await getSupabaseClientToken(ENV);
+		const result = await Effect.runPromise(getSupabaseClientToken(ENV));
 
 		expect(result.accessToken).toBe(MOCK_TOKEN);
 		expect(tokenCache.setCachedClientToken).not.toHaveBeenCalled();
@@ -63,7 +64,7 @@ describe("getSupabaseClientToken", () => {
 			forceCast({ auth: { signInWithPassword } }),
 		);
 
-		const result = await getSupabaseClientToken(ENV);
+		const result = await Effect.runPromise(getSupabaseClientToken(ENV));
 
 		expect(result.accessToken).toBe(MOCK_TOKEN);
 		expect(signInWithPassword).toHaveBeenCalledWith({

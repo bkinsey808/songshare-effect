@@ -86,30 +86,32 @@ export default function accountRegister(
 
 		// Parse register data from cookie. Enable debug so parseDataFromCookie
 		// prints the raw cookie and JWT verification details to the server log.
-		const registerData = yield* $(
-			Effect.tryPromise({
-				try: async () => {
-					const parsed = await parseDataFromCookie<typeof RegisterDataSchema>({
-						ctx,
-						// RegisterDataSchema is a Schema<RegisterData, RegisterData,
-						// never>. We need to present it as a Schema whose input
-						// type is `unknown` for decodeUnknownSync usage below.
-						// The register schema comes from generated types and needs
-						// to be widened to accept `unknown` input. This cast is
-						// safe at runtime but narrows types in TS; suppress the
-						// ESLint rule for this specific line.
-						schema: RegisterDataSchema,
-						cookieName: registerCookieName,
-						debug: true,
-					});
-					if (parsed === undefined) {
-						throw new Error("Missing register cookie");
-					}
-					return parsed;
-				},
-				catch: () => new ValidationError({ message: "Invalid register cookie" }),
-			}),
+		const parsed = yield* $(
+			parseDataFromCookie<typeof RegisterDataSchema>({
+				ctx,
+				// RegisterDataSchema is a Schema<RegisterData, RegisterData,
+				// never>. We need to present it as a Schema whose input
+				// type is `unknown` for decodeUnknownSync usage below.
+				// The register schema comes from generated types and needs
+				// to be widened to accept `unknown` input. This cast is
+				// safe at runtime but narrows types in TS; suppress the
+				// ESLint rule for this specific line.
+				schema: RegisterDataSchema,
+				cookieName: registerCookieName,
+				debug: true,
+				allowMissing: false,
+			}).pipe(
+				Effect.catchAll(() =>
+					Effect.fail(
+						new ValidationError({
+							message: "Invalid register cookie",
+						}),
+					),
+				),
+			),
 		);
+
+		const registerData = parsed;
 
 		// Use service key for backend
 		const supabaseUrl = ctx.env.VITE_SUPABASE_URL;

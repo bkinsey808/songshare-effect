@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from "@testing-library/react";
+import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -103,7 +104,7 @@ describe("useCommunityManageBody", () => {
 	it("invites a user: calls postJson and clears input on success", async () => {
 		vi.resetAllMocks();
 		const mockPost = vi.mocked(postJson);
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		installStoreMocks({
 			userSessionData: { user: { user_id: "o1" } },

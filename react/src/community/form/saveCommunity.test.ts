@@ -30,7 +30,7 @@ describe("saveCommunity", () => {
 
 	it("sets saving and clears error on success", async () => {
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockResolvedValue(savedEntry);
+		mockPost.mockReturnValue(Effect.succeed(savedEntry));
 
 		const eff = saveCommunity(request, get);
 
@@ -45,7 +45,7 @@ describe("saveCommunity", () => {
 
 	it("clears saving and sets error on failure", async () => {
 		const mockPost = vi.mocked(postJsonWithResult);
-		mockPost.mockRejectedValue(new Error("boom"));
+		mockPost.mockReturnValue(Effect.fail(new Error("boom")));
 
 		const eff = saveCommunity(request, get);
 

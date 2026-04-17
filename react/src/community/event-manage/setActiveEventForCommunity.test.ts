@@ -28,7 +28,7 @@ describe("setActiveEventForCommunity", () => {
 	it("sets loading and clears error on success with eventId", async () => {
 		const mockPost = vi.mocked(postJson);
 		mockPost.mockClear();
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		const eff = setActiveEventForCommunity("c1", "e1", get);
 
@@ -46,7 +46,7 @@ describe("setActiveEventForCommunity", () => {
 	it("sends only community_id when eventId is undefined", async () => {
 		const mockPost = vi.mocked(postJson);
 		mockPost.mockClear();
-		mockPost.mockResolvedValue(undefined);
+		mockPost.mockReturnValue(Effect.succeed(undefined));
 
 		const eff = setActiveEventForCommunity("c1", undefined, get);
 
@@ -64,7 +64,7 @@ describe("setActiveEventForCommunity", () => {
 	it("clears loading and sets error on failure", async () => {
 		const mockPost = vi.mocked(postJson);
 		mockPost.mockClear();
-		mockPost.mockRejectedValue(new Error("boom"));
+		mockPost.mockReturnValue(Effect.fail(new Error("boom")));
 
 		const eff = setActiveEventForCommunity("c1", "e1", get);
 

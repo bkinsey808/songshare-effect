@@ -2,6 +2,8 @@ import { cleanup, renderHook, waitFor } from "@testing-library/react";
 import { useRef } from "react";
 import { describe, expect, it } from "vitest";
 
+import { defaultLanguage } from "@/shared/language/supported-languages";
+
 import useSongFormValues from "./useSongFormValues";
 
 describe("useSongFormValues", () => {
@@ -24,6 +26,8 @@ describe("useSongFormValues", () => {
 
 		await waitFor(() => {
 			expect(result.current.formValues).toStrictEqual(emptyFormValues);
+			expect(result.current.formValues.lyrics).toBe(defaultLanguage);
+			expect(result.current.formValues.translations).toStrictEqual([]);
 		});
 	});
 
