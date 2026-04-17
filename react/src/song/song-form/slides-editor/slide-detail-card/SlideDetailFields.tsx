@@ -24,6 +24,12 @@ type SlideDetailFieldsProps = Readonly<{
 	onSyncLyricsSelection: ReturnType<typeof useSlideDetailCard>["onSyncLyricsSelection"];
 }>;
 
+/**
+ * Formats a list of language codes into a comma-separated string of language names.
+ *
+ * @param codes - Array of language codes
+ * @returns Comma-separated string of language names
+ */
 function formatLanguageList(codes: readonly string[]): string {
 	return codes.map((code) => {
 		const entry = findLanguageByTag(code);

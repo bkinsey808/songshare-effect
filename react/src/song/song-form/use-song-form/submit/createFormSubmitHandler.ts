@@ -25,6 +25,8 @@ type CreateFormSubmitHandlerParams<FormData> = {
  * `handleSubmit`/`onSubmit` pipeline.
  *
  * @param songId - optional song id to include when editing
+ * @param lyrics - array of selected lyrics language codes
+ * @param script - array of selected script language codes
  * @param slideOrder - ordered list of slide ids
  * @param translations - Translation language codes present on the form
  * @param slides - map of slide id to `Slide` objects
