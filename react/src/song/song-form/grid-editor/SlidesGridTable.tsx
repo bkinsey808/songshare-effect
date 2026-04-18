@@ -8,7 +8,7 @@ import { findLanguageByTag } from "@/shared/language/translationLanguages";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
-import { type OpenChordPicker, type Slide } from "../song-form-types";
+import { type Slide } from "../song-form-types";
 import SlidesGridRow from "./grid-row/SlidesGridRow";
 import ResizeHandle from "./ResizeHandle";
 import useSlidesGridTable from "./useSlidesGridTable";
@@ -62,7 +62,7 @@ type SlidesGridTableProps = Readonly<
 			}>,
 		) => void;
 		clearSlideBackgroundImage: (slideId: string) => void;
-		openChordPicker: OpenChordPicker;
+		songChords: readonly string[];
 	}>
 >;
 
@@ -105,7 +105,7 @@ function formatLanguageList(codes: readonly string[]): string {
  * @param toggleBackgroundPicker - Toggles the inline background picker.
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
- * @param openChordPicker - Callback to open the chord picker for a slide row
+ * @param songChords - Chord tokens defined on the song.
  * @returns React element for the slides grid table and DnD container.
  */
 export default function SlidesGridTable({
@@ -127,7 +127,7 @@ export default function SlidesGridTable({
 	toggleBackgroundPicker,
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
-	openChordPicker,
+	songChords,
 }: SlidesGridTableProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -153,7 +153,7 @@ export default function SlidesGridTable({
 
 	return (
 		<div
-			className="overflow-x-auto"
+			className="overflow-x-auto bg-slate-950"
 			style={{
 				maxWidth: "100%",
 				overflowX:
@@ -168,7 +168,7 @@ export default function SlidesGridTable({
 				onDragEnd={handleDragEnd}
 			>
 				<table
-					className="min-w-(--table-min-width) border-collapse border border-gray-300 dark:border-gray-600"
+					className="min-w-(--table-min-width) border-collapse border border-slate-700 bg-slate-950"
 					style={cssVars({
 						"slide-name-width": `${SLIDE_NAME_WIDTH}px`,
 						"slide-background-width": `${SLIDE_BACKGROUND_WIDTH}px`,
@@ -194,10 +194,10 @@ export default function SlidesGridTable({
 						...fieldWidthVars,
 					})}
 				>
-					<thead className="bg-gray-50 dark:bg-gray-800">
-						<tr>
+					<thead className="bg-slate-900">
+						<tr className="bg-slate-900">
 							{/* Fixed Slide Name Column */}
-							<th className="relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--slide-name-width) min-w-(--slide-name-width) max-w-(--slide-name-width)">
+							<th className="relative border border-slate-700 px-4 py-2 text-left font-semibold dark:text-white w-(--slide-name-width) min-w-(--slide-name-width) max-w-(--slide-name-width)">
 								{t("song.slideName", "Slide Name")}
 							</th>
 							{/* Resizable Field Columns */}
@@ -210,7 +210,7 @@ export default function SlidesGridTable({
 								return (
 									<th
 										key={field}
-										className="relative border border-gray-300 dark:border-gray-600 px-4 py-2 text-left font-semibold dark:text-white w-(--slides-grid-field-width) min-w-(--slides-grid-field-width) max-w-(--slides-grid-field-width)"
+										className="relative border border-slate-700 px-4 py-2 text-left font-semibold dark:text-white w-(--slides-grid-field-width) min-w-(--slides-grid-field-width) max-w-(--slides-grid-field-width)"
 										style={thStyle}
 									>
 										{(() => {
@@ -238,7 +238,7 @@ export default function SlidesGridTable({
 									</th>
 								);
 							})}
-							<th className="relative border border-gray-300 px-4 py-2 text-left font-semibold dark:border-gray-600 dark:text-white w-(--slide-background-width) min-w-(--slide-background-width) max-w-(--slide-background-width)">
+							<th className="relative border border-slate-700 px-4 py-2 text-left font-semibold dark:border-slate-700 dark:text-white w-(--slide-background-width) min-w-(--slide-background-width) max-w-(--slide-background-width)">
 								{t("song.slideBackgroundImage", "Background Image")}
 							</th>
 						</tr>
@@ -277,7 +277,7 @@ export default function SlidesGridTable({
 										toggleBackgroundPicker={toggleBackgroundPicker}
 										selectSlideBackgroundImage={selectSlideBackgroundImage}
 										clearSlideBackgroundImage={clearSlideBackgroundImage}
-										openChordPicker={openChordPicker}
+										songChords={songChords}
 										lyricsLanguages={lyricsLanguages}
 										scriptLanguages={scriptLanguages}
 									/>

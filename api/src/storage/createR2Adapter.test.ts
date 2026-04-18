@@ -24,6 +24,7 @@ describe("createR2Adapter", () => {
 		}
 
 		const deleteSpy = vi.fn();
+
 		/**
 		 * @param key - key
 		 * @returns promise
@@ -66,6 +67,7 @@ describe("createR2Adapter", () => {
 		}
 
 		const deleteSpy = vi.fn();
+
 		/**
 		 * @param key - key
 		 * @returns promise

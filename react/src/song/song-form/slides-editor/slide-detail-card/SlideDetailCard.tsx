@@ -5,7 +5,7 @@ import FormField from "@/react/lib/design-system/form/FormField";
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
 import ChevronUpIcon from "@/react/lib/design-system/icons/ChevronUpIcon";
 import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
-import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
 
 import SlideBackgroundLibraryContent from "../SlideBackgroundLibraryContent";
 import SlideDetailFields from "./SlideDetailFields";
@@ -25,7 +25,7 @@ type SlideDetailCardProps = Readonly<{
 		backgroundPickerSlideId: string | undefined;
 	}>;
 	actions: Readonly<{
-		openChordPicker: OpenChordPicker;
+		songChords: readonly string[];
 		editSlideName: (params: Readonly<{ slideId: string; newName: string }>) => void;
 		editFieldValue: (
 			params: Readonly<{
@@ -105,7 +105,7 @@ export default function SlideDetailCard({
 		idx,
 		slideOrder,
 		slides,
-		openChordPicker: actions.openChordPicker,
+		songChords: actions.songChords,
 		confirmingDeleteSlideId: uiState.confirmingDeleteSlideId,
 		setConfirmingDeleteSlideId: uiState.setConfirmingDeleteSlideId,
 		backgroundPickerSlideId: uiState.backgroundPickerSlideId,

@@ -81,7 +81,7 @@ export default function SlideNameLanguageSelect({
 					onSelectScriptLanguage(code);
 				}
 			}}
-			className="w-full cursor-pointer rounded border border-gray-600 bg-gray-800 px-1 py-1 text-xs text-gray-300 hover:border-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500"
+			className="w-full cursor-pointer rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-gray-300 hover:border-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500"
 			data-testid="slide-name-language-select"
 		>
 			<option value="" disabled hidden>

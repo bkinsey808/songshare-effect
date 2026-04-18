@@ -6,7 +6,7 @@ import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 import { safeGet } from "@/shared/utils/safe";
 
 import useSlidesEditor from "../slides-editor/useSlidesEditor";
-import { type OpenChordPicker, type Slide } from "../song-form-types";
+import { type Slide } from "../song-form-types";
 import hashToHue from "./duplicateTint";
 import SlidesGridTable from "./SlidesGridTable";
 
@@ -23,18 +23,9 @@ type SlidesGridViewProps = Readonly<
 		readonly setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
-		openChordPicker?: OpenChordPicker;
+		songChords: readonly string[];
 	}>
 >;
-
-/**
- * Provides a no-op fallback for grid views that do not expose chord editing.
- *
- * @returns Nothing
- */
-function noopOpenChordPicker(): void {
-	return undefined;
-}
 
 /**
  * Presentation-oriented grid view of slides.
@@ -48,7 +39,7 @@ function noopOpenChordPicker(): void {
  * @param setSlideOrder - Setter to update the presentation order
  * @param slides - Lookup of all slides by id.
  * @param setSlides - Setter to update slides map
- * @param openChordPicker - Callback to open the chord picker.
+ * @param songChords - Chord tokens defined on the song.
  * @returns React element rendering the grid view.
  */
 export default function SlidesGridView({
@@ -59,7 +50,7 @@ export default function SlidesGridView({
 	setSlideOrder,
 	slides,
 	setSlides,
-	openChordPicker = noopOpenChordPicker,
+	songChords,
 }: SlidesGridViewProps): ReactElement {
 	const { t } = useTranslation();
 	const {
@@ -81,6 +72,7 @@ export default function SlidesGridView({
 		slides,
 		setSlides,
 		enableBackgroundLibrary: true,
+		songChords,
 	});
 
 	// Use slideOrder to maintain the same order as Slides View, including duplicates
@@ -119,7 +111,7 @@ export default function SlidesGridView({
 				toggleBackgroundPicker={toggleBackgroundPicker}
 				selectSlideBackgroundImage={selectSlideBackgroundImage}
 				clearSlideBackgroundImage={clearSlideBackgroundImage}
-				openChordPicker={openChordPicker}
+				songChords={songChords}
 			/>
 			{/* Add New Slide Button */}
 			<div className="mt-4 flex justify-start">

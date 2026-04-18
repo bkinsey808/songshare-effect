@@ -3,7 +3,7 @@ import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useRef } from "react";
 
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
-import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
 
 import SlideBackgroundImageCell from "../SlideBackgroundImageCell";
 import SlideFieldCell from "../SlideFieldCell";
@@ -84,7 +84,7 @@ type SortableGridRowInnerProps = Readonly<{
 		}>,
 	) => void;
 	clearSlideBackgroundImage: (slideId: string) => void;
-	openChordPicker: OpenChordPicker;
+	songChords: readonly string[];
 	lyricsLanguages: readonly string[];
 	scriptLanguages: readonly string[];
 }>;
@@ -120,6 +120,7 @@ type SortableGridRowInnerProps = Readonly<{
  * @param toggleBackgroundPicker - Toggles the inline background picker.
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
+ * @param songChords - Distinct chord tokens available for the slide lyrics editor.
  * @returns React element containing the slide name and field cells.
  */
 export type { SortableGridRowInnerProps };
@@ -151,7 +152,7 @@ export type { SortableGridRowInnerProps };
  * @param toggleBackgroundPicker - Toggles the inline background picker.
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
- * @param openChordPicker - Callback to open the chord picker.
+ * @param songChords - Distinct chord tokens available for the slide lyrics editor.
  * @param lyricsLanguages - Selected lyrics language codes.
  * @param scriptLanguages - Selected script language codes.
  * @returns React element containing the slide name and field cells.
@@ -181,7 +182,7 @@ export default function SortableGridCells({
 	toggleBackgroundPicker,
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
-	openChordPicker,
+	songChords,
 	lyricsLanguages,
 	scriptLanguages,
 }: SortableGridRowInnerProps): ReactElement {
@@ -197,8 +198,8 @@ export default function SortableGridCells({
 		slideId,
 		slide,
 		fields,
+		songChords,
 		editFieldValue,
-		openChordPicker,
 	});
 
 	const fallbackTextareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -221,11 +222,9 @@ export default function SortableGridCells({
 				listeners={listeners}
 				isDuplicateRow={isDuplicateRow}
 				hasLyrics={hasLyrics}
-				isEditingChord={lyricsEditor.selectedChordToken !== undefined}
 				currentChordToken={lyricsEditor.currentChordToken?.token}
-				existingChordTokens={lyricsEditor.existingChordTokens}
+				songChords={lyricsEditor.existingChordTokens}
 				onSelectChord={lyricsEditor.handleSelectChord}
-				onOpenChordPicker={lyricsEditor.handleOpenChordPicker}
 				hasScript={hasScript}
 				lyricsLanguages={lyricsLanguages}
 				scriptLanguages={scriptLanguages}

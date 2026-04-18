@@ -26,6 +26,7 @@ const SPELLING_SEARCH_ENTRY_COUNT = 12;
 // Offset 0 is the root button in the note search grid.
 const ROOT_SEMITONE_OFFSET = 0;
 const PERFECT_FIFTH_SEMITONE_OFFSET = 7;
+const PERFECT_FOURTH_SEMITONE_OFFSET = 5;
 // Interval spelling for a major triad: major third ("3") + perfect fifth ("5").
 const MAJOR_TRIAD_SPELLING = "3,5";
 const QUERY_MAJOR = "major";
@@ -615,5 +616,51 @@ describe("useChordSearch — renderHook", () => {
 
 		// Assert
 		expect(result.current.maxNotes).toStrictEqual(TRIAD_NOTE_COUNT);
+	});
+
+	it("resets search filters and selects the new root when absoluteRoot changes", async () => {
+		// Arrange
+		const { result, rerender } = renderHook(
+			({ absoluteRoot }) => useChordSearch({ ...DEFAULT_PARAMS, absoluteRoot }),
+			{ initialProps: { absoluteRoot: "C" as SongKey } },
+		);
+
+		// Act 1: Set some filters
+		result.current.setQuery("test query");
+		result.current.handleNoteSearchToggle(PERFECT_FIFTH_SEMITONE_OFFSET);
+
+		await waitFor(() => {
+			expect(result.current.query).toBe("test query");
+			expect(result.current.noteSearchEntries[PERFECT_FIFTH_SEMITONE_OFFSET]?.toggleState).toBe(
+				"required",
+			);
+		});
+
+		// Act 2: Change the root to G
+		rerender({ absoluteRoot: "G" as SongKey });
+
+		// Assert: Filters cleared, and ONLY the new root (G) is selected
+		await waitFor(() => {
+			expect(result.current.query).toBe("");
+			// G is the new root, so it appears at offset 0 in noteSearchEntries.
+			expect(result.current.noteSearchEntries[ROOT_SEMITONE_OFFSET]?.toggleState).toBe("required");
+			expect(result.current.noteSearchEntries[ROOT_SEMITONE_OFFSET]?.letterName).toBe("G");
+		});
+
+		// C (previous root) is now at offset 5 relative to G. It should be reset to default.
+		await waitFor(() => {
+			expect(result.current.noteSearchEntries[PERFECT_FOURTH_SEMITONE_OFFSET]?.toggleState).toBe(
+				"default",
+			);
+			expect(result.current.noteSearchEntries[PERFECT_FOURTH_SEMITONE_OFFSET]?.letterName).toBe("C");
+		});
+
+		// The previous manual selection at offset 7 (D relative to G) should also be cleared.
+		await waitFor(() => {
+			expect(result.current.noteSearchEntries[PERFECT_FIFTH_SEMITONE_OFFSET]?.toggleState).toBe(
+				"default",
+			);
+			expect(result.current.noteSearchEntries[PERFECT_FIFTH_SEMITONE_OFFSET]?.letterName).toBe("D");
+		});
 	});
 });

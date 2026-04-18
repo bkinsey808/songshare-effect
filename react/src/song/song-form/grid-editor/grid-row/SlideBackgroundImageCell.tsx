@@ -88,10 +88,10 @@ export default function SlideBackgroundImageCell({
 	}
 
 	return (
-		<td className="w-(--slide-background-width) min-w-(--slide-background-width) max-w-(--slide-background-width) border border-gray-300 p-2 align-top dark:border-gray-600">
+		<td className="w-(--slide-background-width) min-w-(--slide-background-width) max-w-(--slide-background-width) border border-slate-700 p-2 align-top">
 			<div className="space-y-2">
 				{hasBackgroundImage ? (
-					<div className="overflow-hidden rounded border border-gray-600 bg-gray-900">
+					<div className="overflow-hidden rounded border border-slate-600 bg-slate-900">
 						<img
 							src={slide.background_image_url}
 							alt={t("song.slideBackgroundImage.previewAlt", "Slide background preview")}
@@ -99,7 +99,7 @@ export default function SlideBackgroundImageCell({
 						/>
 					</div>
 				) : (
-					<div className="rounded border border-dashed border-gray-600 px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
+					<div className="rounded border border-dashed border-slate-600 px-3 py-4 text-sm text-gray-400">
 						{t("song.slideBackgroundImage.none", "No background image selected")}
 					</div>
 				)}

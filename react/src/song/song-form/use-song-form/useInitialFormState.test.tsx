@@ -10,6 +10,7 @@ const DEFAULT_FORM_VALUES: SongFormValues = {
 	lyrics: ["en"],
 	script: [],
 	translations: [],
+	chords: [],
 	key: "",
 	short_credit: "",
 	long_credit: "",
@@ -57,7 +58,7 @@ describe("useInitialFormState", () => {
 			expect(setInitialState).toHaveBeenCalledWith(
 				expect.objectContaining({
 					formValues: DEFAULT_FORM_STATE.formValues,
-	
+
 					slideOrder: DEFAULT_FORM_STATE.slideOrder,
 					tags: DEFAULT_FORM_STATE.tags,
 				}),

@@ -1,4 +1,4 @@
-import { getJSDocTags, type Node, type JSDocTag } from "typescript";
+import { getJSDocTags, type JSDocTag, type Node } from "typescript";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/shared/test-utils/forceCast.test-util";

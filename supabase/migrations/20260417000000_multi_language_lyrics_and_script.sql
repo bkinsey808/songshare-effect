@@ -24,7 +24,7 @@ WITH normalized AS (
                 SELECT
                   'lyrics' AS field_key,
                   COALESCE(
-                    sp.slides->slide_key->'field_data'->>sp.lyrics,
+                    sp.slides->slide_key->'field_data'->>(sp.lyrics::text),
                     sp.slides->slide_key->'field_data'->>'lyrics',
                     ''
                   ) AS field_value
@@ -34,7 +34,7 @@ WITH normalized AS (
                 SELECT
                   'script' AS field_key,
                   COALESCE(
-                    sp.slides->slide_key->'field_data'->>sp.script,
+                    sp.slides->slide_key->'field_data'->>(sp.script::text),
                     sp.slides->slide_key->'field_data'->>'script',
                     ''
                   ) AS field_value
@@ -45,7 +45,7 @@ WITH normalized AS (
                 SELECT
                   translation.code AS field_key,
                   COALESCE(
-                    sp.slides->slide_key->'field_data'->>translation.code,
+                    sp.slides->slide_key->'field_data'->>(translation.code::text),
                     ''
                   ) AS field_value
                 FROM unnest(sp.translations) AS translation(code)
@@ -70,7 +70,10 @@ ALTER TABLE public.song_public
   DROP CONSTRAINT IF EXISTS song_public_script_valid_bcp47,
   DROP CONSTRAINT IF EXISTS song_public_lyrics_not_in_translations,
   DROP CONSTRAINT IF EXISTS song_public_script_not_lyrics,
-  DROP CONSTRAINT IF EXISTS song_public_script_not_in_translations;
+  DROP CONSTRAINT IF EXISTS song_public_script_not_in_translations,
+  DROP CONSTRAINT IF EXISTS song_public_lyrics_not_empty,
+  DROP CONSTRAINT IF EXISTS song_public_lyrics_no_duplicates,
+  DROP CONSTRAINT IF EXISTS song_public_script_no_duplicates;
 
 -- 3. Alter columns.
 ALTER TABLE public.song_public

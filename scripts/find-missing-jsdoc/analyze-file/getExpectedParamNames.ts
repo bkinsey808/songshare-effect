@@ -15,6 +15,12 @@ import getDocumentedParamNames from "./getDocumentedParamNames";
 import getExpectedNamesForWrapperObjectParameter from "./getExpectedNamesForWrapperObjectParameter";
 import getNamesFromBindingPattern from "./getNamesFromBindingPattern";
 
+type GetExpectedParamNamesOptions = {
+	node: Node;
+	sourceFile: SourceFile;
+	checker: TypeChecker | undefined;
+};
+
 /**
  * Get the exact set of `@param` names expected for a function.
  * @param node - The node to check.
@@ -22,11 +28,11 @@ import getNamesFromBindingPattern from "./getNamesFromBindingPattern";
  * @param checker - Type checker for the current file's project.
  * @returns Set of parameter/property names that should be documented exactly.
  */
-export default function getExpectedParamNames(
-	node: Node,
-	sourceFile: SourceFile,
-	checker?: TypeChecker,
-): Set<string> {
+export default function getExpectedParamNames({
+	node,
+	sourceFile,
+	checker,
+}: GetExpectedParamNamesOptions): Set<string> {
 	if (!isFunctionDeclaration(node) && !isMethodDeclaration(node) && !isArrowFunction(node)) {
 		return new Set<string>();
 	}
@@ -39,7 +45,7 @@ export default function getExpectedParamNames(
 		if (isObjectBindingPattern(parameter.name)) {
 			names = getNamesFromBindingPattern(parameter.name);
 		} else {
-			names = getExpectedNamesForWrapperObjectParameter(parameter, documented, checker);
+			names = getExpectedNamesForWrapperObjectParameter({ parameter, documented, checker });
 			if (names.length === ZERO && isIdentifier(parameter.name)) {
 				names = [parameter.name.text];
 			}

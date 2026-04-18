@@ -5,7 +5,7 @@ import PlusIcon from "@/react/lib/design-system/icons/PlusIcon";
 import { ONE } from "@/shared/constants/shared-constants";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
-import { type OpenChordPicker, type Slide } from "../song-form-types";
+import { type Slide } from "../song-form-types";
 import SlideDetailCard from "./slide-detail-card/SlideDetailCard";
 import useSlidesEditor from "./useSlidesEditor";
 
@@ -18,18 +18,9 @@ type SlidesEditorProps = Readonly<
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
-		openChordPicker?: OpenChordPicker;
+		songChords: readonly string[];
 	}>
 >;
-
-/**
- * No-op fallback for optional `openChordPicker` prop.
- *
- * @returns Nothing
- */
-function noopOpenChordPicker(): void {
-	return undefined;
-}
 
 /**
  * Slides editor UI that renders slide detail cards and per-field editors.
@@ -42,7 +33,7 @@ function noopOpenChordPicker(): void {
  * @param setSlideOrder - Setter to update the presentation order
  * @param slides - Map of slide id to slide data
  * @param setSlides - Setter to replace the slides map
- * @param openChordPicker - Optional callback to open the chord picker UI
+ * @param songChords - Chord tokens defined on the song
  * @returns React element rendering the Slide Editor UI
  */
 export default function SlidesEditor({
@@ -53,7 +44,7 @@ export default function SlidesEditor({
 	setSlideOrder,
 	slides,
 	setSlides,
-	openChordPicker = noopOpenChordPicker,
+	songChords,
 }: SlidesEditorProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -63,7 +54,7 @@ export default function SlidesEditor({
 		slides,
 		setSlides,
 		enableBackgroundLibrary: true,
-		openChordPicker,
+		songChords,
 	});
 
 	const slideDetailKeyCounts = new Map<string, number>();

@@ -33,7 +33,6 @@ type StoreState = Readonly<{
 }>;
 
 type HookActions = Readonly<{
-	openChordPicker: HookParams["openChordPicker"];
 	setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
 	editSlideName: (params: Readonly<{ slideId: string; newName: string }>) => void;
 	editFieldValue: (
@@ -83,6 +82,7 @@ const IMAGE_LIBRARY_ENTRIES: Record<string, ImageLibraryEntry> = {
 const EDIT_NAME_BUTTON = "edit-name";
 const MOVE_UP_BUTTON = "move-up";
 const CARET_INSIDE_CHORD_INDEX = 8;
+const INSERTED_CHORD = "[G]";
 
 /**
  * Resolves the rendered lyrics textarea and narrows it to the expected element type.
@@ -97,26 +97,6 @@ function getLyricsTextarea(container: HTMLElement): HTMLTextAreaElement {
 	}
 
 	return lyricsTextarea;
-}
-
-/**
- * Returns the first chord-picker request passed to the mocked open handler.
- *
- * @param openChordPicker - Mocked openChordPicker action
- * @returns First submitted picker request
- */
-function getFirstOpenChordPickerRequest(
-	openChordPicker: HookActions["openChordPicker"],
-): HookParams["openChordPicker"] extends (request: infer Request) => void ? Request : never {
-	const [firstCallArgs] = vi.mocked(openChordPicker).mock.calls;
-	if (firstCallArgs === undefined) {
-		throw new TypeError("Expected openChordPicker to be called at least once");
-	}
-
-	const [firstRequest] = firstCallArgs;
-	return forceCast<
-		HookParams["openChordPicker"] extends (request: infer Request) => void ? Request : never
-	>(firstRequest);
 }
 
 /**
@@ -144,7 +124,6 @@ function installStore(state: StoreState): void {
  */
 function makeActions(): HookActions {
 	return {
-		openChordPicker: vi.fn(),
 		setConfirmingDeleteSlideId: vi.fn(),
 		editSlideName: vi.fn(),
 		editFieldValue: vi.fn(),
@@ -177,6 +156,7 @@ function makeParams(
 		idx: ONE,
 		slideOrder: DUPLICATE_ORDER,
 		slides: SLIDES,
+		songChords: ["[C -]", INSERTED_CHORD],
 		confirmingDeleteSlideId: undefined,
 		backgroundPickerSlideId: undefined,
 		...actions,
@@ -237,10 +217,12 @@ function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
 			</button>
 			<button
 				type="button"
-				data-testid="open-chord-picker"
-				onClick={lyricsEditor.handleOpenChordPicker}
+				data-testid="apply-selected-chord"
+				onClick={() => {
+					lyricsEditor.handleSelectChord(INSERTED_CHORD);
+				}}
 			>
-				Open chord picker
+				Apply selected chord
 			</button>
 		</div>
 	);
@@ -287,7 +269,7 @@ describe("useSlideDetailCard — Harness", () => {
 		});
 	});
 
-	it("opens the chord picker in edit mode when the lyrics selection is inside a chord token", () => {
+	it("replaces the chord token when the lyrics selection is inside a chord token", () => {
 		// Arrange
 		cleanup();
 		installStore({
@@ -312,13 +294,14 @@ describe("useSlideDetailCard — Harness", () => {
 		// Act
 		lyricsTextarea.setSelectionRange(CARET_INSIDE_CHORD_INDEX, CARET_INSIDE_CHORD_INDEX);
 		fireEvent.select(lyricsTextarea);
-		fireEvent.click(within(rendered.container).getByTestId("open-chord-picker"));
+		fireEvent.click(within(rendered.container).getByTestId("apply-selected-chord"));
 
 		// Assert
-		const firstCall = getFirstOpenChordPickerRequest(actions.openChordPicker);
-		expect(firstCall?.initialChordToken).toBe("[C -]");
-		expect(firstCall?.isEditingChord).toBe(true);
-		expect(typeof firstCall?.submitChord).toBe("function");
+		expect(actions.editFieldValue).toHaveBeenCalledWith({
+			slideId: SLIDE_ID,
+			field: "lyrics",
+			value: `Hello ${INSERTED_CHORD}`,
+		});
 	});
 });
 

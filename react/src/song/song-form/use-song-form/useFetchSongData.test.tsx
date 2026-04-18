@@ -16,11 +16,10 @@ const EMPTY_FORM_VALUES = {
 	long_credit: "",
 	public_notes: "",
 	private_notes: "",
-	lyrics: ["en"],
-	script: [],
+	lyrics: "en",
+	script: undefined,
 	translations: [],
 };
-
 
 describe("useFetchSongData", () => {
 	it("resets form and refs when songId is undefined", async () => {

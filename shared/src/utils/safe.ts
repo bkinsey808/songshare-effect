@@ -153,14 +153,6 @@ export function safeArrayGet(
  * @param value - Value to set at `idx`
  * @returns New array with the value set when valid, otherwise the original array.
  */
-/**
- * Typed overload: safely set an element in a typed array by index.
- *
- * @param arr - The original readonly array
- * @param idx - Index to set
- * @param value - Value to set at `idx`
- * @returns New array with the value set when valid, otherwise the original array
- */
 export function safeArraySet<TItem>(
 	arr: readonly TItem[],
 	idx: number,

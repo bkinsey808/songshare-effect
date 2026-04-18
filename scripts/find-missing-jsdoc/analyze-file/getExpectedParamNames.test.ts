@@ -36,7 +36,11 @@ describe("getExpectedParamNames", () => {
 		vi.mocked(getExpectedNamesForWrapperObjectParameter).mockReturnValue([]);
 
 		// Act
-		const result = getExpectedParamNames(node, sourceFile, forceCast(undefined));
+		const result = getExpectedParamNames({
+			node,
+			sourceFile,
+			checker: forceCast(undefined),
+		});
 		// Assert
 		expect(result.has("one")).toBe(true);
 		expect(result.has("two")).toBe(true);

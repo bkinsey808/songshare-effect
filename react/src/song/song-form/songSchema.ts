@@ -13,6 +13,7 @@ const SongFormField = {
 	lyrics: "lyrics",
 	script: "script",
 	translations: "translations",
+	chords: "chords",
 	key: "key",
 	short_credit: "short_credit",
 	long_credit: "long_credit",
@@ -30,6 +31,7 @@ export const songFormFields = [
 	"lyrics",
 	"script",
 	"translations",
+	"chords",
 	"key",
 	"short_credit",
 	"long_credit",
@@ -49,6 +51,7 @@ export const songFormFieldSchema: unknown = Schema.Literal(
 	"lyrics",
 	"script",
 	"translations",
+	"chords",
 	"key",
 	"short_credit",
 	"long_credit",
@@ -97,6 +100,7 @@ export type SongFormValues = {
 	lyrics: readonly string[];
 	script: readonly string[];
 	translations: readonly string[];
+	chords?: readonly string[] | undefined;
 	key?: SongPublicInsert["key"];
 	short_credit?: string | undefined;
 	long_credit?: string | undefined;
@@ -115,10 +119,11 @@ export const songFormSchema: Schema.Schema<SongFormValues> = Schema.Struct({
 		// oxlint-disable-next-line unicorn/no-array-method-this-argument
 		Schema.filter((arr) => arr.length > EMPTY_LENGTH, {
 			message: () => "song.validation.lyricsRequired",
-		})
+		}),
 	),
 	[SongFormField.script]: translationsSchema,
 	[SongFormField.translations]: translationsSchema,
+	[SongFormField.chords]: Schema.optional(Schema.Array(Schema.String)),
 	[SongFormField.key]: SongPublicInsertSchema.fields.key,
 	[SongFormField.short_credit]: Schema.optional(Schema.String),
 	[SongFormField.long_credit]: Schema.optional(Schema.String),

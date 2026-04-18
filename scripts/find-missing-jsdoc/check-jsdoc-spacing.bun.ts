@@ -1,71 +1,11 @@
 #!/usr/bin/env bun
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 
+import { checkFile } from "./checkFile";
 import { IGNORED, TS_EXTS } from "./constants";
 import walk from "./walk";
-
-/**
- * Check JSDoc spacing: flags JSDoc block occurrences that are immediately
- * preceded by non-empty lines that DO NOT end with `{` (i.e., where a single
- * blank line should be present). This mirrors the SKILL rule but allows the
- * formatter exception when the JSDoc sits at the top of a block.
- */
-
-/**
- * Check a single file for JSDoc spacing violations according to the
- * repository's comment conventions (SKILL rules). Looks for JSDoc blocks
- * that should be preceded by a single blank line (formatter exception for
- * top-of-blocks is honored).
- *
- * @param filePath - Path to the file to inspect
- * @returns Array of issues; each item contains `line` and `reason` fields
- */
-function checkFile(filePath: string): { line: number; reason: string }[] {
-	const text = readFileSync(filePath, "utf8");
-	const lines = text.split("\n");
-	const issues: { line: number; reason: string }[] = [];
-
-	for (let idx = ZERO; idx < lines.length; ) {
-		const raw = lines[idx] ?? "";
-		// Only process when a JSDoc block starts on this line
-		if (raw.trim().startsWith("/**")) {
-			// locate end of JSDoc
-			let end = idx;
-			while (end < lines.length && !(lines[end] ?? "").includes("*/")) {
-				end += ONE;
-			}
-
-			const nextLine = (lines[end + ONE] ?? "").trim();
-			const documentsSymbol =
-				/^(export\s+|export\s+default|function\s+|class\s+|const\s+|let\s+|type\s+|interface\s+)/.test(
-					nextLine,
-				);
-
-			if (documentsSymbol && idx !== ZERO) {
-				const prev = (lines[idx - ONE] ?? "").trim();
-				const prevHasBlank = prev === "";
-				const prevEndsWithBrace = /\{\s*$/.test(prev);
-
-				if (!prevHasBlank && !prevEndsWithBrace) {
-					issues.push({
-						line: idx + ONE,
-						reason: `missing blank line before JSDoc (previous: "${prev}")`,
-					});
-				}
-			}
-
-			// advance past this block regardless
-			idx = end + ONE;
-		} else {
-			// Not a JSDoc start; advance one line
-			idx += ONE;
-		}
-	}
-
-	return issues;
-}
 
 /**
  * Command-line entry point for the JSDoc spacing checker.
@@ -100,7 +40,7 @@ function main(): void {
 	const total = Object.values(found).reduce((sum, arr) => sum + arr.length, ZERO);
 	if (total === ZERO) {
 		console.warn("✅ No JSDoc spacing problems found (exceptions applied).");
-		process.exit(ZERO);
+		return;
 	}
 
 	console.warn(`Found ${total} JSDoc spacing issue(s):`);
@@ -110,7 +50,9 @@ function main(): void {
 			console.warn(`  line ${it.line}  ${it.reason}`);
 		}
 	}
-	process.exit(ONE);
+	process.exitCode = ONE;
 }
 
-main();
+if (import.meta.main) {
+	main();
+}

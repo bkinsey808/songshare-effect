@@ -108,7 +108,7 @@ function makeProps(overrides: Partial<Props> = {}): Props {
 		toggleBackgroundPicker: vi.fn(),
 		selectSlideBackgroundImage: vi.fn(),
 		clearSlideBackgroundImage: vi.fn(),
-		openChordPicker: vi.fn(),
+		songChords: [],
 		lyricsLanguages: ["en"],
 		scriptLanguages: [],
 	};

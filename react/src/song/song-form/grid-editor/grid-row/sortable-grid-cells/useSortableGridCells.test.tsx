@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, renderHook, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { Slide, SongFormChordPickerRequest } from "@/react/song/song-form/song-form-types";
+import type { Slide } from "@/react/song/song-form/song-form-types";
 
 import useSortableGridCells from "./useSortableGridCells";
 
@@ -17,7 +17,6 @@ const FULL_LYRICS_VALUE = `${LYRICS_VALUE} ${ANOTHER_EXISTING_CHORD} ${CHORD_TOK
 const CARET_INSIDE_CHORD_INDEX = 8;
 const CARET_INSIDE_SCRIPT_TEXT_INDEX = 9;
 const INSERTED_CHORD = "[G]";
-const LYRICS_WITH_INSERTED_CHORD = `${FULL_LYRICS_VALUE}${INSERTED_CHORD}`;
 const LYRICS_WITH_REPLACED_CHORD = `Hello ${INSERTED_CHORD} ${ANOTHER_EXISTING_CHORD} ${CHORD_TOKEN}`;
 
 type HookParams =
@@ -26,7 +25,6 @@ type HookParams =
 		: never;
 
 type HookActions = Readonly<{
-	openChordPicker: HookParams["openChordPicker"];
 	editFieldValue: HookParams["editFieldValue"];
 }>;
 
@@ -47,7 +45,6 @@ const SLIDES: Readonly<Record<string, Slide>> = {
  */
 function makeActions(): HookActions {
 	return {
-		openChordPicker: vi.fn(),
 		editFieldValue: vi.fn(),
 	};
 }
@@ -70,27 +67,11 @@ function makeParams(
 		slideId: SLIDE_ID,
 		slide,
 		fields: [LYRICS_FIELD],
+		songChords: [CHORD_TOKEN, ANOTHER_EXISTING_CHORD],
 		...actions,
 		...overrides,
 	};
 	return { params, actions };
-}
-
-/**
- * Retrieves the first request passed to the openChordPicker mock.
- *
- * @param openChordPicker - Mocked openChordPicker function
- * @returns First chord picker request
- */
-function getFirstChordPickerRequest(
-	openChordPicker: HookActions["openChordPicker"],
-): SongFormChordPickerRequest {
-	const [firstCallArgs] = vi.mocked(openChordPicker).mock.calls;
-	if (firstCallArgs === undefined) {
-		throw new TypeError("Expected openChordPicker to be called at least once");
-	}
-	const [firstRequest] = firstCallArgs;
-	return firstRequest;
 }
 
 /**
@@ -128,7 +109,7 @@ function getScriptTextarea(container: HTMLElement): HTMLTextAreaElement {
  * - A textarea receiving lyricsTextareaRef, wired to onSyncLyricsSelection so
  *   cursor movement updates isEditingChord
  * - hasLyrics and isEditingChord derived flags exposed through data-testid divs
- * - A button wired to onOpenChordPicker that opens the chord picker overlay
+ * - Buttons that apply the current script language or chord selection
  *
  * @param params - Fully configured hook parameters
  * @returns React element rendering the harness
@@ -187,13 +168,6 @@ function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
 				}}
 			>
 				Apply existing chord
-			</button>
-			<button
-				type="button"
-				data-testid="open-chord-picker"
-				onClick={lyricsEditor.handleOpenChordPicker}
-			>
-				Open chord picker
 			</button>
 		</div>
 	);
@@ -288,31 +262,15 @@ describe("useSortableGridCells — Harness", () => {
 		);
 	});
 
-	it("calls openChordPicker with initialChordToken and isEditingChord when selection is inside a chord token", () => {
+	it("handleSelectChord replaces the selected chord token", () => {
 		cleanup();
 		const { params, actions } = makeParams();
 		const rendered = render(<Harness params={params} />);
 		const lyricsTextarea = getLyricsTextarea(rendered.container);
 
 		lyricsTextarea.setSelectionRange(CARET_INSIDE_CHORD_INDEX, CARET_INSIDE_CHORD_INDEX);
-		fireEvent.click(within(rendered.container).getByTestId("open-chord-picker"));
-
-		const request = getFirstChordPickerRequest(actions.openChordPicker);
-		expect(request.initialChordToken).toBe(CHORD_TOKEN);
-		expect(request.isEditingChord).toBe(true);
-	});
-
-	it("submitChord in edit mode replaces the chord token via editFieldValue", () => {
-		cleanup();
-		const { params, actions } = makeParams();
-		const rendered = render(<Harness params={params} />);
-		const lyricsTextarea = getLyricsTextarea(rendered.container);
-
-		lyricsTextarea.setSelectionRange(CARET_INSIDE_CHORD_INDEX, CARET_INSIDE_CHORD_INDEX);
-		fireEvent.click(within(rendered.container).getByTestId("open-chord-picker"));
-
-		const request = getFirstChordPickerRequest(actions.openChordPicker);
-		request.submitChord(INSERTED_CHORD);
+		fireEvent.select(lyricsTextarea);
+		fireEvent.click(within(rendered.container).getByTestId("apply-existing-chord"));
 
 		expect(actions.editFieldValue).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -365,45 +323,5 @@ describe("useSortableGridCells — renderHook", () => {
 		const { result } = renderHook(() => useSortableGridCells(params));
 
 		expect(result.current.lyricsEditor.selectedChordToken).toBeUndefined();
-	});
-
-	it("onOpenChordPicker calls openChordPicker in insert mode when no chord at selection", async () => {
-		const { params, actions } = makeParams();
-		const { result } = renderHook(() => useSortableGridCells(params));
-
-		result.current.lyricsEditor.handleOpenChordPicker();
-
-		await waitFor(() => {
-			expect(actions.openChordPicker).toHaveBeenCalledOnce();
-		});
-
-		const request = getFirstChordPickerRequest(actions.openChordPicker);
-		expect(request.initialChordToken).toBeUndefined();
-		expect(request.isEditingChord).toBeUndefined();
-		expect(typeof request.submitChord).toBe("function");
-	});
-
-	it("submitChord inserts chord token at end of lyrics and calls editFieldValue", async () => {
-		const { params, actions } = makeParams();
-		const { result } = renderHook(() => useSortableGridCells(params));
-
-		result.current.lyricsEditor.handleOpenChordPicker();
-
-		await waitFor(() => {
-			expect(actions.openChordPicker).toHaveBeenCalledOnce();
-		});
-
-		const request = getFirstChordPickerRequest(actions.openChordPicker);
-		request.submitChord(INSERTED_CHORD);
-
-		await waitFor(() => {
-			expect(actions.editFieldValue).toHaveBeenCalledWith(
-				expect.objectContaining({
-					slideId: SLIDE_ID,
-					field: LYRICS_FIELD,
-					value: LYRICS_WITH_INSERTED_CHORD,
-				}),
-			);
-		});
 	});
 });

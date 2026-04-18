@@ -20,6 +20,7 @@ export type SongFormValues = {
 	lyrics: readonly string[];
 	script: readonly string[];
 	translations: readonly string[];
+	chords: readonly string[];
 	key: SongKey | "";
 	short_credit: string;
 	long_credit: string;

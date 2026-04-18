@@ -2,7 +2,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import tw from "@/react/lib/utils/tw";
-import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
 
 import DeleteConfirmationRow from "./DeleteConfirmationRow";
 import SortableGridCells from "./sortable-grid-cells/SortableGridCells";
@@ -66,7 +66,7 @@ type SortableGridRowProps = Readonly<{
 		}>,
 	) => void;
 	clearSlideBackgroundImage: (slideId: string) => void;
-	openChordPicker: OpenChordPicker;
+	songChords: readonly string[];
 	lyricsLanguages: readonly string[];
 	scriptLanguages: readonly string[];
 }>;
@@ -97,7 +97,7 @@ type SortableGridRowProps = Readonly<{
  * @param toggleBackgroundPicker - Toggles the inline background picker.
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
- * @param openChordPicker - Callback to open the chord picker.
+ * @param songChords - Chord tokens defined on the song.
  * @param lyricsLanguages - Selected lyrics language codes.
  * @param scriptLanguages - Selected script language codes.
  * @returns React element representing a song slide row.
@@ -123,7 +123,7 @@ export default function SlidesGridRow({
 	toggleBackgroundPicker,
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
-	openChordPicker,
+	songChords,
 	lyricsLanguages,
 	scriptLanguages,
 }: SortableGridRowProps): ReactElement {
@@ -152,7 +152,7 @@ export default function SlidesGridRow({
 		opacity: isDragging ? DRAG_OPACITY : NORMAL_OPACITY,
 	};
 
-	const rowClass = tw`bg-white dark:bg-gray-800`;
+	const rowClass = tw`bg-slate-950`;
 	const draggingClass = tw`z-10`;
 
 	return (
@@ -204,7 +204,7 @@ export default function SlidesGridRow({
 					toggleBackgroundPicker={toggleBackgroundPicker}
 					selectSlideBackgroundImage={selectSlideBackgroundImage}
 					clearSlideBackgroundImage={clearSlideBackgroundImage}
-					openChordPicker={openChordPicker}
+					songChords={songChords}
 					lyricsLanguages={lyricsLanguages}
 					scriptLanguages={scriptLanguages}
 				/>

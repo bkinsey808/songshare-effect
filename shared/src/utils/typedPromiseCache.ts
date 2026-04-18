@@ -125,15 +125,15 @@ export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TVal
 	const keyFactory = createCacheKeyFactory<TValue>(prefix);
 	const internal = new Map<symbol, Promise<TValue> | TValue>();
 
-	// A thenable `Error` wrapper — satisfies `only-throw-error` lint rule
-	// while remaining thenable so React's Suspense (which checks for
-	// thenables) still recognizes and awaits it.
-	/* The thenable pattern is intentionally required so React Suspense will accept
-		 thrown values. Keep just the specific rule disabled for this localized class. */
-	/* oxlint-disable-next-line unicorn/no-thenable */
 	/**
+	 * A thenable `Error` wrapper — satisfies `only-throw-error` lint rule
+	 * while remaining thenable so React's Suspense (which checks for
+	 * thenables) still recognizes and awaits it.
+	 *
+	 * The thenable pattern is intentionally required so React Suspense will accept
+	 * thrown values. Keep just the specific rule disabled for this localized class.
+	 *
 	 * A thenable `Error` wrapper for React Suspense.
-	 * @returns N/A (constructor)
 	 */
 	class ThenableError<TValue> extends Error implements PromiseLike<TValue> {
 		/**
@@ -146,14 +146,15 @@ export function createSuspenseCache<TValue>(prefix?: string): SuspenseCache<TVal
 		}
 		// (constructor finished) — then method follows
 
-		// `then` must be available so React's Suspense (thenable detection)
-		// recognizes this thrown object as suspendable. This method delegates
-		// to the wrapped promise. We disable the `promise-function-async` rule
-		// for this method because it needs to mirror PromiseLike semantics.
-		// The method is intentionally non-async and mirrors PromiseLike.then
-		// oxlint-disable-next-line promise-function-async, no-thenable, promise/prefer-await-to-callbacks
 		/**
+		 * `then` must be available so React's Suspense (thenable detection)
+		 * recognizes this thrown object as suspendable. This method delegates
+		 * to the wrapped promise. We disable the `promise-function-async` rule
+		 * for this method because it needs to mirror PromiseLike semantics.
+		 * The method is intentionally non-async and mirrors PromiseLike.then
+		 *
 		 * Delegates to the inner promise.
+		 *
 		 * @param onfulfilled - fulfillment callback
 		 * @param onrejected - rejection callback
 		 * @returns a promise that resolves to the result of the callbacks

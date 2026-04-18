@@ -106,6 +106,19 @@ export default function useChordSearch({
 		ReadonlyMap<number, NoteSearchToggleState>
 	>(new Map());
 
+	const [lastAbsoluteRoot, setLastAbsoluteRoot] = useState(absoluteRoot);
+
+	if (absoluteRoot !== lastAbsoluteRoot) {
+		setLastAbsoluteRoot(absoluteRoot);
+		const nextRootSemitone =
+			absoluteRoot === undefined
+				? FALLBACK_SEMITONE
+				: (rootSemitoneMap[absoluteRoot] ?? FALLBACK_SEMITONE);
+		setNoteSearchState(new Map([[nextRootSemitone, "required"]]));
+		setQuery("");
+		setSpellingSearchState(new Map());
+	}
+
 	const searchInputId = useId();
 	const minNotesInputId = useId();
 	const maxNotesInputId = useId();

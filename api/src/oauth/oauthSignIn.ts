@@ -47,9 +47,10 @@ function computeRequestOrigin(reqUrl: string): string {
  */
 function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppError> {
 	return Effect.gen(function* oauthSignInGen($) {
-		// Parse provider param using Effect Schema decoder (as an Effect)
-		// Parse provider param synchronously and redirect on invalid provider.
 		/**
+		 * Parse provider param using Effect Schema decoder (as an Effect).
+		 * Parse provider param synchronously and redirect on invalid provider.
+		 *
 		 * @returns the provider type decoded from the request param
 		 */
 		function computeProv(): ProviderType | undefined {
@@ -104,6 +105,7 @@ function oauthSignInFactory(ctx: ReadonlyContext): Effect.Effect<Response, AppEr
 		// the request URL preserves behavior when no headers are present.
 		const headerOrigin = ctx.req.header("origin") ?? "";
 		const headerReferer = ctx.req.header("referer") ?? ctx.req.header("referrer") ?? "";
+
 		/**
 		 * @returns the origin derived from the referer header
 		 */

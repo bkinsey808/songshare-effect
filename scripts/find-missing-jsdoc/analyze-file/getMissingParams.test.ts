@@ -20,11 +20,11 @@ describe("getMissingParams", () => {
 		vi.mocked(getExpectedParamNames).mockReturnValue(new Set(["a", "b"]));
 
 		// Act
-		const result = getMissingParams(
+		const result = getMissingParams({
 			node,
 			sourceFile,
-			forceCast<TypeChecker | undefined>(undefined),
-		);
+			checker: forceCast<TypeChecker | undefined>(undefined),
+		});
 
 		// Assert
 		expect(result).toStrictEqual(["a"]);

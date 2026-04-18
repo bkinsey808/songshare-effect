@@ -111,6 +111,7 @@ function createMockSongFormReturn(overrides: Partial<UseSongFormReturn> = {}): U
 		lyrics: ["en"],
 		script: [],
 		translations: [],
+		chords: [],
 		key: "",
 		short_credit: "",
 		long_credit: "",

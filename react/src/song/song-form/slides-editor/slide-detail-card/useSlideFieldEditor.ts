@@ -1,16 +1,16 @@
 import { useRef, useState } from "react";
 
 import findChordTokenAtSelection from "@/react/song/song-form/chord-picker/findChordTokenAtSelection";
-import findChordTokens from "@/react/song/song-form/chord-picker/findChordTokens";
 import findCurrentChordTokenAtSelection from "@/react/song/song-form/chord-picker/findCurrentChordTokenAtSelection";
 import insertTextAtSelection from "@/react/song/song-form/chord-picker/insertTextAtSelection";
 import findLanguageTokenAtSelection from "@/react/song/song-form/language-picker/findLanguageTokenAtSelection";
-import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
+import formatStoredChordBodyAsToken from "@/shared/music/chord-display/formatStoredChordBodyAsToken";
 
 type UseSlideFieldEditorParams = Readonly<{
 	field: string;
 	slide: Slide | undefined;
-	openChordPicker?: OpenChordPicker;
+	songChords: readonly string[];
 	onEditFieldValue: (
 		params: Readonly<{
 			field: string;
@@ -27,7 +27,6 @@ type UseSlideFieldEditorReturn = Readonly<{
 	selectedLanguageToken: ReturnType<typeof findLanguageTokenAtSelection>;
 	handleChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 	handleSelectChord: (token: string) => void;
-	handleOpenChordPicker: () => void;
 	handleSelectLanguage: (code: string) => void;
 	handleSyncSelection: () => void;
 }>;
@@ -47,14 +46,14 @@ type OverlappingLanguageToken = Readonly<{
  *
  * @param field - The field name (e.g. "lyrics" or "script")
  * @param slide - Current slide being edited
- * @param openChordPicker - Callback to open the chord picker
+ * @param songChords - Stored chord bodies defined on the song; used to populate the chord pulldown
  * @param onEditFieldValue - Slide-aware field update callback from the parent card hook
  * @returns Textarea refs, derived selection state, and editor handlers
  */
 export default function useSlideFieldEditor({
 	field,
 	slide,
-	openChordPicker,
+	songChords,
 	onEditFieldValue,
 }: UseSlideFieldEditorParams): UseSlideFieldEditorReturn {
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -80,7 +79,7 @@ export default function useSlideFieldEditor({
 					selectionEnd: selection.selectionEnd,
 				})
 			: undefined;
-	const existingChordTokens = field === "lyrics" ? findChordTokens(fieldValue) : [];
+	const existingChordTokens = field === "lyrics" ? songChords : [];
 
 	const selectedLanguageToken = findLanguageTokenAtSelection({
 		value: fieldValue,
@@ -206,43 +205,9 @@ export default function useSlideFieldEditor({
 	}
 
 	/**
-	 * Opens the chord picker with either insert or replace behavior based on the current selection.
+	 * Inserts or replaces a bracketed chord token at the current selection.
 	 *
-	 * @returns Nothing
-	 */
-	function handleOpenChordPicker(): void {
-		if (!openChordPicker) {
-			return;
-		}
-
-		const currentSelection = getCurrentSelection();
-		const chordTokenAtSelection = findChordTokenAtSelection({
-			value: fieldValue,
-			selectionStart: currentSelection.selectionStart,
-			selectionEnd: currentSelection.selectionEnd,
-		});
-
-		openChordPicker({
-			submitChord: (token) => {
-				handleInsert(
-					token,
-					chordTokenAtSelection?.tokenStart ?? currentSelection.selectionStart,
-					chordTokenAtSelection?.tokenEnd ?? currentSelection.selectionEnd,
-				);
-			},
-			...(chordTokenAtSelection === undefined
-				? {}
-				: {
-						initialChordToken: chordTokenAtSelection.token,
-						isEditingChord: true,
-					}),
-		});
-	}
-
-	/**
-	 * Inserts or replaces a chord token at the current selection.
-	 *
-	 * @param token - Chord token to insert or use as a replacement
+	 * @param token - Stored chord body to insert or use as a replacement
 	 * @returns Nothing
 	 */
 	function handleSelectChord(token: string): void {
@@ -254,7 +219,7 @@ export default function useSlideFieldEditor({
 		});
 
 		handleInsert(
-			token,
+			formatStoredChordBodyAsToken(token),
 			chordTokenAtSelection?.tokenStart ?? currentSelection.selectionStart,
 			chordTokenAtSelection?.tokenEnd ?? currentSelection.selectionEnd,
 		);
@@ -297,7 +262,6 @@ export default function useSlideFieldEditor({
 		selectedLanguageToken,
 		handleChange,
 		handleSelectChord,
-		handleOpenChordPicker,
 		handleSelectLanguage,
 		handleSyncSelection,
 	};

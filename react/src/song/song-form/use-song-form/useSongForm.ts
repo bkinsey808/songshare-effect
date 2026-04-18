@@ -1,5 +1,5 @@
 import { Effect, Schema } from "effect";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -9,6 +9,7 @@ import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import useItemTags from "@/react/tag/useItemTags";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { defaultLanguage } from "@/shared/language/supported-languages";
+import deriveSongChords from "@/shared/song/deriveSongChords";
 import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
 
 import { type FormState, type Slide, type UseSongFormReturn } from "../song-form-types";
@@ -207,6 +208,27 @@ export default function useSongForm(): UseSongFormReturn {
 		hasPopulatedRef,
 		setInitialState: setInitialFormState,
 	});
+
+	// Keep the song-level chord cache aligned with live lyrics content and slide order.
+	useEffect(() => {
+		setFormValuesState((previousValues) => {
+			const nextChords = deriveSongChords({
+				slideOrder,
+				slides,
+				existingChords: previousValues.chords,
+			});
+			const chordsUnchanged =
+				previousValues.chords.length === nextChords.length &&
+				previousValues.chords.every((token, index) => token === nextChords[index]);
+
+			return chordsUnchanged
+				? previousValues
+				: {
+						...previousValues,
+						chords: nextChords,
+					};
+		});
+	}, [setFormValuesState, slideOrder, slides]);
 
 	// Handle form submission with data collection
 	const handleFormSubmit = createFormSubmitHandler<SongFormData>({

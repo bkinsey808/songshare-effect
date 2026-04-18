@@ -6,7 +6,7 @@
  * Command: npm run supabase:generate
  * 
  * Generated Effect-TS schemas from Supabase database types
- * Last generated: 2026-04-17T04:44:54.218Z
+ * Last generated: 2026-04-18T20:04:11.015Z
  * 
  * To regenerate this file, run:
  * npm run supabase:generate
@@ -1341,6 +1341,7 @@ export type SongLibraryUpdate = Schema.Schema.Type<
 
 // song_public table schemas
 export const SongPublicSchema: Schema.Struct<{
+	chords: Schema.Array$<typeof Schema.String>;
 	created_at: Schema.optional<typeof Schema.String>;
 	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
@@ -1358,6 +1359,7 @@ export const SongPublicSchema: Schema.Struct<{
 	updated_at: Schema.optional<typeof Schema.String>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
+	chords: Schema.Array(Schema.String),
 	created_at: Schema.optional(Schema.String),
 	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
@@ -1379,6 +1381,7 @@ export const SongPublicSchema: Schema.Struct<{
 export type SongPublic = Schema.Schema.Type<typeof SongPublicSchema>;
 
 export const SongPublicInsertSchema: Schema.Struct<{
+	chords: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
 	lyrics: Schema.optional<Schema.Array$<typeof Schema.String>>;
@@ -1394,6 +1397,7 @@ export const SongPublicInsertSchema: Schema.Struct<{
 	translations: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	user_id: typeof Schema.UUID;
 }> = Schema.Struct({
+	chords: Schema.optional(Schema.Array(Schema.String)),
 	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
 	lyrics: Schema.optional(Schema.Array(Schema.String)),
@@ -1415,6 +1419,7 @@ export type SongPublicInsert = Schema.Schema.Type<
 >;
 
 export const SongPublicUpdateSchema: Schema.Struct<{
+	chords: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	key: Schema.optional<Schema.Literal<["C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B"]>>;
 	long_credit: Schema.optional<typeof Schema.String>;
 	lyrics: Schema.optional<Schema.Array$<typeof Schema.String>>;
@@ -1430,6 +1435,7 @@ export const SongPublicUpdateSchema: Schema.Struct<{
 	translations: Schema.optional<Schema.Array$<typeof Schema.String>>;
 	user_id: Schema.optional<typeof Schema.UUID>;
 }> = Schema.Struct({
+	chords: Schema.optional(Schema.Array(Schema.String)),
 	key: Schema.optional(Schema.Literal("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")),
 	long_credit: Schema.optional(Schema.String),
 	lyrics: Schema.optional(Schema.Array(Schema.String)),

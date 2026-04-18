@@ -9,8 +9,9 @@ import { type ValidationError } from "./validate-types";
  * @returns An array of ValidationError objects (possibly empty)
  */
 export default function extractValidationErrors(input: unknown): readonly ValidationError[] {
-	// Local runtime guard to validate array items look like ValidationError
 	/**
+	 * Local runtime guard to validate array items look like ValidationError
+	 *
 	 * @param value - unknown value to check
 	 * @returns true if value is an array of ValidationError
 	 */

@@ -12,6 +12,12 @@ import getDocumentedParamNames from "./getDocumentedParamNames";
 import getExpectedParamNames from "./getExpectedParamNames";
 import wrapperObjectParamNames from "./wrapperObjectParamNames";
 
+type GetUnexpectedParamsOptions = {
+	node: Node;
+	sourceFile: SourceFile;
+	checker: TypeChecker | undefined;
+};
+
 /**
  * Get unexpected `@param` tags that do not exactly match a real parameter/property name.
  * @param node - The node to check.
@@ -19,13 +25,13 @@ import wrapperObjectParamNames from "./wrapperObjectParamNames";
  * @param checker - Type checker for the current file's project.
  * @returns Array of documented param names that should not be present.
  */
-export default function getUnexpectedParams(
-	node: Node,
-	sourceFile: SourceFile,
-	checker?: TypeChecker,
-): string[] {
+export default function getUnexpectedParams({
+	node,
+	sourceFile,
+	checker,
+}: GetUnexpectedParamsOptions): string[] {
 	const documented = getDocumentedParamNames(node, sourceFile);
-	const expected = getExpectedParamNames(node, sourceFile, checker);
+	const expected = getExpectedParamNames({ node, sourceFile, checker });
 	const allowed = new Set(expected);
 
 	// Also allow documenting the parameter names themselves, even if not required

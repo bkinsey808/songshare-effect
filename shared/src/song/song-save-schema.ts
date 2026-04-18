@@ -16,6 +16,7 @@ export const SongSaveSchema = Schema.Struct({
 	lyrics: Schema.optional(Schema.String),
 	script: Schema.optional(Schema.NonEmptyString),
 	translations: Schema.Array(Schema.NonEmptyString),
+	chords: Schema.optional(Schema.Array(Schema.String)),
 	key: SongPublicInsertSchema.fields.key,
 	short_credit: Schema.optional(Schema.String),
 	long_credit: Schema.optional(Schema.String),

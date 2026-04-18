@@ -6,13 +6,13 @@ import { AuthenticationError } from "@/api/api-errors";
 import makeCtx from "@/api/hono/makeCtx.test-util";
 import makeSupabaseClient from "@/api/test-utils/makeSupabaseClient.test-util";
 import getVerifiedSession from "@/api/user-session/getVerifiedSession";
+import type { SongPublic } from "@/shared/generated/supabaseSchemas";
 import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeUserSessionData from "@/shared/test-utils/makeUserSessionData.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 import { TEST_USER_ID } from "@/shared/test-utils/testUserConstants";
 import type { UserSessionData } from "@/shared/userSessionData";
 
-import type { SongPublic } from "@/shared/generated/supabaseSchemas";
 import songSave from "./songSave";
 
 vi.mock("@supabase/supabase-js");
@@ -161,6 +161,85 @@ describe("songSave handler", () => {
 		expect(songPublicInsert).toHaveBeenCalledWith([
 			expect.objectContaining({
 				key: "Bb",
+			}),
+		]);
+	});
+
+	it("stores lyric-backed chords first and appends extra incoming chords at the end", async () => {
+		initDefaultMocks();
+		const ctx = makeCtx({
+			body: makeSongBody({
+				chords: ["[Bb sus]"],
+				slide_order: ["slide-2", "slide-1"],
+				slides: {
+					"slide-1": {
+						slide_name: "Slide 1",
+						field_data: {
+							lyrics: "One [C -] two [G 7]",
+						},
+					},
+					"slide-2": {
+						slide_name: "Slide 2",
+						field_data: {
+							lyrics: "Three [A m] four [C -]",
+						},
+					},
+				},
+			}),
+		});
+
+		const songPublicInsert = vi.fn((rows: unknown[]) => {
+			const [firstRow] = rows;
+			return {
+				select: (): {
+					single: () => Promise<{ data: unknown; error: undefined }>;
+				} => ({
+					single: (): Promise<{ data: unknown; error: undefined }> =>
+						promiseResolved({ data: firstRow, error: undefined }),
+				}),
+			};
+		});
+		const baseClient = makeSupabaseClient({
+			songInsertRows: [{ song_id: "new", user_id: SAMPLE_USER_ID }],
+		});
+		const songPublicTable = {
+			select: (
+				_cols: string,
+			): {
+				eq: (
+					_field: string,
+					_val: string,
+				) => {
+					single: () => Promise<{ data: undefined; error: undefined }>;
+				};
+			} => ({
+				eq: (
+					_field: string,
+					_val: string,
+				): {
+					single: () => Promise<{ data: undefined; error: undefined }>;
+				} => ({
+					single: (): Promise<{ data: undefined; error: undefined }> =>
+						promiseResolved({ data: undefined, error: undefined }),
+				}),
+			}),
+			insert: songPublicInsert,
+		};
+		const tableOverrides: Record<string, unknown> = {
+			song: baseClient.from("song"),
+			song_public: songPublicTable,
+			song_library: baseClient.from("song_library"),
+		};
+		const fake = forceCast<ReturnType<typeof createClient>>({
+			from: (table: string): unknown => tableOverrides[table],
+		});
+		vi.mocked(createClient).mockReturnValue(fake);
+
+		await Effect.runPromise(songSave(ctx));
+
+		expect(songPublicInsert).toHaveBeenCalledWith([
+			expect.objectContaining({
+				chords: ["A m", "C -", "G 7", "Bb sus"],
 			}),
 		]);
 	});

@@ -3,6 +3,12 @@ import { isIdentifier, type ParameterDeclaration, type TypeChecker } from "types
 import getObjectPropertyNames from "./getObjectPropertyNames";
 import wrapperObjectParamNames from "./wrapperObjectParamNames";
 
+type GetExpectedNamesForWrapperObjectParameterOptions = {
+	parameter: ParameterDeclaration;
+	documented: Set<string>;
+	checker: TypeChecker | undefined;
+};
+
 /**
  * Determine whether the parameter should be documented by direct property names.
  * @param parameter - Parameter declaration to inspect.
@@ -10,11 +16,11 @@ import wrapperObjectParamNames from "./wrapperObjectParamNames";
  * @param checker - Type checker for the current file's project.
  * @returns Direct property names when exact object-property matching should be enforced.
  */
-export default function getExpectedNamesForWrapperObjectParameter(
-	parameter: ParameterDeclaration,
-	documented: Set<string>,
-	checker?: TypeChecker,
-): string[] {
+export default function getExpectedNamesForWrapperObjectParameter({
+	parameter,
+	documented,
+	checker,
+}: GetExpectedNamesForWrapperObjectParameterOptions): string[] {
 	if (
 		!isIdentifier(parameter.name) ||
 		parameter.dotDotDotToken !== undefined ||

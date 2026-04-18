@@ -73,7 +73,7 @@ export default function collectIssuesForNode(args: CollectIssuesForNodeArgs): vo
 			}
 
 			const arrowOrFunc = isVariableDeclaration(node) && node.initializer ? node.initializer : node;
-			const missingParams = getMissingParams(arrowOrFunc, sourceFile, checker);
+			const missingParams = getMissingParams({ node: arrowOrFunc, sourceFile, checker });
 			for (const paramName of missingParams) {
 				issues.push({
 					col: character,
@@ -84,7 +84,11 @@ export default function collectIssuesForNode(args: CollectIssuesForNodeArgs): vo
 				});
 			}
 
-			const unexpectedParams = getUnexpectedParams(arrowOrFunc, sourceFile, checker);
+			const unexpectedParams = getUnexpectedParams({
+				node: arrowOrFunc,
+				sourceFile,
+				checker,
+			});
 			for (const paramName of unexpectedParams) {
 				issues.push({
 					col: character,

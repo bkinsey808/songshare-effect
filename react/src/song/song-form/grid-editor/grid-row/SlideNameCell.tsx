@@ -36,11 +36,9 @@ type SlideNameCellProps = Readonly<{
 	/** When true, this cell uses the duplicate tint bg; the input keeps default dark bg. */
 	isDuplicateRow: boolean;
 	hasLyrics: boolean;
-	isEditingChord: boolean;
 	currentChordToken: string | undefined;
-	existingChordTokens: readonly string[];
+	songChords: readonly string[];
 	onSelectChord: (token: string) => void;
-	onOpenChordPicker: () => void;
 	hasScript: boolean;
 	lyricsLanguages: readonly string[];
 	scriptLanguages: readonly string[];
@@ -72,11 +70,9 @@ type SlideNameCellProps = Readonly<{
  * @param listeners - Drag listeners from `useSortable`.
  * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
  * @param hasLyrics - Whether this slide row contains lyrics (shows chord button)
- * @param isEditingChord - Whether the parent is in chord-edit mode
  * @param currentChordToken - Chord token at or before the current insertion point
- * @param existingChordTokens - Distinct chord tokens already present in lyrics
+ * @param songChords - Distinct chord tokens already present in the song lyrics
  * @param onSelectChord - Inserts or replaces the selected existing chord token
- * @param onOpenChordPicker - Callback to open the chord picker UI
  * @param hasScript - Whether this slide row contains a script
  * @param lyricsLanguages - Selected lyrics language codes
  * @param scriptLanguages - Selected script language codes
@@ -103,11 +99,9 @@ export default function SlideNameCell({
 	listeners,
 	isDuplicateRow,
 	hasLyrics,
-	isEditingChord,
 	currentChordToken,
-	existingChordTokens,
+	songChords,
 	onSelectChord,
-	onOpenChordPicker,
 	hasScript,
 	lyricsLanguages,
 	scriptLanguages,
@@ -120,10 +114,10 @@ export default function SlideNameCell({
 	const { t } = useTranslation();
 
 	const tdClass =
-		"border border-gray-300 dark:border-gray-600 pl-2 pr-2 pt-[var(--slides-grid-baseline-offset)] pb-2 align-top w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)] group-hover:border-gray-300 dark:group-hover:border-gray-400";
+		"border border-slate-700 pl-2 pr-2 pt-[var(--slides-grid-baseline-offset)] pb-2 align-top w-[var(--slide-name-width)] min-w-[var(--slide-name-width)] max-w-[var(--slide-name-width)] group-hover:border-slate-600";
 	const inputClass = isDuplicateRow
-		? "w-full rounded border border-gray-600 bg-gray-800 px-2 pt-0 pb-1 text-base leading-normal text-white focus:border-white/45 focus:outline-none"
-		: "w-full rounded border border-gray-200 px-2 pt-0 pb-1 text-base leading-normal focus:border-white/45 focus:outline-none dark:border-gray-600 dark:bg-transparent dark:text-white";
+		? "w-full rounded border border-slate-600 bg-slate-800 px-2 pt-0 pb-1 text-base leading-normal text-white focus:border-white/45 focus:outline-none"
+		: "w-full rounded border border-slate-600 bg-slate-950 px-2 pt-0 pb-1 text-base leading-normal text-white focus:border-white/45 focus:outline-none";
 
 	/*
 	 * Baseline alignment with lyrics column: this td uses pt-[var(--slides-grid-baseline-offset)]
@@ -157,11 +151,9 @@ export default function SlideNameCell({
 				</div>
 				{hasLyrics && activeLanguageField === "script" ? undefined : (
 					<ChordSelect
-						existingChordTokens={existingChordTokens}
+						songChords={songChords}
 						currentChordToken={currentChordToken}
-						isEditingChord={isEditingChord}
 						onSelectChord={onSelectChord}
-						onOpenChordPicker={onOpenChordPicker}
 					/>
 				)}
 				<SlideNameLanguageSelect

@@ -3,6 +3,12 @@ import type { Node, SourceFile, TypeChecker } from "typescript";
 import getDocumentedParamNames from "./getDocumentedParamNames";
 import getExpectedParamNames from "./getExpectedParamNames";
 
+type GetMissingParamsOptions = {
+	node: Node;
+	sourceFile: SourceFile;
+	checker: TypeChecker | undefined;
+};
+
 /**
  * Get missing `@param` tags for a node's parameters.
  * @param node - The node to check.
@@ -10,13 +16,13 @@ import getExpectedParamNames from "./getExpectedParamNames";
  * @param checker - Type checker for the current file's project.
  * @returns Array of parameter/property names missing from JSDoc.
  */
-export default function getMissingParams(
-	node: Node,
-	sourceFile: SourceFile,
-	checker?: TypeChecker,
-): string[] {
+export default function getMissingParams({
+	node,
+	sourceFile,
+	checker,
+}: GetMissingParamsOptions): string[] {
 	const documented = getDocumentedParamNames(node, sourceFile);
-	const expected = getExpectedParamNames(node, sourceFile, checker);
+	const expected = getExpectedParamNames({ node, sourceFile, checker });
 
 	return [...expected]
 		.filter((name) => {

@@ -14,6 +14,7 @@ type SlidesViewManagerProps = Readonly<
 		setSlideOrder: (newOrder: readonly string[]) => void;
 		slides: Readonly<Record<string, Slide>>;
 		setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
+		songChords: readonly string[];
 	}>
 >;
 
@@ -25,6 +26,7 @@ type SlidesViewManagerProps = Readonly<
  * @param setSlideOrder - Setter used to update the slide order.
  * @param slides - Map of slide id to slide data.
  * @param setSlides - Setter used to update the slides map.
+ * @param songChords - Chord tokens defined on the song.
  * @returns React element containing the editor and grid sections.
  */
 export default function SlidesViewManager({
@@ -33,6 +35,7 @@ export default function SlidesViewManager({
 	setSlideOrder,
 	slides,
 	setSlides,
+	songChords,
 }: SlidesViewManagerProps): ReactElement {
 	const { t } = useTranslation();
 	const [isSlidesExpanded, setIsSlidesExpanded] = useState(true);
@@ -41,13 +44,13 @@ export default function SlidesViewManager({
 	return (
 		<div className="space-y-4 lg:flex lg:gap-4 lg:space-y-0">
 			{/* Slides View Section */}
-			<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800 lg:flex-1">
+			<div className="rounded-lg border border-slate-800 bg-slate-950 shadow-sm lg:flex-1">
 				<button
 					type="button"
 					onClick={() => {
 						setIsSlidesExpanded(!isSlidesExpanded);
 					}}
-					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+					className="flex w-full items-center justify-between p-4 text-left hover:bg-slate-900"
 				>
 					<div className="flex items-center gap-2">
 						<span className="text-xl">📄</span>
@@ -67,7 +70,7 @@ export default function SlidesViewManager({
 					</svg>
 				</button>
 				{isSlidesExpanded && (
-					<div className="border-t border-gray-200 dark:border-gray-600 p-4">
+					<div className="border-t border-slate-800 p-4">
 						<SlidesEditor
 							fields={fields}
 							lyricsLanguages={[]}
@@ -76,19 +79,20 @@ export default function SlidesViewManager({
 							setSlideOrder={setSlideOrder}
 							slides={slides}
 							setSlides={setSlides}
+							songChords={songChords}
 						/>
 					</div>
 				)}
 			</div>
 
 			{/* Grid View Section */}
-			<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800 lg:flex-1">
+			<div className="rounded-lg border border-slate-800 bg-slate-950 shadow-sm lg:flex-1">
 				<button
 					type="button"
 					onClick={() => {
 						setIsGridExpanded(!isGridExpanded);
 					}}
-					className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+					className="flex w-full items-center justify-between p-4 text-left hover:bg-slate-900"
 				>
 					<div className="flex items-center gap-2">
 						<span className="text-xl">📊</span>
@@ -108,7 +112,7 @@ export default function SlidesViewManager({
 					</svg>
 				</button>
 				{isGridExpanded && (
-					<div className="border-t border-gray-200 dark:border-gray-600 p-4">
+					<div className="border-t border-slate-800 p-4">
 						<SlidesGridView
 							fields={fields}
 							lyricsLanguages={[]}
@@ -117,6 +121,7 @@ export default function SlidesViewManager({
 							setSlideOrder={setSlideOrder}
 							slides={slides}
 							setSlides={setSlides}
+							songChords={songChords}
 						/>
 					</div>
 				)}

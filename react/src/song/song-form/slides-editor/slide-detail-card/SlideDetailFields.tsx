@@ -126,11 +126,9 @@ export default function SlideDetailFields({
 											</select>
 										)}
 										<ChordSelect
-											existingChordTokens={lyricsEditor.existingChordTokens}
+											songChords={lyricsEditor.existingChordTokens}
 											currentChordToken={lyricsEditor.currentChordToken?.token}
-											isEditingChord={lyricsEditor.selectedChordToken !== undefined}
 											onSelectChord={lyricsEditor.handleSelectChord}
-											onOpenChordPicker={lyricsEditor.handleOpenChordPicker}
 										/>
 									</div>
 								</div>

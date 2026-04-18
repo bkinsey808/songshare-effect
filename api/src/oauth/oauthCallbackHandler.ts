@@ -4,10 +4,11 @@ import oauthCallbackFactory from "@/api/oauth-callback-factory/oauthCallbackFact
 import createErrorResponse from "@/api/oauth/createErrorResponse";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 
-// Keep exported wrapper typed as `Context` for Hono compatibility. The
-// implementation below uses `ReadonlyContext` so helpers can declare
-// read-only parameters without lint issues.
 /**
+ * Keep exported wrapper typed as `Context` for Hono compatibility. The
+ * implementation below uses `ReadonlyContext` so helpers can declare
+ * read-only parameters without lint issues.
+ *
  * Hono route handler for the OAuth callback.
  *
  * @param ctx - Hono request context

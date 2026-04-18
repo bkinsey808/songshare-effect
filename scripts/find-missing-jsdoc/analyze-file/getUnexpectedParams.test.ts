@@ -33,7 +33,7 @@ describe("getUnexpectedParams", () => {
 		vi.mocked(getExpectedParamNames).mockReturnValue(new Set(["className"]));
 
 		// Act
-		const result = getUnexpectedParams(node, sourceFile, checker);
+		const result = getUnexpectedParams({ node, sourceFile, checker });
 
 		// Assert
 		// 'foo' and 'bar' are unexpected; 'props.className' is allowed because className expected
@@ -53,11 +53,11 @@ describe("getUnexpectedParams", () => {
 		vi.mocked(getExpectedParamNames).mockReturnValue(new Set());
 
 		// Act
-		const result = getUnexpectedParams(
+		const result = getUnexpectedParams({
 			node,
 			sourceFile,
-			forceCast<TypeChecker | undefined>(undefined),
-		);
+			checker: forceCast<TypeChecker | undefined>(undefined),
+		});
 
 		// Assert
 		expect(result).toStrictEqual(["notWrapper"]);

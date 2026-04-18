@@ -1,54 +1,42 @@
 import { useTranslation } from "react-i18next";
 
-const OPEN_CHORD_PICKER_VALUE = "__open-chord-picker__";
+import normalizeStoredChordBody from "@/shared/music/chord-display/normalizeStoredChordBody";
 
 type ChordSelectProps = Readonly<{
-	existingChordTokens: readonly string[];
+	songChords: readonly string[];
 	currentChordToken: string | undefined;
-	isEditingChord: boolean;
 	onSelectChord: (token: string) => void;
-	onOpenChordPicker: () => void;
 }>;
 
 /**
- * Pulldown for inserting existing chords or opening the full chord picker.
+ * Pulldown for inserting a chord from the song's stored chord list into the lyrics field.
  *
- * Existing chord tokens from the current lyrics field are listed first. The
- * final option opens the full picker to insert a new chord or edit the chord
- * at the current insertion point.
+ * Raw chord bodies from the song's `chords` field are listed as options.
+ * Selecting one inserts or replaces the bracketed chord token at the current
+ * cursor position.
  *
- * @param existingChordTokens - Distinct chord tokens already present in the lyrics field
- * @param currentChordToken - Chord token at or before the current insertion point, if any
- * @param isEditingChord - Whether the current insertion point overlaps an existing chord token
- * @param onSelectChord - Inserts or replaces the selected existing chord token
- * @param onOpenChordPicker - Opens the full chord picker overlay
+ * @param songChords - Stored chord bodies defined on the song
+ * @param currentChordToken - Bracketed chord token at or before the current insertion point, if any
+ * @param onSelectChord - Inserts or replaces the selected stored chord body at the cursor
  * @returns Chord pulldown UI for the lyrics editor
  */
 export default function ChordSelect({
-	existingChordTokens,
+	songChords,
 	currentChordToken,
-	isEditingChord,
 	onSelectChord,
-	onOpenChordPicker,
 }: ChordSelectProps): ReactElement {
 	const { t } = useTranslation();
-	const actionLabel = isEditingChord
-		? t("song.editChord", "Edit Chord")
-		: t("song.insertChord", "Insert Chord");
+	const currentChordBody =
+		currentChordToken === undefined ? undefined : normalizeStoredChordBody(currentChordToken);
 
 	/**
-	 * Routes the selected dropdown action to either existing-chord insertion or the picker overlay.
+	 * Inserts the selected stored chord body into the lyrics field.
 	 *
 	 * @param event - Change event emitted by the chord pulldown
 	 * @returns Nothing
 	 */
 	function handleChange(event: React.ChangeEvent<HTMLSelectElement>): void {
 		const { value } = event.target;
-		if (value === OPEN_CHORD_PICKER_VALUE) {
-			onOpenChordPicker();
-			return;
-		}
-
 		if (value !== "") {
 			onSelectChord(value);
 		}
@@ -56,22 +44,19 @@ export default function ChordSelect({
 
 	return (
 		<select
-			value={currentChordToken ?? ""}
+			value={currentChordBody ?? ""}
 			onChange={handleChange}
 			className="cursor-pointer rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-gray-300 hover:border-gray-400 focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-500"
 			data-testid="chord-select"
 		>
 			<option value="" disabled hidden>
-				{actionLabel}
+				{t("song.insertChord", "Insert Chord")}
 			</option>
-			{existingChordTokens.map((token) => (
-				<option key={token} value={token} className="bg-gray-900 text-gray-200">
-					{token}
+			{songChords.map((chordBody) => (
+				<option key={chordBody} value={chordBody} className="bg-gray-900 text-gray-200">
+					{chordBody}
 				</option>
 			))}
-			<option value={OPEN_CHORD_PICKER_VALUE} className="bg-gray-900 text-gray-200">
-				{actionLabel}
-			</option>
 		</select>
 	);
 }

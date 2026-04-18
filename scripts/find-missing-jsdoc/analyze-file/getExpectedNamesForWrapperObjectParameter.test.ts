@@ -1,4 +1,4 @@
-import { isIdentifier, type TypeChecker, type ParameterDeclaration } from "typescript";
+import { isIdentifier, type ParameterDeclaration, type TypeChecker } from "typescript";
 import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/shared/test-utils/forceCast.test-util";
@@ -21,11 +21,11 @@ describe("getExpectedNamesForWrapperObjectParameter", () => {
 		vi.mocked(getObjectPropertyNames).mockReturnValue(["a", "b", "c"]);
 
 		// Act
-		const result = getExpectedNamesForWrapperObjectParameter(
+		const result = getExpectedNamesForWrapperObjectParameter({
 			parameter,
 			documented,
-			forceCast<TypeChecker>({}),
-		);
+			checker: forceCast<TypeChecker>({}),
+		});
 
 		// Assert
 		expect(result).toStrictEqual(["a", "b", "c"]);
@@ -37,11 +37,11 @@ describe("getExpectedNamesForWrapperObjectParameter", () => {
 		const documented = new Set<string>();
 
 		// Act
-		const result = getExpectedNamesForWrapperObjectParameter(
+		const result = getExpectedNamesForWrapperObjectParameter({
 			parameter,
 			documented,
-			forceCast<TypeChecker>({}),
-		);
+			checker: forceCast<TypeChecker>({}),
+		});
 
 		// Assert
 		expect(result).toStrictEqual([]);

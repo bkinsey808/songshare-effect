@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict 0O1REs8Fl4rcdAcn2e2PHnCGfMxCVCUqKpeo99rRX2ilJFtCQjuOu3yZiCB6qXS
+\restrict xkBuNdIjfh1cMaQ3ivrYukssNlXQJdVSF52ozjE628VVHLZRgiwzbEcpSRJdMw7
 
--- Dumped from database version 17.6
+-- Dumped from database version 17.4
 -- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
 
 SET statement_timeout = 0;
@@ -109,39 +109,6 @@ $$;
 CREATE FUNCTION public.is_valid_bcp47(code text) RETURNS boolean
     LANGUAGE sql IMMUTABLE STRICT
     AS $_$ SELECT code ~ '^[a-z]{2,3}(-[A-Za-z0-9]+)*$' $_$;
-
-
---
--- Name: rls_auto_enable(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.rls_auto_enable() RETURNS event_trigger
-    LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO 'pg_catalog'
-    AS $$
-DECLARE
-  cmd record;
-BEGIN
-  FOR cmd IN
-    SELECT *
-    FROM pg_event_trigger_ddl_commands()
-    WHERE command_tag IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
-      AND object_type IN ('table','partitioned table')
-  LOOP
-     IF cmd.schema_name IS NOT NULL AND cmd.schema_name IN ('public') AND cmd.schema_name NOT IN ('pg_catalog','information_schema') AND cmd.schema_name NOT LIKE 'pg_toast%' AND cmd.schema_name NOT LIKE 'pg_temp%' THEN
-      BEGIN
-        EXECUTE format('alter table if exists %s enable row level security', cmd.object_identity);
-        RAISE LOG 'rls_auto_enable: enabled RLS on %', cmd.object_identity;
-      EXCEPTION
-        WHEN OTHERS THEN
-          RAISE LOG 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;
-      END;
-     ELSE
-        RAISE LOG 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)', cmd.object_identity, cmd.schema_name;
-     END IF;
-  END LOOP;
-END;
-$$;
 
 
 --
@@ -1230,6 +1197,7 @@ CREATE TABLE public.song_public (
     lyrics text[] DEFAULT '{en}'::text[] NOT NULL,
     translations text[] DEFAULT '{}'::text[] NOT NULL,
     script text[] DEFAULT '{}'::text[] NOT NULL,
+    chords text[] DEFAULT '{}'::text[] NOT NULL,
     CONSTRAINT song_name_format CHECK (((length(song_name) >= 2) AND (length(song_name) <= 100) AND (song_name = btrim(song_name)) AND (POSITION(('  '::text) IN (song_name)) = 0))),
     CONSTRAINT song_public_key_allowed_values CHECK (((key IS NULL) OR (key = ANY (ARRAY['C'::text, 'C#'::text, 'Db'::text, 'D'::text, 'D#'::text, 'Eb'::text, 'E'::text, 'F'::text, 'F#'::text, 'Gb'::text, 'G'::text, 'G#'::text, 'Ab'::text, 'A'::text, 'A#'::text, 'Bb'::text, 'B'::text])))),
     CONSTRAINT song_public_lyrics_no_duplicates CHECK (public.array_has_no_duplicates(lyrics)),
@@ -3689,5 +3657,5 @@ ALTER TABLE public.user_public ENABLE ROW LEVEL SECURITY;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 0O1REs8Fl4rcdAcn2e2PHnCGfMxCVCUqKpeo99rRX2ilJFtCQjuOu3yZiCB6qXS
+\unrestrict xkBuNdIjfh1cMaQ3ivrYukssNlXQJdVSF52ozjE628VVHLZRgiwzbEcpSRJdMw7
 

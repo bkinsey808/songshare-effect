@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
@@ -1102,6 +1102,7 @@ export type Database = {
       }
       song_public: {
         Row: {
+          chords: string[]
           created_at: string | null
           key: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit: string | null
@@ -1120,6 +1121,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          chords?: string[]
           created_at?: string | null
           key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null
@@ -1138,6 +1140,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          chords?: string[]
           created_at?: string | null
           key?: "C" | "C#" | "Db" | "D" | "D#" | "Eb" | "E" | "F" | "F#" | "Gb" | "G" | "G#" | "Ab" | "A" | "A#" | "Bb" | "B" | null
           long_credit?: string | null

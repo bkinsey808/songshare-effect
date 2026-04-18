@@ -245,7 +245,7 @@ export default function SongFormFooter({
 	return (
 		<footer
 			className={`fixed right-0 bottom-0 left-0 z-50 px-5 py-4 shadow-lg transition-colors ${
-				hasChanges ? "bg-amber-900/80" : "bg-gray-800"
+				hasChanges ? "bg-amber-900/80" : "bg-slate-950/95"
 			}`}
 		>
 			<div className="mx-auto max-w-screen-2xl px-6">

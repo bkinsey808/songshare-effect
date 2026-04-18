@@ -5,6 +5,7 @@ import { SIGNAL_ONE } from "@/shared/constants/http";
 import buildPathWithLang from "@/shared/language/buildPathWithLang";
 import { defaultLanguage } from "@/shared/language/supported-languages";
 import { isSupportedLanguage } from "@/shared/language/supported-languages-effect";
+import normalizeStoredChordBody from "@/shared/music/chord-display/normalizeStoredChordBody";
 import { dashboardPath } from "@/shared/paths";
 import { justUnauthorizedAccessKey } from "@/shared/sessionStorageKeys";
 import { isSongKey } from "@/shared/song/songKeyOptions";
@@ -156,12 +157,23 @@ export default function usePopulateSongForm({
 				? (rawTranslations as unknown[]).filter((value) => isString(value))
 				: [];
 
+			const rawChords = songPublic["chords"];
+			const chords: readonly string[] = Array.isArray(rawChords)
+				? (rawChords as unknown[])
+						.filter((value) => isString(value))
+						.flatMap((value) => {
+							const normalizedChordBody = normalizeStoredChordBody(value);
+							return normalizedChordBody === undefined ? [] : [normalizedChordBody];
+						})
+				: [];
+
 			const newFormValues: SongFormValues = {
 				song_name: isString(songPublic["song_name"]) ? songPublic["song_name"] : "",
 				song_slug: isString(songPublic["song_slug"]) ? songPublic["song_slug"] : "",
 				lyrics,
 				script,
 				translations,
+				chords,
 				key: isSongKey(songPublic["key"]) ? songPublic["key"] : "",
 				short_credit: isString(songPublic["short_credit"]) ? songPublic["short_credit"] : "",
 				long_credit: isString(songPublic["long_credit"]) ? songPublic["long_credit"] : "",

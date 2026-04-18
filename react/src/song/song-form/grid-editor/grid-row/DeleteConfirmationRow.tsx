@@ -45,7 +45,7 @@ export default function DeleteConfirmationRow({
 	return (
 		<td
 			colSpan={colSpan}
-			className="w-full border border-gray-300 dark:border-gray-600 group-hover:border-gray-300 dark:group-hover:border-gray-400 px-4 py-4 transition-opacity duration-150 ease-in-out"
+			className="w-full border border-slate-700 px-4 py-4 transition-opacity duration-150 ease-in-out"
 		>
 			<div className={`${faded ? "opacity-40 pointer-events-none" : ""} w-full`}>
 				<div className="text-sm text-gray-800 dark:text-gray-200">

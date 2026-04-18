@@ -1,5 +1,6 @@
-import type { SongFormValues } from "../song-form-types";
 import { defaultLanguage } from "@/shared/language/supported-languages";
+
+import type { SongFormValues } from "../song-form-types";
 
 /**
  * Create a fresh empty controlled-values object for the Song form.
@@ -13,6 +14,7 @@ export default function createEmptySongFormValues(): SongFormValues {
 		lyrics: [defaultLanguage],
 		script: [],
 		translations: [],
+		chords: [],
 		key: "",
 		short_credit: "",
 		long_credit: "",

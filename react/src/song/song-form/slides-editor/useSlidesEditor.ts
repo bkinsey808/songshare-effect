@@ -7,20 +7,11 @@ import useAppStore from "@/react/app-store/useAppStore";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 
-import { type OpenChordPicker, type Slide } from "../song-form-types";
+import { type Slide } from "../song-form-types";
 import useSlideData from "./useSlideData";
 import useSlideDragAndDrop from "./useSlideDragAndDrop";
 import useSlideFields from "./useSlideFields";
 import useSlideOrder from "./useSlideOrder";
-
-/**
- * Provides a stable no-op fallback when the chord picker is not mounted.
- *
- * @returns Nothing
- */
-function noopOpenChordPicker(): void {
-	return undefined;
-}
 
 /**
  * Composed hook that wires together slide editors, fields, order and drag/drop
@@ -31,7 +22,7 @@ function noopOpenChordPicker(): void {
  * @param slides - Map of slide id to `Slide` object
  * @param setSlides - Setter to update `slides`
  * @param enableBackgroundLibrary - Whether background library features should be enabled
- * @param openChordPicker - Optional callback to open the chord picker UI
+ * @param songChords - Chord tokens defined on the song
  * @returns Handlers and state used by slide editor views (add/delete/duplicate, reorder handlers, sensors)
  */
 export default function useSlidesEditor({
@@ -40,14 +31,14 @@ export default function useSlidesEditor({
 	slides,
 	setSlides,
 	enableBackgroundLibrary = false,
-	openChordPicker = noopOpenChordPicker,
+	songChords = [],
 }: Readonly<{
 	slideOrder: readonly string[];
 	setSlideOrder: (newOrder: readonly string[]) => void;
 	slides: Readonly<Record<string, Slide>>;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	enableBackgroundLibrary?: boolean;
-	openChordPicker?: OpenChordPicker;
+	songChords?: readonly string[];
 }>): {
 	addSlide: () => void;
 	deleteSlide: (slideId: string) => void;
@@ -126,7 +117,7 @@ export default function useSlidesEditor({
 		backgroundPickerSlideId: string | undefined;
 	}>;
 	slideDetailActions: Readonly<{
-		openChordPicker: OpenChordPicker;
+		songChords: readonly string[];
 		editSlideName: (params: Readonly<{ slideId: string; newName: string }>) => void;
 		editFieldValue: (params: Readonly<{ slideId: string; field: string; value: string }>) => void;
 		toggleBackgroundPicker: (slideId: string) => void;
@@ -262,7 +253,7 @@ export default function useSlidesEditor({
 		backgroundPickerSlideId,
 	} as const;
 	const slideDetailActions = {
-		openChordPicker,
+		songChords,
 		editSlideName,
 		editFieldValue,
 		toggleBackgroundPicker,

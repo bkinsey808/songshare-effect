@@ -2,7 +2,7 @@ import type { AppSlice } from "@/react/app-store/AppSlice.type";
 import useAppStore from "@/react/app-store/useAppStore";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import hashToHue from "@/react/song/song-form/grid-editor/duplicateTint";
-import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-form-types";
+import { type Slide } from "@/react/song/song-form/song-form-types";
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
@@ -13,7 +13,7 @@ type UseSlideDetailCardParams = Readonly<{
 	idx: number;
 	slideOrder: readonly string[];
 	slides: Readonly<Record<string, Slide>>;
-	openChordPicker: OpenChordPicker;
+	songChords: readonly string[];
 	confirmingDeleteSlideId: string | undefined;
 	setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
 	backgroundPickerSlideId: string | undefined;
@@ -88,7 +88,7 @@ type UseSlideDetailCardReturn = Readonly<{
  * @param slideOrder - Ordered list of slide ids used to detect duplicate placement
  * @param slides - Slide map used to resolve the current slide
  * @param idx - Zero-based index of the current slide in `slideOrder`
- * @param openChordPicker - Callback to open the chord picker
+ * @param songChords - Distinct chord tokens available for the song lyrics editors
  * @param confirmingDeleteSlideId - Currently confirming delete slide id (or undefined)
  * @param setConfirmingDeleteSlideId - Setter to toggle delete confirmation id
  * @param backgroundPickerSlideId - Slide id for which background picker is open
@@ -108,7 +108,7 @@ export default function useSlideDetailCard({
 	idx,
 	slideOrder,
 	slides,
-	openChordPicker,
+	songChords,
 	confirmingDeleteSlideId,
 	setConfirmingDeleteSlideId,
 	backgroundPickerSlideId,
@@ -171,13 +171,14 @@ export default function useSlideDetailCard({
 	const lyricsEditor = useSlideFieldEditor({
 		field: "lyrics",
 		slide,
-		openChordPicker,
+		songChords,
 		onEditFieldValue,
 	});
 
 	const scriptEditor = useSlideFieldEditor({
 		field: "script",
 		slide,
+		songChords: [],
 		onEditFieldValue,
 	});
 

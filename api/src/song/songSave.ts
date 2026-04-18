@@ -6,8 +6,10 @@ import { ZERO } from "@/shared/constants/shared-constants";
 import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
 import { SongPublicInsertSchema } from "@/shared/generated/supabaseSchemas";
 import { type Database, type Json } from "@/shared/generated/supabaseTypes";
+import deriveSongChords from "@/shared/song/deriveSongChords";
 import validateFormEffect from "@/shared/validation/form/validateFormEffect";
 import { tagSlugSchema } from "@/shared/validation/tagSchemas";
+
 import { type AuthenticationError, DatabaseError, ValidationError } from "../api-errors";
 import getVerifiedUserSession from "../user-session/getVerifiedSession";
 import sanitizeSlidesForDb from "./sanitizeSlidesForDb";
@@ -26,6 +28,7 @@ const SongFormSchema = Schema.Struct({
 	lyrics: Schema.optional(Schema.Array(Schema.String)),
 	script: Schema.optional(Schema.Array(Schema.String)),
 	translations: Schema.Array(Schema.NonEmptyString),
+	chords: Schema.optional(Schema.Array(Schema.String)),
 	key: SongPublicInsertSchema.fields.key,
 	short_credit: Schema.optional(Schema.String),
 	long_credit: Schema.optional(Schema.String),
@@ -84,9 +87,6 @@ export default function songSave(
 				catch: () => new ValidationError({ message: "Invalid JSON body" }),
 			}),
 		);
-
-		// Compute effective lyrics: default to "en" when missing or empty.
-
 		// Validate form payload - directly use the schema without casting
 		const validated: SongFormData = yield* $(
 			validateFormEffect({
@@ -119,10 +119,9 @@ export default function songSave(
 					return new ValidationError({
 						message: combinedMessage,
 					});
-				})
-			)
-			);
-
+				}),
+			),
+		);
 		// Build strongly-typed values for DB insertion to avoid unsafe assertions.
 		// Use runtime checks and safe coercions so ESLint/TS won't require `as` casts.
 		const slideOrderForDb: string[] = Array.isArray(validated.slide_order)
@@ -133,29 +132,31 @@ export default function songSave(
 			: [];
 		/* oxlint-disable-next-line unicorn/no-null */
 		const keyForDb = validated.key === undefined ? null : validated.key;
-		const effectiveLyrics: string[] = Array.isArray(validated.lyrics) && validated.lyrics.length > ZERO
-			? validated.lyrics.map(String)
-			: ["en"];
+		const effectiveLyrics: string[] =
+			Array.isArray(validated.lyrics) && validated.lyrics.length > ZERO
+				? validated.lyrics.map(String)
+				: ["en"];
 		const scriptForDb: string[] = Array.isArray(validated.script)
 			? validated.script.map(String)
 			: [];
-
 		const slidesForDb: Json = sanitizeSlidesForDb(validated.slides, {
 			lyrics: effectiveLyrics,
 			script: scriptForDb,
 			translations: translationsForDb,
 		});
-
+		const chordsForDb = deriveSongChords({
+			slideOrder: slideOrderForDb,
+			slides: slidesForDb,
+			existingChords: validated.chords,
+		});
 		// Create Supabase client with service role key to bypass RLS for writes
 		const supabase = createClient<Database>(
 			ctx.env.VITE_SUPABASE_URL,
 			ctx.env.SUPABASE_SERVICE_KEY,
 		);
-
 		// Determine if this is an update or create operation
 		const isUpdate = validated.song_id !== undefined && validated.song_id.trim() !== "";
 		const songId = isUpdate ? validated.song_id : crypto.randomUUID();
-
 		// If updating, verify the user owns the song
 		if (isUpdate) {
 			const existingSong = yield* $(
@@ -245,6 +246,7 @@ export default function songSave(
 								lyrics: effectiveLyrics,
 								script: scriptForDb,
 								translations: translationsForDb,
+								chords: chordsForDb,
 								/* oxlint-disable-next-line unicorn/no-null */
 								key: keyForDb,
 								slide_order: slideOrderForDb,
@@ -271,6 +273,7 @@ export default function songSave(
 								lyrics: effectiveLyrics,
 								script: scriptForDb,
 								translations: translationsForDb,
+								chords: chordsForDb,
 								key: keyForDb,
 								slide_order: slideOrderForDb,
 								slides: slidesForDb,
@@ -351,8 +354,7 @@ export default function songSave(
 							);
 							if (tagLibraryUpsertResult.error) {
 								throw new DatabaseError({
-									message:
-										tagLibraryUpsertResult.error.message ?? "Failed to update tag library",
+									message: tagLibraryUpsertResult.error.message ?? "Failed to update tag library",
 								});
 							}
 						}

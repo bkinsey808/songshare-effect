@@ -445,9 +445,7 @@ describe("useSongForm — Harness", () => {
 
 		// Assert
 		await waitFor(() => {
-			expect(within(rendered.container).getByTestId("fields").textContent).toBe(
-				"lyrics,script",
-			);
+			expect(within(rendered.container).getByTestId("fields").textContent).toBe("lyrics,script");
 		});
 	});
 });
@@ -546,6 +544,70 @@ describe("useSongForm — renderHook", () => {
 		// Assert
 		await waitFor(() => {
 			expect(result.current.formValues.short_credit).toBe("The Beatles");
+		});
+	});
+
+	it("keeps formValues.chords synchronized with lyrics edits and slide order changes", async () => {
+		// Arrange
+		setupCreateMode();
+		const { result } = renderHook(() => useSongForm());
+
+		result.current.setSlides({
+			"slide-1": {
+				slide_name: "Slide 1",
+				field_data: {
+					lyrics: "One [C -] two [G 7]",
+				},
+			},
+			"slide-2": {
+				slide_name: "Slide 2",
+				field_data: {
+					lyrics: "Three [A m] four [C -]",
+				},
+			},
+		});
+		result.current.setSlideOrder(["slide-1", "slide-2"]);
+
+		// Assert
+		await waitFor(() => {
+			expect(result.current.formValues.chords).toStrictEqual(["C -", "G 7", "A m"]);
+		});
+
+		// Act
+		result.current.setFormValue("chords", ["C -", "G 7", "A m", "F M7"]);
+
+		// Assert
+		await waitFor(() => {
+			expect(result.current.formValues.chords).toStrictEqual(["C -", "G 7", "A m", "F M7"]);
+		});
+
+		// Act
+		result.current.setSlideOrder(["slide-2", "slide-1"]);
+
+		// Assert
+		await waitFor(() => {
+			expect(result.current.formValues.chords).toStrictEqual(["A m", "C -", "G 7", "F M7"]);
+		});
+
+		// Act
+		result.current.setSlides({
+			"slide-1": {
+				slide_name: "Slide 1",
+				field_data: {
+					lyrics: "One [C -] two [G 7]",
+				},
+			},
+			"slide-2": {
+				slide_name: "Slide 2",
+				field_data: {
+					lyrics: "Three [F M7] four [A m]",
+				},
+			},
+		});
+
+		// Assert
+		await waitFor(() => {
+			expect(result.current.formValues.chords).toStrictEqual(["F M7", "A m", "C -", "G 7"]);
 		});
 	});
 

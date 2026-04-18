@@ -26,11 +26,11 @@ export default function CollapsibleSection({
 	children,
 }: CollapsibleSectionProps): ReactElement {
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-600 dark:bg-gray-800">
+		<div className="rounded-lg border border-gray-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
 			<button
 				type="button"
 				onClick={onToggle}
-				className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700"
+				className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-900"
 			>
 				<div className="flex items-center gap-2">
 					<span className="flex shrink-0 items-center text-xl [&>svg]:size-5">{icon}</span>
@@ -46,7 +46,7 @@ export default function CollapsibleSection({
 				</svg>
 			</button>
 			{isExpanded && (
-				<div className="border-t border-gray-200 dark:border-gray-600 p-4">{children}</div>
+				<div className="border-t border-gray-200 dark:border-slate-800 p-4">{children}</div>
 			)}
 		</div>
 	);

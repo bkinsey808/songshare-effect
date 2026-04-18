@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import useSlideFieldEditor from "@/react/song/song-form/slides-editor/slide-detail-card/useSlideFieldEditor";
-import type { OpenChordPicker, Slide } from "@/react/song/song-form/song-form-types";
+import type { Slide } from "@/react/song/song-form/song-form-types";
 
 type ActiveLanguageField = "lyrics" | "script" | undefined;
 
@@ -9,8 +9,8 @@ type UseSortableGridCellsParams = Readonly<{
 	slideId: string;
 	slide: Slide;
 	fields: readonly string[];
+	songChords: readonly string[];
 	editFieldValue: (params: Readonly<{ slideId: string; field: string; value: string }>) => void;
-	openChordPicker: OpenChordPicker;
 }>;
 
 type UseSortableGridCellsReturn = Readonly<{
@@ -30,16 +30,16 @@ type UseSortableGridCellsReturn = Readonly<{
  * @param slideId - Current slide id for the row
  * @param slide - Slide data object
  * @param fields - Rendered fields for the row
+ * @param songChords - Chord tokens defined on the song
  * @param editFieldValue - Setter for editing a field value
- * @param openChordPicker - Callback to open the chord picker UI
  * @returns Hook outputs including refs and handlers
  */
 export default function useSortableGridCells({
 	slideId,
 	slide,
 	fields,
+	songChords,
 	editFieldValue,
-	openChordPicker,
 }: UseSortableGridCellsParams): UseSortableGridCellsReturn {
 	const hasLyrics = fields.includes("lyrics");
 	const hasScript = fields.includes("script");
@@ -59,13 +59,14 @@ export default function useSortableGridCells({
 	const lyricsEditor = useSlideFieldEditor({
 		field: "lyrics",
 		slide,
-		openChordPicker,
+		songChords,
 		onEditFieldValue: handleEditFieldValue,
 	});
 
 	const scriptEditor = useSlideFieldEditor({
 		field: "script",
 		slide,
+		songChords: [],
 		onEditFieldValue: handleEditFieldValue,
 	});
 

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { useTranslation } from "react-i18next";
 import { describe, expect, it, vi } from "vitest";
 
@@ -7,6 +7,8 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import ChordSelect from "./ChordSelect";
 
 vi.mock("react-i18next");
+
+const FIRST_OPTION_INDEX = 0;
 
 /**
  * @param key - translation key
@@ -32,7 +34,7 @@ function getChordSelect(): HTMLSelectElement {
 }
 
 describe("chordSelect", () => {
-	it("renders existing chords first and the picker action last", () => {
+	it("renders the song chords as selectable options", () => {
 		// Arrange
 		vi.mocked(useTranslation).mockReturnValue(
 			forceCast<ReturnType<typeof useTranslation>>({
@@ -44,22 +46,16 @@ describe("chordSelect", () => {
 		// Act
 		render(
 			<ChordSelect
-				existingChordTokens={["[C -]", "[G 7]"]}
+				songChords={["C -", "G 7"]}
 				currentChordToken={undefined}
-				isEditingChord={false}
 				onSelectChord={vi.fn()}
-				onOpenChordPicker={vi.fn()}
 			/>,
 		);
 		const chordSelect = getChordSelect();
-		const options = within(chordSelect).getAllByRole("option");
+		const optionTexts = [...chordSelect.options].map((option) => option.textContent);
 
 		// Assert
-		expect(options.map((option) => option.textContent)).toStrictEqual([
-			"[C -]",
-			"[G 7]",
-			"Insert Chord",
-		]);
+		expect(optionTexts).toStrictEqual(["Insert Chord", "C -", "G 7"]);
 	});
 
 	it("routes existing chord selections to onSelectChord", () => {
@@ -75,20 +71,18 @@ describe("chordSelect", () => {
 		// Act
 		render(
 			<ChordSelect
-				existingChordTokens={["[C -]"]}
+				songChords={["C -"]}
 				currentChordToken={undefined}
-				isEditingChord={false}
 				onSelectChord={onSelectChord}
-				onOpenChordPicker={vi.fn()}
 			/>,
 		);
-		fireEvent.change(getChordSelect(), { target: { value: "[C -]" } });
+		fireEvent.change(getChordSelect(), { target: { value: "C -" } });
 
 		// Assert
-		expect(onSelectChord).toHaveBeenCalledWith("[C -]");
+		expect(onSelectChord).toHaveBeenCalledWith("C -");
 	});
 
-	it("opens the picker from the final action option and shows the edit label when editing", () => {
+	it("does not call onSelectChord when the placeholder option remains selected", () => {
 		// Arrange
 		vi.mocked(useTranslation).mockReturnValue(
 			forceCast<ReturnType<typeof useTranslation>>({
@@ -96,25 +90,20 @@ describe("chordSelect", () => {
 				i18n: { changeLanguage: vi.fn(), language: "en" },
 			}),
 		);
-		const onOpenChordPicker = vi.fn();
+		const onSelectChord = vi.fn();
 
 		// Act
 		render(
 			<ChordSelect
-				existingChordTokens={["[C -]"]}
+				songChords={["C -"]}
 				currentChordToken={undefined}
-				isEditingChord
-				onSelectChord={vi.fn()}
-				onOpenChordPicker={onOpenChordPicker}
+				onSelectChord={onSelectChord}
 			/>,
 		);
-		fireEvent.change(getChordSelect(), {
-			target: { value: "__open-chord-picker__" },
-		});
+		fireEvent.change(getChordSelect(), { target: { value: "" } });
 
 		// Assert
-		expect(screen.getByRole("option", { name: "Edit Chord" })).toBeTruthy();
-		expect(onOpenChordPicker).toHaveBeenCalledOnce();
+		expect(onSelectChord).not.toHaveBeenCalled();
 	});
 
 	it("shows the current chord token as the selected default choice", () => {
@@ -128,17 +117,11 @@ describe("chordSelect", () => {
 
 		// Act
 		render(
-			<ChordSelect
-				existingChordTokens={["[C -]", "[G 7]"]}
-				currentChordToken="[G 7]"
-				isEditingChord={false}
-				onSelectChord={vi.fn()}
-				onOpenChordPicker={vi.fn()}
-			/>,
+			<ChordSelect songChords={["C -", "G 7"]} currentChordToken="[G 7]" onSelectChord={vi.fn()} />,
 		);
 
 		// Assert
-		expect(getChordSelect().value).toBe("[G 7]");
+		expect(getChordSelect().value).toBe("G 7");
 	});
 
 	it("uses insert chord as the default action label when not editing", () => {
@@ -151,17 +134,9 @@ describe("chordSelect", () => {
 		);
 
 		// Act
-		render(
-			<ChordSelect
-				existingChordTokens={[]}
-				currentChordToken={undefined}
-				isEditingChord={false}
-				onSelectChord={vi.fn()}
-				onOpenChordPicker={vi.fn()}
-			/>,
-		);
+		render(<ChordSelect songChords={[]} currentChordToken={undefined} onSelectChord={vi.fn()} />);
 
 		// Assert
-		expect(screen.getByRole("option", { name: "Insert Chord" })).toBeTruthy();
+		expect(getChordSelect().options[FIRST_OPTION_INDEX]?.textContent).toBe("Insert Chord");
 	});
 });
