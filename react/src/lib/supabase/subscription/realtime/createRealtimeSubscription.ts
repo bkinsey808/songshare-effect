@@ -14,13 +14,12 @@ import type { SubscriptionConfig } from "../subscription-types";
  * Effect-based handlers to promises for execution. All errors are caught and logged,
  * ensuring the subscription remains stable even if event handlers fail.
  *
- * @param config - Subscription configuration object
- * @param config.client - Authenticated Supabase client instance for the subscription
- * @param config.tableName - Valid database table name (from generated schema) to subscribe to
- * @param config.filter - Optional PostgREST filter clause (e.g., "user_id=eq.123") to limit events
- * @param config.onEvent - Effect-based handler called for each INSERT/UPDATE/DELETE event. Receives the realtime payload and may fail with an Error.
- * @param config.channelName - Optional custom channel name; defaults to `${tableName}_changes_${timestamp}`
- * @param config.onStatus - Optional handler for subscription lifecycle events (SUBSCRIBED, CHANNEL_ERROR, TIMED_OUT, CLOSED)
+ * @param client - Authenticated Supabase client instance for the subscription.
+ * @param tableName - Valid database table name (from generated schema) to subscribe to.
+ * @param filter - Optional PostgREST filter clause (e.g., "user_id=eq.123") to limit events.
+ * @param onEvent - Effect-based handler called for each INSERT/UPDATE/DELETE event. Receives the realtime payload and may fail with an Error.
+ * @param channelName - Optional custom channel name; defaults to `${tableName}_changes_${timestamp}`.
+ * @param onStatus - Optional handler for subscription lifecycle events (SUBSCRIBED, CHANNEL_ERROR, TIMED_OUT, CLOSED).
  * @returns Cleanup function that unsubscribes the channel and removes it from the client
  */
 export default function createRealtimeSubscription(config: SubscriptionConfig): () => void {
@@ -32,7 +31,7 @@ export default function createRealtimeSubscription(config: SubscriptionConfig): 
 		onStatus,
 	} = config;
 
-		// Dev-only verbose logging (enable by setting VITE_DEV_VERBOSE_SUBSCRIBE=true in the active env source)
+	// Dev-only verbose logging (enable by setting VITE_DEV_VERBOSE_SUBSCRIBE=true in the active env source)
 	const DEV_VERBOSE_SUBSCRIBE = Boolean(
 		import.meta.env.DEV && import.meta.env["VITE_DEV_VERBOSE_SUBSCRIBE"],
 	);

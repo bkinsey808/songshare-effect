@@ -2,15 +2,17 @@ import type { DraggableAttributes } from "@dnd-kit/core";
 import type { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities";
 import { useTranslation } from "react-i18next";
 
-import InsertChordButton from "@/react/song/song-form/chord-picker/InsertChordButton";
+import ChordSelect from "@/react/song/song-form/chord-picker/ChordSelect";
 import { type Slide } from "@/react/song/song-form/song-form-types";
+
 import hashToHue from "../duplicateTint";
 import DragHandle from "./DragHandle";
+import SlideNameDeleteAction from "./SlideNameDeleteAction";
+import SlideNameLanguageSelect from "./SlideNameLanguageSelect";
 
 const REMOVE_COUNT = 1;
 const EMPTY_COUNT = 0;
 const SINGLE_INSTANCE = 1;
-
 type SlideNameCellProps = Readonly<{
 	slideId: string;
 	slide: Slide;
@@ -35,7 +37,18 @@ type SlideNameCellProps = Readonly<{
 	isDuplicateRow: boolean;
 	hasLyrics: boolean;
 	isEditingChord: boolean;
+	currentChordToken: string | undefined;
+	existingChordTokens: readonly string[];
+	onSelectChord: (token: string) => void;
 	onOpenChordPicker: () => void;
+	hasScript: boolean;
+	lyricsLanguages: readonly string[];
+	scriptLanguages: readonly string[];
+	activeLanguageField: "lyrics" | "script" | undefined;
+	lyricsSelectedLanguageCode: string | undefined;
+	onSelectLyricsLanguage: (code: string) => void;
+	scriptSelectedLanguageCode: string | undefined;
+	onSelectScriptLanguage: (code: string) => void;
 }>;
 
 /**
@@ -60,7 +73,18 @@ type SlideNameCellProps = Readonly<{
  * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
  * @param hasLyrics - Whether this slide row contains lyrics (shows chord button)
  * @param isEditingChord - Whether the parent is in chord-edit mode
+ * @param currentChordToken - Chord token at or before the current insertion point
+ * @param existingChordTokens - Distinct chord tokens already present in lyrics
+ * @param onSelectChord - Inserts or replaces the selected existing chord token
  * @param onOpenChordPicker - Callback to open the chord picker UI
+ * @param hasScript - Whether this slide row contains a script
+ * @param lyricsLanguages - Selected lyrics language codes
+ * @param scriptLanguages - Selected script language codes
+ * @param activeLanguageField - Field whose cursor/selection is currently active in the grid
+ * @param lyricsSelectedLanguageCode - Language code of token at current lyrics cursor, or undefined
+ * @param onSelectLyricsLanguage - Inserts or replaces the lyrics language token
+ * @param scriptSelectedLanguageCode - Language code of token at current script cursor, or undefined
+ * @param onSelectScriptLanguage - Inserts or replaces the script language token
  * @returns React element for the slide name cell.
  */
 export default function SlideNameCell({
@@ -80,7 +104,18 @@ export default function SlideNameCell({
 	isDuplicateRow,
 	hasLyrics,
 	isEditingChord,
+	currentChordToken,
+	existingChordTokens,
+	onSelectChord,
 	onOpenChordPicker,
+	hasScript,
+	lyricsLanguages,
+	scriptLanguages,
+	activeLanguageField,
+	lyricsSelectedLanguageCode,
+	onSelectLyricsLanguage,
+	scriptSelectedLanguageCode,
+	onSelectScriptLanguage,
 }: SlideNameCellProps): ReactElement {
 	const { t } = useTranslation();
 
@@ -120,9 +155,26 @@ export default function SlideNameCell({
 						placeholder="Slide name"
 					/>
 				</div>
-				{hasLyrics && (
-					<InsertChordButton isEditingChord={isEditingChord} onOpenChordPicker={onOpenChordPicker} />
+				{hasLyrics && activeLanguageField === "script" ? undefined : (
+					<ChordSelect
+						existingChordTokens={existingChordTokens}
+						currentChordToken={currentChordToken}
+						isEditingChord={isEditingChord}
+						onSelectChord={onSelectChord}
+						onOpenChordPicker={onOpenChordPicker}
+					/>
 				)}
+				<SlideNameLanguageSelect
+					hasLyrics={hasLyrics}
+					hasScript={hasScript}
+					lyricsLanguages={lyricsLanguages}
+					scriptLanguages={scriptLanguages}
+					activeLanguageField={activeLanguageField}
+					lyricsSelectedLanguageCode={lyricsSelectedLanguageCode}
+					onSelectLyricsLanguage={onSelectLyricsLanguage}
+					scriptSelectedLanguageCode={scriptSelectedLanguageCode}
+					onSelectScriptLanguage={onSelectScriptLanguage}
+				/>
 				<div className="flex gap-1">
 					<DragHandle attributes={attributes} listeners={listeners} />
 					<button
@@ -179,79 +231,16 @@ export default function SlideNameCell({
 					>
 						<span className="text-sm">🗑️</span>{" "}
 					</button>{" "}
-					{(() => {
-						// Hide delete when this is the last slide (we don't allow deleting the last slide)
-						if (slideOrder.length === SINGLE_INSTANCE) {
-							return undefined;
-						}
-						const instancesCount = slideOrder.filter((id) => id === slideId).length;
-						const isSingleInstance = instancesCount === SINGLE_INSTANCE;
-
-						if (!isSingleInstance) {
-							return (
-								<button
-									type="button"
-									className="flex h-8 w-8 items-center justify-center rounded bg-red-600 text-white hover:bg-red-700"
-									onClick={() => {
-										const newSlideOrder = [...slideOrder];
-										newSlideOrder.splice(idx, REMOVE_COUNT);
-										setSlideOrder(newSlideOrder);
-									}}
-									title="Remove from Presentation"
-									aria-label="Remove from Presentation"
-								>
-									<span className="text-sm">🗑️</span>
-								</button>
-							);
-						}
-
-						if (confirmingDelete) {
-							return (
-								<div
-									className={`${globalIsDragging ? "opacity-40 pointer-events-none" : ""} flex items-center gap-2`}
-								>
-									<button
-										type="button"
-										className="rounded border border-gray-600 bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
-										onClick={() => {
-											setConfirmingDelete(false);
-										}}
-										disabled={globalIsDragging}
-									>
-										Cancel
-									</button>
-									<button
-										type="button"
-										className="rounded bg-red-600 px-2 py-1 text-white hover:bg-red-700"
-										onClick={() => {
-											const newSlideOrder = [...slideOrder];
-											newSlideOrder.splice(idx, REMOVE_COUNT);
-											setSlideOrder(newSlideOrder);
-											deleteSlide(slideId);
-											setConfirmingDelete(false);
-										}}
-										disabled={globalIsDragging}
-									>
-										Delete
-									</button>
-								</div>
-							);
-						}
-
-						return (
-							<button
-								type="button"
-								className="flex h-8 w-8 items-center justify-center rounded bg-red-600 text-white hover:bg-red-700"
-								onClick={() => {
-									setConfirmingDelete(true);
-								}}
-								title="Delete Slide"
-								aria-label="Delete Slide"
-							>
-								<span className="text-sm">🗑️</span>
-							</button>
-						);
-					})()}
+					<SlideNameDeleteAction
+						slideId={slideId}
+						slideOrder={slideOrder}
+						idx={idx}
+						setSlideOrder={setSlideOrder}
+						deleteSlide={deleteSlide}
+						confirmingDelete={confirmingDelete}
+						setConfirmingDelete={setConfirmingDelete}
+						globalIsDragging={globalIsDragging}
+					/>
 				</div>
 			</div>
 		</td>

@@ -68,7 +68,8 @@ function installLocale(): void {
 /**
  * Install a mocked image library slice for `useImageLibraryCard` tests.
  *
- * @param opts - Options to seed image entries and handlers.
+ * @param removeImageFromLibrary - Mocked removeImageFromLibrary handler.
+ * @param deleteImage - Mocked deleteImage handler.
  * @returns void
  */
 function installStore(opts: {
@@ -94,7 +95,8 @@ function installStore(opts: {
 /**
  * Test harness for `useImageLibraryCard` demonstrating DOM integration.
  *
- * @param props - Harness props including `entry` and `currentUserId`.
+ * @param entry - The image library entry to render.
+ * @param currentUserId - The current signed-in user id, or undefined.
  * @returns A React element used by tests to assert UI output.
  */
 function Harness(props: {
@@ -126,7 +128,8 @@ function Harness(props: {
 /**
  * Harness for delete behavior in `useImageLibraryCard` tests.
  *
- * @param props - Harness props including `entry` and `currentUserId`.
+ * @param entry - The image library entry to act on.
+ * @param currentUserId - The current signed-in user id, or undefined.
  * @returns A React element used to trigger delete behavior.
  */
 function DeleteHarness(props: {

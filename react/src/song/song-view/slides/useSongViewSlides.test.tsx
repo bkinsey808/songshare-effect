@@ -6,7 +6,10 @@ import type { SongPublic } from "@/react/song/song-schema";
 import makeSongFromIds from "@/react/song/test-utils/makeSongFromIds.test-util";
 import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 import isRecord from "@/shared/type-guards/isRecord";
-import { ResolvedSlideOrientation, SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
+import {
+	ResolvedSlideOrientation,
+	SlideOrientationPreference,
+} from "@/shared/user/slideOrientationPreference";
 
 import { useSongViewSlides } from "./useSongViewSlides";
 
@@ -86,7 +89,6 @@ function installViewportDimensions({
  *
  * @param songPublic - SongPublic instance (or undefined) to provide to the hook
  * @returns ReactElement rendering hook outputs for assertions
- * @param props - Props object passed to the Harness (documented for the scanner)
  */
 function Harness(props: { songPublic: SongPublic | undefined }): ReactElement {
 	const hook = useSongViewSlides(props.songPublic);
@@ -299,11 +301,7 @@ describe("useSongViewSlides — renderHook", () => {
 
 		// Assert
 		expect(result.current.currentSlide).toStrictEqual(song.slides[FIRST_SLIDE_ID]);
-		expect(result.current.displayFields).toStrictEqual([
-			"lyrics",
-			"script",
-			TRANSLATION_LANGUAGE,
-		]);
+		expect(result.current.displayFields).toStrictEqual(["lyrics", "script", TRANSLATION_LANGUAGE]);
 		expect(result.current.totalSlides).toBe(ONE);
 	});
 

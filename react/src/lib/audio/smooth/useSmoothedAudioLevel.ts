@@ -79,10 +79,11 @@ export type SmoothedAudioLevel = {
 };
 
 /**
- * Hook implementation: Reads analyser / buffer from refs and provides helpers.
+ * Hook implementation: Reads analyser and buffer refs and provides helpers.
  *
- * @param refs - Refs to the analyser and time-domain byte buffer.
- * @param options - Options controlling UI interval and smoothing.
+ * @param refs - Refs object containing `analyserRef` and `timeDomainBytesRef`.
+ * @param uiIntervalMs - UI timer interval in milliseconds used to update `levelUiValue`.
+ * @param smoothingAlpha - Exponential smoothing alpha applied to raw levels.
  * @returns A `SmoothedAudioLevel` object with helpers described above.
  */
 export default function useSmoothedAudioLevel(

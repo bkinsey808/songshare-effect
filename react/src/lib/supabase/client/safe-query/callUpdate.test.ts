@@ -9,8 +9,9 @@ import callUpdate from "./callUpdate";
 /**
  * Build a minimal supabase-like client used in callUpdate tests.
  *
- * @param opts - Options controlling presence of `.from` and `.update`
- * @returns A `SupabaseClientLike` stub
+ * @param hasFrom - When false, the client will not include a `.from` function.
+ * @param hasUpdate - When false, the `.from(...).update` function will be absent.
+ * @returns A `SupabaseClientLike` stub.
  */
 function makeClient(opts: { hasFrom?: boolean; hasUpdate?: boolean }): SupabaseClientLike {
 	const hasFrom = opts.hasFrom !== false;

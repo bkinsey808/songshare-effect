@@ -23,7 +23,9 @@ const SAMPLE_KEY = "images/user/img-1.png";
 
 /**
  * Helper to create a Hono context for image tests.
- * @param opts - Options to customize the context.
+ * @param imageKey - The image key to expose via the request params.
+ * @param storageBackend - Storage backend string (e.g., 'r2' or 'supabase').
+ * @param bucket - Optional R2-like bucket binding used for R2 tests.
  * @returns A mock Hono context.
  */
 function makeCtx(opts: {

@@ -24,8 +24,10 @@ export type PlaylistLibraryTableMock = {
 /**
  * Create a mock for the `playlist_library` view in Supabase.
  *
- * @param playlistLibrarySelectRows - Mock rows for multi-select
- * @param playlistLibrarySelectError - Mock error for multi-select
+ * @param playlistLibraryInsertRows - Mock rows for insert
+ * @param playlistLibraryInsertError - Mock error for insert
+ * @param playlistLibraryDeleteError - Mock error for delete
+ * @param playlistLibraryDeleteRows - Mock rows for delete
  * @returns A mocked Supabase table/view object
  */
 export function createPlaylistLibraryMock(opts: PlaylistLibraryMockOpts): PlaylistLibraryTableMock {

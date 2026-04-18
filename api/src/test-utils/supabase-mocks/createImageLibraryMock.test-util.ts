@@ -26,7 +26,9 @@ export type ImageLibraryTableMock = {
 
 /**
  * Creates a mock for the `image_library` Supabase table.
- * @param opts - Mock configuration options.
+ * @param imageLibraryInsertRows - Mock rows for insert
+ * @param imageLibraryInsertError - Mock error for insert
+ * @param imageLibraryDeleteError - Mock error for delete
  * @returns A mock image library table object.
  */
 export function createImageLibraryMock(opts: ImageLibraryMockOpts): ImageLibraryTableMock {

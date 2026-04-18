@@ -3,8 +3,8 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import forceCast from "@/shared/test-utils/forceCast.test-util";
 import type { Database } from "@/shared/generated/supabaseTypes";
+import forceCast from "@/shared/test-utils/forceCast.test-util";
 import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
@@ -45,7 +45,10 @@ function makeShareSingleResolve(
 
 /**
  * Creates a mock Supabase client for testing share record creation.
- * @param opts - Options for configuring the mock client.
+ * @param existingShareId - Optional existing share id to simulate a pre-existing share.
+ * @param existingStatus - Optional status for an existing share (defaults to "pending").
+ * @param shareInsertError - Optional error to reject on insert.
+ * @param senderId - Optional sender user id used for inserted share rows.
  * @returns A mock Supabase client.
  */
 function makeShareCreateRecordClient(opts: {

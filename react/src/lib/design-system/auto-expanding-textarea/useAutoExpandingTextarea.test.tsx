@@ -154,8 +154,13 @@ function assignTextareaRef({
 /**
  * Test harness that mounts a textarea wired to the hook for integration-style tests.
  *
- * @param props - Hook props used to configure the harness
- * @returns A React element containing the mounted textarea and debug outputs
+ * @param value - Initial textarea value used by the harness.
+ * @param minRows - Minimum number of rows for the textarea.
+ * @param maxRows - Maximum number of rows for the textarea.
+ * @param fillParentHeight - Whether the textarea should fill the parent height.
+ * @param growWithContent - Whether the textarea grows with content.
+ * @param resizeOnExternalValueChange - Whether external value changes trigger a resize.
+ * @returns A React element containing the mounted textarea and debug outputs.
  */
 function Harness(props: HookProps): ReactElement {
 	const { textareaRef, handleFocus, handleInput } = useAutoExpandingTextarea(props);

@@ -8,8 +8,12 @@ import { type EnrichmentConfig } from "./EnrichmentConfig.type";
  * Fetches the username for a given user ID from the user_public table.
  * Returns undefined if the username cannot be fetched or is invalid.
  *
- * @param config - Enrichment configuration
- * @returns The username string, or undefined if not found or invalid
+ * @param client - Supabase client used to run the query.
+ * @param userId - ID of the user whose username should be fetched.
+ * @param tableName - Name of the table to query (defaults to `user_public`).
+ * @param userIdColumn - Column name that stores the user id (defaults to `user_id`).
+ * @param usernameColumn - Column name that stores the username (defaults to `username`).
+ * @returns The username string, or undefined if not found or invalid.
  */
 export default async function fetchUsername(config: EnrichmentConfig): Promise<string | undefined> {
 	const {

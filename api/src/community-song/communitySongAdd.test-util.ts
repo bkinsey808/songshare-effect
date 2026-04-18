@@ -9,7 +9,9 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
  */
 /**
  * Mock Supabase client for testing community song additions.
- * @param opts - Mock configuration options.
+ * @param requesterRole - Role to return for the requester lookup.
+ * @param requesterRoleError - When true, requester lookup will return an error.
+ * @param insertError - When true, inserting the community song will fail.
  * @returns A mock Supabase client.
  */
 export default function makeCommunitySongAddClient(

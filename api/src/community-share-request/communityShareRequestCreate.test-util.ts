@@ -9,7 +9,9 @@ import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 /**
  * Mock Supabase client for testing community share request creation.
- * @param opts - Mock configuration options.
+ * @param communityUserStatus - Optional status to return for existing community user.
+ * @param communityUserError - When true, the community user select will return an error.
+ * @param insertError - When true, inserting the share request will return an error.
  * @returns A mock Supabase client.
  */
 export default function makeCommunityShareRequestCreateClient(

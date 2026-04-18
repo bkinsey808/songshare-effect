@@ -3,10 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import ChordDisplayModeSelect from "@/react/chord-display-mode/ChordDisplayModeSelect";
 import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
-import type { SongKey } from "@/shared/song/songKeyOptions";
-
 import formatSelectedRootLabel from "@/react/music/root-picker/formatSelectedRootLabel";
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
+import type { SongKey } from "@/shared/song/songKeyOptions";
+
 import ChordPicker from "./ChordPicker";
 
 const ONE_CALL = 1;
@@ -94,7 +94,6 @@ vi.mock("@/react/chord-display-mode/useChordDisplayModePreference");
 /**
  * Render the chord picker with optional overrides for props.
  *
- * @param overrides - Optional props to customize the rendered picker
  * @param songKey - Song key to render the picker with
  * @param setSongKey - Optional setter for the song key
  * @param hasPendingInsertTarget - Whether the editor has a pending insert target
@@ -354,7 +353,9 @@ describe("chordPicker", () => {
 		({ expected, noteButtonIndex }) => {
 			const { notePicker } = renderEditingChordPickerWithAnyRootSelected();
 
-			expect(within(notePicker).getAllByRole("button")[noteButtonIndex]?.textContent).toBe(expected);
+			expect(within(notePicker).getAllByRole("button")[noteButtonIndex]?.textContent).toBe(
+				expected,
+			);
 		},
 	);
 

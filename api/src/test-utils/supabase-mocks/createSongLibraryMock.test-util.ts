@@ -25,7 +25,11 @@ export type SongLibraryTableMock = {
 
 /**
  * Creates a mock for the `song_library` Supabase table.
- * @param opts - Mock configuration options.
+ * @param songLibrarySelectRows - Mock rows for select
+ * @param songLibrarySelectError - Mock error for select
+ * @param songLibraryInsertRows - Mock rows for insert
+ * @param songLibraryInsertError - Mock error for insert
+ * @param songLibraryDeleteError - Mock error for delete
  * @returns A mock song library table object.
  */
 export function createSongLibraryMock(opts: SongLibraryMockOpts): SongLibraryTableMock {

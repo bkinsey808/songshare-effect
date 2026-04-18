@@ -11,7 +11,14 @@ type SharedItemType = "song" | "playlist";
 
 /**
  * Mock Supabase client for testing community share request status updates.
- * @param opts - Mock configuration options.
+ * @param addPlaylistError - When true, upserting a playlist will return an error.
+ * @param addSongError - When true, upserting a song will return an error.
+ * @param requestNotFound - When true, the request lookup will return not found.
+ * @param requestNotPending - When true, the request will be treated as non-pending.
+ * @param requesterRole - Role data returned for the requester lookup.
+ * @param requesterRoleError - When true, requester role lookup will return an error.
+ * @param sharedItemType - Which shared item type to report on the mock request.
+ * @param updateError - When true, updating the request will return an error.
  * @returns A mock Supabase client.
  */
 export default function makeCommunityShareRequestUpdateStatusClient(

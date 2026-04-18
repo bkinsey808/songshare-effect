@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
@@ -58,46 +57,14 @@ export default function SlidesEditor({
 }: SlidesEditorProps): ReactElement {
 	const { t } = useTranslation();
 
-	const {
-		addSlide,
-		deleteSlide,
-		editFieldValue,
-		editSlideName,
-		removeSlideOrder,
-		moveSlideUp,
-		moveSlideDown,
-		backgroundPickerSlideId,
-		toggleBackgroundPicker,
-		selectSlideBackgroundImage,
-		clearSlideBackgroundImage,
-	} = useSlidesEditor({
+	const { addSlide, slideDetailUiState, slideDetailActions } = useSlidesEditor({
 		slideOrder,
 		setSlideOrder,
 		slides,
 		setSlides,
 		enableBackgroundLibrary: true,
-	});
-
-	const [confirmingDeleteSlideId, setConfirmingDeleteSlideId] = useState<string | undefined>(
-		undefined,
-	);
-	const slideDetailUiState = {
-		confirmingDeleteSlideId,
-		setConfirmingDeleteSlideId,
-		backgroundPickerSlideId,
-	} as const;
-	const slideDetailActions = {
 		openChordPicker,
-		editSlideName,
-		editFieldValue,
-		toggleBackgroundPicker,
-		selectSlideBackgroundImage,
-		clearSlideBackgroundImage,
-		moveSlideUp,
-		moveSlideDown,
-		deleteSlide,
-		removeSlideOrder,
-	} as const;
+	});
 
 	const slideDetailKeyCounts = new Map<string, number>();
 

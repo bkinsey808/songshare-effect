@@ -19,7 +19,9 @@ export type UserPublicTableMock = {
 
 /**
  * Creates a mock for the `user_public` Supabase table.
- * @param opts - Mock configuration options.
+ * @param userPublicMaybe - Mock value for maybeSingle select
+ * @param userPublicMaybeError - Mock error for maybeSingle select
+ * @param userPublicInsertRows - Mock rows for insert
  * @returns A mock user public table object.
  */
 export function createUserPublicMock(opts: UserPublicMockOpts): UserPublicTableMock {

@@ -51,9 +51,8 @@ function makeKeyDownEvent(key: string): React.KeyboardEvent<HTMLInputElement> {
  * - Suggestion click adds a tag
  * - Badge remove button removes a tag
  *
- * @param props - component props
- * @param props.value - current list of tag slugs
- * @param props.onChange - callback invoked with the updated list of tags
+ * @param value - current list of tag slugs
+ * @param onChange - callback invoked with the updated list of tags
  * @returns React element rendering the harness UI
  */
 function Harness(props: {

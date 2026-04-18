@@ -6,7 +6,7 @@ import { type OpenChordPicker, type Slide } from "@/react/song/song-form/song-fo
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import { safeGet } from "@/shared/utils/safe";
 
-import useSlideLyricsEditor from "./useSlideLyricsEditor";
+import useSlideFieldEditor from "./useSlideFieldEditor";
 
 type UseSlideDetailCardParams = Readonly<{
 	slideId: string;
@@ -56,8 +56,8 @@ type UseSlideDetailCardReturn = Readonly<{
 				style: React.CSSProperties & Record<"--duplicate-row-hue", string>;
 		  }>
 		| undefined;
-	lyricsTextareaRef: ReturnType<typeof useSlideLyricsEditor>["lyricsTextareaRef"];
-	selectedChordToken: ReturnType<typeof useSlideLyricsEditor>["selectedChordToken"];
+	lyricsEditor: ReturnType<typeof useSlideFieldEditor>;
+	scriptEditor: ReturnType<typeof useSlideFieldEditor>;
 	onEditSlideName: (newName: string) => void;
 	onEditFieldValue: (
 		params: Readonly<{
@@ -65,7 +65,6 @@ type UseSlideDetailCardReturn = Readonly<{
 			value: string;
 		}>,
 	) => void;
-	onLyricsChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 	onToggleBackgroundPicker: () => void;
 	onSelectBackgroundImage: (
 		params: Readonly<{
@@ -73,7 +72,6 @@ type UseSlideDetailCardReturn = Readonly<{
 			backgroundImageUrl: string;
 		}>,
 	) => void;
-	onOpenChordPicker: () => void;
 	onClearSlideBackgroundImage: () => void;
 	onMoveUp: () => void;
 	onMoveDown: () => void;
@@ -81,7 +79,6 @@ type UseSlideDetailCardReturn = Readonly<{
 	onConfirmDelete: () => void;
 	onRemoveFromPresentation: () => void;
 	onRequestDelete: () => void;
-	onSyncLyricsSelection: () => void;
 }>;
 
 /**
@@ -170,15 +167,17 @@ export default function useSlideDetailCard({
 	}>): void {
 		editFieldValue({ slideId, field, value });
 	}
-	const {
-		lyricsTextareaRef,
-		selectedChordToken,
-		onLyricsChange,
-		onOpenChordPicker,
-		onSyncLyricsSelection,
-	} = useSlideLyricsEditor({
+
+	const lyricsEditor = useSlideFieldEditor({
+		field: "lyrics",
 		slide,
 		openChordPicker,
+		onEditFieldValue,
+	});
+
+	const scriptEditor = useSlideFieldEditor({
+		field: "script",
+		slide,
 		onEditFieldValue,
 	});
 
@@ -283,14 +282,12 @@ export default function useSlideDetailCard({
 		isImageLibraryLoading,
 		imageLibraryEntryList,
 		duplicateTintProps,
-		lyricsTextareaRef,
-		selectedChordToken,
+		lyricsEditor,
+		scriptEditor,
 		onEditSlideName,
 		onEditFieldValue,
-		onLyricsChange,
 		onToggleBackgroundPicker,
 		onSelectBackgroundImage,
-		onOpenChordPicker,
 		onClearSlideBackgroundImage,
 		onMoveUp,
 		onMoveDown,
@@ -298,6 +295,5 @@ export default function useSlideDetailCard({
 		onConfirmDelete,
 		onRemoveFromPresentation,
 		onRequestDelete,
-		onSyncLyricsSelection,
 	};
 }

@@ -7,11 +7,20 @@ import useAppStore from "@/react/app-store/useAppStore";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import { clientDebug } from "@/react/lib/utils/clientLogger";
 
-import { type Slide } from "../song-form-types";
+import { type OpenChordPicker, type Slide } from "../song-form-types";
 import useSlideData from "./useSlideData";
 import useSlideDragAndDrop from "./useSlideDragAndDrop";
 import useSlideFields from "./useSlideFields";
 import useSlideOrder from "./useSlideOrder";
+
+/**
+ * Provides a stable no-op fallback when the chord picker is not mounted.
+ *
+ * @returns Nothing
+ */
+function noopOpenChordPicker(): void {
+	return undefined;
+}
 
 /**
  * Composed hook that wires together slide editors, fields, order and drag/drop
@@ -22,6 +31,7 @@ import useSlideOrder from "./useSlideOrder";
  * @param slides - Map of slide id to `Slide` object
  * @param setSlides - Setter to update `slides`
  * @param enableBackgroundLibrary - Whether background library features should be enabled
+ * @param openChordPicker - Optional callback to open the chord picker UI
  * @returns Handlers and state used by slide editor views (add/delete/duplicate, reorder handlers, sensors)
  */
 export default function useSlidesEditor({
@@ -30,12 +40,14 @@ export default function useSlidesEditor({
 	slides,
 	setSlides,
 	enableBackgroundLibrary = false,
+	openChordPicker = noopOpenChordPicker,
 }: Readonly<{
 	slideOrder: readonly string[];
 	setSlideOrder: (newOrder: readonly string[]) => void;
 	slides: Readonly<Record<string, Slide>>;
 	setSlides: (newSlides: Readonly<Record<string, Slide>>) => void;
 	enableBackgroundLibrary?: boolean;
+	openChordPicker?: OpenChordPicker;
 }>): {
 	addSlide: () => void;
 	deleteSlide: (slideId: string) => void;
@@ -108,6 +120,29 @@ export default function useSlidesEditor({
 		backgroundImageUrl: string;
 	}>) => void;
 	clearSlideBackgroundImage: (slideId: string) => void;
+	slideDetailUiState: Readonly<{
+		confirmingDeleteSlideId: string | undefined;
+		setConfirmingDeleteSlideId: (slideId: string | undefined) => void;
+		backgroundPickerSlideId: string | undefined;
+	}>;
+	slideDetailActions: Readonly<{
+		openChordPicker: OpenChordPicker;
+		editSlideName: (params: Readonly<{ slideId: string; newName: string }>) => void;
+		editFieldValue: (params: Readonly<{ slideId: string; field: string; value: string }>) => void;
+		toggleBackgroundPicker: (slideId: string) => void;
+		selectSlideBackgroundImage: (
+			params: Readonly<{
+				slideId: string;
+				backgroundImageId: string;
+				backgroundImageUrl: string;
+			}>,
+		) => void;
+		clearSlideBackgroundImage: (slideId: string) => void;
+		moveSlideUp: (index: number) => void;
+		moveSlideDown: (index: number) => void;
+		deleteSlide: (slideId: string) => void;
+		removeSlideOrder: (params: Readonly<{ slideId: string; index?: number }>) => void;
+	}>;
 } {
 	clientDebug("slideOrder", slideOrder);
 	clientDebug("slides", slides);
@@ -218,6 +253,27 @@ export default function useSlidesEditor({
 		});
 	}
 
+	const [confirmingDeleteSlideId, setConfirmingDeleteSlideId] = useState<string | undefined>(
+		undefined,
+	);
+	const slideDetailUiState = {
+		confirmingDeleteSlideId,
+		setConfirmingDeleteSlideId,
+		backgroundPickerSlideId,
+	} as const;
+	const slideDetailActions = {
+		openChordPicker,
+		editSlideName,
+		editFieldValue,
+		toggleBackgroundPicker,
+		selectSlideBackgroundImage,
+		clearSlideBackgroundImage,
+		moveSlideUp,
+		moveSlideDown,
+		deleteSlide,
+		removeSlideOrder,
+	} as const;
+
 	return {
 		addSlide,
 		deleteSlide,
@@ -240,5 +296,7 @@ export default function useSlidesEditor({
 		imageLibraryEntryList,
 		selectSlideBackgroundImage,
 		clearSlideBackgroundImage,
+		slideDetailUiState,
+		slideDetailActions,
 	};
 }

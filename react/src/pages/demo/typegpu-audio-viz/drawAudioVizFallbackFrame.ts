@@ -33,12 +33,11 @@ const WAVEFORM_INDEX_STEP = 1;
  * fallback visualization when more advanced GPU-based rendering isn't
  * available.
  *
- * @param args - Options for rendering
- * @param args.ctx - Canvas 2D rendering context to draw into
- * @param args.canvas - The canvas element (used for size)
- * @param args.bytes - Time-domain PCM bytes (Uint8Array, 0-255) used for waveform
- * @param args.level - Normalized level (0..1) used to fill the level meter
- * @param args.levelDecimals - Number of decimals to show for the level text
+ * @param ctx - Canvas 2D rendering context to draw into.
+ * @param canvas - The canvas element (used for size).
+ * @param bytes - Time-domain PCM bytes (Uint8Array, 0-255) used for waveform.
+ * @param level - Normalized level (0..1) used to fill the level meter.
+ * @param levelDecimals - Number of decimals to show for the level text.
  *
  * @returns void
  */

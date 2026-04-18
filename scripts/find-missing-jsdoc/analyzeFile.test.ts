@@ -6,6 +6,11 @@ import { describe, expect, it } from "vitest";
 
 import analyzeFile from "./analyzeFile";
 
+/**
+ * Write a temporary TypeScript file and return its path.
+ * @param contents - File contents to write.
+ * @returns Path to the temporary file.
+ */
 function writeTempFile(contents: string): string {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), "analyze-file-"));
 	const file = path.join(dir, "test.ts");
@@ -35,12 +40,6 @@ describe("analyzeFile", () => {
 
 		const file = writeTempFile(contents);
 		const issues = analyzeFile(file);
-		// TEMP: debug output
-		// eslint-disable-next-line no-console
-		console.log(
-			"TEST_ISSUES:",
-			issues.map((i) => ({ name: i.name, kind: i.kind })),
-		);
 
 		// We expect issues for: bar (no JSDoc), qux (no JSDoc), MyClass (no JSDoc)
 		// and foo/baz should be reported as missing-returns (they have JSDoc but no @returns tag)
@@ -69,6 +68,69 @@ describe("analyzeFile", () => {
 		const file = writeTempFile("");
 		const issues = analyzeFile(file);
 		expect(issues).toStrictEqual([]);
+		fs.rmSync(path.dirname(file), { recursive: true, force: true });
+	});
+
+	it("requires object parameter docs to match exact property names", () => {
+		const contents = [
+			"type DemoProps = Readonly<{ title: string; colSpan: number }>; ",
+			"",
+			"/**",
+			" * Render a demo component.",
+			" *",
+			" * @param props - Component props",
+			" * @param props.title - Title to display",
+			" * @param title - Title to display",
+			" * @returns void",
+			" */",
+			"export function renderDemo(props: DemoProps): void {",
+			"\tvoid props;",
+			"}",
+		].join("\n");
+
+		const file = writeTempFile(contents);
+		const issues = analyzeFile(file);
+
+		expect(issues).toStrictEqual([
+			expect.objectContaining({
+				detail: "Missing @param for 'colSpan'",
+				kind: "missing-param",
+				name: "renderDemo",
+			}),
+			expect.objectContaining({
+				detail: "Unexpected @param for 'props'",
+				kind: "unexpected-param",
+				name: "renderDemo",
+			}),
+			expect.objectContaining({
+				detail: "Unexpected @param for 'props.title'",
+				kind: "unexpected-param",
+				name: "renderDemo",
+			}),
+		]);
+
+		fs.rmSync(path.dirname(file), { recursive: true, force: true });
+	});
+
+	it("accepts destructured object params documented by direct field names only", () => {
+		const contents = [
+			"/**",
+			" * Render a demo component.",
+			" *",
+			" * @param title - Title to display",
+			" * @param colSpan - Number of columns to span",
+			" * @returns void",
+			" */",
+			"export function renderDemo({ title, colSpan }: { title: string; colSpan: number }): void {",
+			"\tvoid title;",
+			"\tvoid colSpan;",
+			"}",
+		].join("\n");
+
+		const file = writeTempFile(contents);
+		const issues = analyzeFile(file);
+		expect(issues).toStrictEqual([]);
+
 		fs.rmSync(path.dirname(file), { recursive: true, force: true });
 	});
 });

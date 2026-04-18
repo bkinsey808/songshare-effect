@@ -9,8 +9,11 @@ import callSelect from "./callSelect";
 /**
  * Create a minimal supabase-like client stub for callSelect tests.
  *
- * @param opts - Options to control returned data and shape of client
- * @returns A `SupabaseClientLike` suitable for tests
+ * @param data - Rows to return from the query.
+ * @param error - Error to return from the query, if any.
+ * @param hasFrom - When false, the client will not include a `.from` function.
+ * @param hasSelect - When false, the `.from(...).select` function will be absent.
+ * @returns A `SupabaseClientLike` suitable for tests.
  */
 function makeClient(opts: {
 	data?: unknown[];

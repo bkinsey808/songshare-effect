@@ -37,7 +37,8 @@ function installStore(entries: Record<string, unknown>): void {
  * Harness attaches the hook refs to real DOM nodes so the click-outside
  * effect and input focus behavior can be exercised.
  *
- * @param props - harness props including `onSelect` and optional `activeEventId`
+ * @param onSelect - Callback invoked when an event id is selected.
+ * @param activeEventId - Optional currently active event id for the input.
  * @returns ReactElement used to mount the hook in tests
  */
 function Harness(props: {

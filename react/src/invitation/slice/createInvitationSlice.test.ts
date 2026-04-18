@@ -15,7 +15,7 @@ const MIN_REGISTRATION = 0;
  * Creates a minimal store with set/get/api and a calls log for createInvitationSlice tests.
  * Tracks what partials are passed to set for assertions.
  *
- * @param initialState - optional overrides for the mock store state
+ * @returns mock store utilities used by tests
  * @returns mock store utilities used by tests
  */
 function makeStore(): {

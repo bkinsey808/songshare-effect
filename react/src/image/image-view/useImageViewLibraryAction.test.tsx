@@ -14,15 +14,14 @@ const OWNER_ID = "owner-1";
 const OTHER_USER_ID = "user-2";
 
 /**
- * Install a mocked `useAppStore` implementation for tests.
- *
- * @param opts - Options to seed the mocked store selectors and effects.
- * @returns void
- */
-/**
  * Install a mocked image view library action slice for tests.
  *
- * @param opts - Options to seed handlers and state for the library action.
+ * @param userSessionData - Mocked session data containing the user id.
+ * @param imageLibraryEntries - Seeded image library entries keyed by id.
+ * @param isImageLibraryLoading - Whether the image library is loading.
+ * @param addImageToLibrary - Mocked addImageToLibrary handler.
+ * @param removeImageFromLibrary - Mocked removeImageFromLibrary handler.
+ * @param fetchImageLibrary - Mocked fetchImageLibrary effect.
  * @returns void
  */
 function installStore(opts: {
@@ -65,9 +64,8 @@ function installStore(opts: {
  * - Remove button when in library and not owner
  * - Pending state during operations
  *
- * @param props - Harness props
- * @param props.imageId - Image id passed to the hook
- * @param props.imageOwnerId - Owner id passed to the hook
+ * @param imageId - Image id passed to the hook.
+ * @param imageOwnerId - Owner id passed to the hook.
  * @returns A small DOM tree used to exercise the hook in tests.
  */
 function Harness(props: { imageId: string; imageOwnerId: string }): ReactElement {

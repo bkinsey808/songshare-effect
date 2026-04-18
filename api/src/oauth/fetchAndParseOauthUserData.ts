@@ -25,7 +25,12 @@ import decodeUnknownEffectOrMap from "@/shared/validation/decodeUnknownEffectOrM
  * Security: uses the shared `safeGet` util to avoid prototype-pollution
  * when reading properties from provider-supplied JSON.
  *
- * @param opts - Fetch options including urls, redirectUri, code, and optional client credentials
+ * @param accessTokenUrl - Provider's token endpoint URL
+ * @param clientId - Application client ID
+ * @param clientSecret - Application client secret
+ * @param code - Authorization code to exchange
+ * @param redirectUri - Authorized redirect URI
+ * @param userInfoUrl - Provider's user info endpoint URL
  * @returns a validated `OauthUserData` object
  */
 export default function fetchAndParseOauthUserData(

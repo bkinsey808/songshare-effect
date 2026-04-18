@@ -13,15 +13,8 @@ type FormInputProps = Readonly<{
 /**
  * Render a lightweight styled input used in forms.
  *
- * @param type - Input type.
- * @param name - Input name.
- * @param placeholder - Placeholder text.
- * @param value - Controlled input value.
- * @param onChange - Change handler.
- * @param onBlur - Blur handler.
  * @param className - Additional CSS classes.
- * @param ref - Optional forwarded ref.
- * @param restProps - Remaining props forwarded to the input element
+ * @param restProps - Remaining props forwarded to the input element.
  * @returns A styled input element suitable for use in forms.
  */
 export default function FormInput({

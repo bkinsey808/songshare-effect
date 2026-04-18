@@ -80,9 +80,7 @@ function getChordShapeByCode(code: string): ChordShape | undefined {
  * Query tokens are AND-matched, so `major 7` returns shapes containing both terms. Results are
  * also filtered by the maximum number of notes, which defaults to tetrads.
  *
- * @param params - Search query and max-note filter
- * @param params - Search query and max-note filter
- * @param query - Search query text (also available as `params.query`)
+ * @param query - Search query text
  * @param minNotes - Minimum number of notes to include (defaults to 2)
  * @param maxNotes - Maximum number of notes to include (defaults to 4)
  * @returns Matching chord shapes sorted by preferred/common entries first
@@ -169,10 +167,11 @@ function insertChordShape(sortedShapes: readonly ChordShape[], shape: ChordShape
 }
 
 export {
-    DEFAULT_MAX_CHORD_NOTES, DEFAULT_MIN_CHORD_NOTES, getChordShapeByCode,
-    getChordShapes,
-    searchChordShapes
+	DEFAULT_MAX_CHORD_NOTES,
+	DEFAULT_MIN_CHORD_NOTES,
+	getChordShapeByCode,
+	getChordShapes,
+	searchChordShapes,
 };
 
-    export type { ChordShape };
-
+export type { ChordShape };

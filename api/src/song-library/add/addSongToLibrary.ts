@@ -21,7 +21,6 @@ import performSongLibraryInsert from "./performSongLibraryInsert";
  * - inserts the entry into song_library using service key (bypass RLS for trusted operation)
  *
  * @param ctx - The readonly request context provided by the server
- * @param request - The request body containing song_id
  * @returns The inserted song library entry, or fails with an error
  */
 export default function addSongToLibraryHandler(

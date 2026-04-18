@@ -48,7 +48,11 @@ function installLocale(): void {
 /**
  * Install a mocked store implementation for `useAppStore` selectors used by tests.
  *
- * @param opts - overrides for mocked store selectors and actions
+ * @param publicImages - Seeded public images keyed by id.
+ * @param isImageLoading - Whether image loading is in progress.
+ * @param imageError - Optional image error string.
+ * @param fetchImageBySlug - Mocked fetchImageBySlug effect.
+ * @param deleteImage - Mocked deleteImage effect.
  * @returns void
  */
 function installStore(opts: {

@@ -24,7 +24,10 @@ const SAMPLE_USER_SESSION: UserSessionData = makeUserSessionData({
  * Helper to shim `community_user` table behaviour for tests.
  *
  * @param client - The Supabase client to patch
- * @param opts - Patch options
+ * @param requesterRole - Value to return from the requester role lookup.
+ * @param selectError - When set, the select call will return the provided error.
+ * @param updateRows - Rows to return from update operations.
+ * @param updateError - When set, the update call will return the provided error.
  * @returns The patched Supabase client
  */
 function patchCommunityUserClient(

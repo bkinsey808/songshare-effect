@@ -11,7 +11,9 @@
  * The implementation lives outside of a `.test.ts` file so we can retain a
  * few eslint/TS disables without tripping the no-disable-in-tests rule.
  *
- * @param opts - Partial response fields plus a required `json` implementation.
+ * @param json - Function returning the parsed JSON for the response.
+ * @param ok - Whether the response is considered successful (`true`/`false`).
+ * @param status - Numeric HTTP status code for the response.
  * @returns A minimal `Response` object for tests.
  */
 export default function makeResponse(

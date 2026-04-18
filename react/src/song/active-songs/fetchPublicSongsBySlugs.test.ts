@@ -12,7 +12,8 @@ type SupabaseQueryResult = Promise<{ data: unknown[]; error: unknown }>;
 /**
  * Create a minimal Supabase-like client for testing query behavior.
  *
- * @param opts - Test options to control `data` and `error` returned
+ * @param data - Optional rows the client should return as `data`.
+ * @param error - Optional error the client should return as `error`.
  * @returns Minimal client with `from().select().in()` shape
  */
 function makeSupabaseClient(opts: { data?: unknown[]; error?: unknown }): {

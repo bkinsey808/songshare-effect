@@ -32,7 +32,12 @@ function makeEntry(): ImageLibraryEntry {
 /**
  * Install a mocked `useAppStore` implementation for tests.
  *
- * @param opts - Options to seed the mocked store selectors and effects.
+ * @param imageLibraryEntries - Seeded image library entries.
+ * @param isImageLibraryLoading - Whether the image library is loading.
+ * @param imageLibraryError - Optional error string for the image library.
+ * @param fetchImageLibrary - Mocked fetchImageLibrary selector/effect.
+ * @param subscribeToImageLibrary - Mocked subscribeToImageLibrary selector/effect.
+ * @param removeImageFromLibrary - Mocked removeImageFromLibrary selector/effect.
  * @returns void
  */
 function installStore(opts: {

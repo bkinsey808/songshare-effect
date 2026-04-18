@@ -67,6 +67,8 @@ type SortableGridRowProps = Readonly<{
 	) => void;
 	clearSlideBackgroundImage: (slideId: string) => void;
 	openChordPicker: OpenChordPicker;
+	lyricsLanguages: readonly string[];
+	scriptLanguages: readonly string[];
 }>;
 
 /**
@@ -87,7 +89,6 @@ type SortableGridRowProps = Readonly<{
  * @param deleteSlide - Handler that deletes the slide record.
  * @param slides - Lookup of all slides by id.
  * @param idx - Index of this row within the slide order array.
- * @param getColumnWidth - Returns the width in pixels for a given field.
  * @param globalIsDragging - Whether any row is currently being dragged.
  * @param isDuplicateRow - Whether this row belongs to a duplicate slide group.
  * @param backgroundPickerSlideId - Currently open background picker slide id.
@@ -96,8 +97,10 @@ type SortableGridRowProps = Readonly<{
  * @param toggleBackgroundPicker - Toggles the inline background picker.
  * @param selectSlideBackgroundImage - Applies a background image to the slide.
  * @param clearSlideBackgroundImage - Clears the current slide background image.
- * @param openChordPicker - Callback to open the chord picker for this row
- * @returns React element for the table row.
+ * @param openChordPicker - Callback to open the chord picker.
+ * @param lyricsLanguages - Selected lyrics language codes.
+ * @param scriptLanguages - Selected script language codes.
+ * @returns React element representing a song slide row.
  */
 export default function SlidesGridRow({
 	slideId,
@@ -121,6 +124,8 @@ export default function SlidesGridRow({
 	selectSlideBackgroundImage,
 	clearSlideBackgroundImage,
 	openChordPicker,
+	lyricsLanguages,
+	scriptLanguages,
 }: SortableGridRowProps): ReactElement {
 	const {
 		confirmingDelete,
@@ -200,6 +205,8 @@ export default function SlidesGridRow({
 					selectSlideBackgroundImage={selectSlideBackgroundImage}
 					clearSlideBackgroundImage={clearSlideBackgroundImage}
 					openChordPicker={openChordPicker}
+					lyricsLanguages={lyricsLanguages}
+					scriptLanguages={scriptLanguages}
 				/>
 			)}
 		</tr>

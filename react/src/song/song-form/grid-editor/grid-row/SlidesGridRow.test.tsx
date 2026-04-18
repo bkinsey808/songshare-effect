@@ -6,9 +6,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { ImageLibraryEntry } from "@/react/image-library/image-library-types";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { Slide } from "@/react/song/song-form/song-form-types";
-import DeleteConfirmationRow, {
-	type DeleteConfirmationRowProps,
-} from "./DeleteConfirmationRow";
+
+import DeleteConfirmationRow, { type DeleteConfirmationRowProps } from "./DeleteConfirmationRow";
 import SlidesGridRow from "./SlidesGridRow";
 import SortableGridCells, {
 	type SortableGridRowInnerProps,
@@ -49,8 +48,6 @@ vi.mocked(DeleteConfirmationRow).mockImplementation((props) => {
 	latestDeleteProps = props;
 	return <div />;
 });
-
-
 
 /**
  * Assert that delete props are present and return them.
@@ -112,6 +109,8 @@ function makeProps(overrides: Partial<Props> = {}): Props {
 		selectSlideBackgroundImage: vi.fn(),
 		clearSlideBackgroundImage: vi.fn(),
 		openChordPicker: vi.fn(),
+		lyricsLanguages: ["en"],
+		scriptLanguages: [],
 	};
 
 	return { ...defaultProps, ...overrides };

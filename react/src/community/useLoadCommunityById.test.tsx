@@ -15,7 +15,8 @@ const COMMUNITY_ID = "comm-123";
 /**
  * Install a mocked app store for `useLoadCommunityById` tests.
  *
- * @param opts - Options to configure the mocked store selectors and effects.
+ * @param currentCommunity - Current community object the selector should return.
+ * @param fetchCommunityById - Mocked fetch function used by the hook.
  * @returns void
  */
 function installStore(opts: {
@@ -32,7 +33,7 @@ function installStore(opts: {
  * Mounts the hook; `fetchCommunityById` runs when `communityId` is set and
  * differs from `currentCommunity`.
  *
- * @param props - harness props containing `communityId`
+ * @param communityId - Community id value provided to the hook for loading.
  * @returns ReactElement used to mount the hook in tests
  */
 function Harness(props: { communityId: string | undefined }): ReactElement {

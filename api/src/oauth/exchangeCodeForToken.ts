@@ -11,8 +11,12 @@ import isRecord from "@/shared/type-guards/isRecord";
  * `grant_type=authorization_code`, `code`, and `redirect_uri`. When provided,
  * `clientId` and `clientSecret` are included in the body.
  *
- * @param opts - Fetch options including `accessTokenUrl`, `code`, `redirectUri`,
- *   and optional `clientId`/`clientSecret`.
+ * @param accessTokenUrl - Provider's token endpoint URL
+ * @param clientId - Application client ID
+ * @param clientSecret - Application client secret
+ * @param code - Authorization code to exchange
+ * @param redirectUri - Authorized redirect URI
+ * @param userInfoUrl - Provider's user info endpoint URL
  * @returns - An Effect that resolves to an object containing `accessToken` and
  *   `idToken` (both optional) and the raw JSON response under `raw`. The
  *   Effect fails if the HTTP response is non-OK or if the response JSON is invalid.

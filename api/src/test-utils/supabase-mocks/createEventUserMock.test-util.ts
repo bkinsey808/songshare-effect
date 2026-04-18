@@ -42,7 +42,11 @@ export type EventUserTableMock = {
 
 /**
  * Creates a mock for the `event_user` Supabase table.
- * @param opts - Mock configuration options.
+ * @param eventUserInsertRows - Mock rows for insert
+ * @param eventUserInsertError - Mock error for insert
+ * @param eventUserSelectRow - Mock row for select
+ * @param eventUserSelectError - Mock error for select
+ * @param eventUserDeleteError - Mock error for delete
  * @returns A mock event user table object.
  */
 export function createEventUserMock(opts: EventUserMockOpts): EventUserTableMock {

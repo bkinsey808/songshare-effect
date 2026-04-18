@@ -34,12 +34,15 @@ export type SongTableMock = {
 /**
  * Create a mock for the `song_public` table in Supabase.
  *
- * @param songPublicInsertRows - Mock rows to return after insert
- * @param songPublicInsertError - Mock error to return on insert
- * @param songPublicSelectSingleRow - Mock row to return for single select
- * @param songPublicSelectSingleError - Mock error to return for single select
- * @param songPublicUpdateSelectRow - Mock row to return after update
- * @param songPublicUpdateSelectError - Mock error to return after update
+ * @param songInsertRows - Mock rows to return after insert
+ * @param songInsertError - Mock error to return on insert
+ * @param songSelectSingleRow - Mock row to return for single select
+ * @param songSelectSingleError - Mock error to return for single select
+ * @param songSelectThrows - Mock error to throw during select
+ * @param songUpdateRow - Mock row to return after update
+ * @param songUpdateError - Mock error to return after update
+ * @param songDeleteError - Mock error to return after delete
+ * @param songDeleteRows - Mock rows to return after delete
  * @returns A mocked Supabase table object
  */
 export function createSongMock(opts: SongMockOpts): SongTableMock {

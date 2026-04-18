@@ -34,15 +34,12 @@ function installLocale(): void {
 }
 
 /**
- * Installs a mocked app-store snapshot for each test.
- *
- * @param opts - Optional store slices and mocked actions for the current test.
- * @returns Nothing.
- */
-/**
  * Install a mocked image edit slice for `useImageEdit` tests.
  *
- * @param opts - Options to configure the mocked edit handlers and state.
+ * @param publicImages - Seeded public images keyed by id.
+ * @param isImageLoading - Whether image loading is in progress.
+ * @param fetchImageBySlug - Mocked fetchImageBySlug effect.
+ * @param deleteImage - Mocked deleteImage effect.
  * @returns void
  */
 function installStore(opts: {

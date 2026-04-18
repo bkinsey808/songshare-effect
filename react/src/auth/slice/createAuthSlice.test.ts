@@ -54,12 +54,10 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 	}
 
 	/**
-	 * Update the mock auth state with a partial or updater.
+	 * Return the current mock auth state used by the test helpers.
 	 *
-	 * @param patchOrUpdater - Partial state or updater function applied to the mock
-	 * @returns void
+	 * @returns The composed `AuthState & AuthSlice` representing current state.
 	 */
-
 	function get(): AuthState & AuthSlice {
 		const base = getHelper();
 		return {
@@ -106,7 +104,6 @@ function makeMockStore(initialState: Partial<AuthState> = {}): {
 		getInitialState: get,
 		subscribe: () => () => undefined,
 	};
-
 
 	return { state, set: set as Set<AuthSlice>, get: get as Get<AuthSlice>, api };
 }

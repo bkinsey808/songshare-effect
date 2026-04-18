@@ -19,9 +19,9 @@ type UserLibraryCardDisplayProps = {
  * Displays a user library card showing the user's information and a remove button.
  *
  * @param entry - The user library entry to display.
- * @param currentUserId - The ID of the currently authenticated user.
  * @param onRemoveClick - Callback when the remove button is clicked.
  * @returns A React element displaying the card.
+ * @param onRemoveClick - Callback when the remove button is clicked.
  */
 export default function UserLibraryCardDisplay({
 	entry,

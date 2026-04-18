@@ -26,7 +26,6 @@ type SortablePlaylistSongItemProps = {
  * @param onMoveUp - Handler that moves the song up.
  * @param onMoveDown - Handler that moves the song down.
  * @param onRemove - Handler that removes the song.
- * @param props - Component props object.
  * @returns Sortable React element for the song.
  */
 export default function SortablePlaylistSongItem(

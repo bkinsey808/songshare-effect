@@ -32,6 +32,7 @@ type FocalPointCoverImageProps = Readonly<{
  *
  * @param alt - Accessible image alt text.
  * @param containerAspectRatio - Target container aspect ratio as width divided by height.
+ * @param data-testid - Optional test id attribute passed to the rendered `img` element.
  * @param focalPoint - Stored image focal point percentages.
  * @param imageDimensions - Known source image dimensions when already available.
  * @param slideOrientation - Slide orientation that decides which axis should stay centered (`landscape` or `portrait`).

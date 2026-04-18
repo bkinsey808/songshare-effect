@@ -18,9 +18,7 @@ type SlideOrientationSelectProps = Readonly<{
  * Renders a select bound to the user's preference and writes changes via
  * `useSetSlideOrientationPreference`.
  *
- * @param props - component props
  * @param className - Optional CSS class name to apply to the label wrapper
- * @param props.className - Optional CSS class name to apply to the label wrapper
  * @returns ReactElement or undefined when no user is signed in
  */
 export default function SlideOrientationSelect({

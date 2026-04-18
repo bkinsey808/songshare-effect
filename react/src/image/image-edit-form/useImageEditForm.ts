@@ -49,7 +49,9 @@ export type UseImageEditFormReturn = {
  * Hook that manages the image edit form state and submit/cancel handlers.
  *
  * @param image - The loaded `ImagePublic` object to edit.
- * @param options - Optional form behavior flags and tag setter.
+ * @param isTagsReady - Whether tag data is ready and should be included in initial state.
+ * @param setTags - Optional setter to update tags from the form.
+ * @param tags - Initial set of tags for the image.
  * @returns Form state and handlers consumed by the image edit form.
  */
 export default function useImageEditForm(

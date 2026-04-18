@@ -22,10 +22,12 @@ type InsertOptions = {
 /**
  * Safely call insert on a Supabase-like client with type-safe table names.
  *
- * @param client - The Supabase client
- * @param table - Table name (type-checked against database schema)
- * @param opts - Insert options (row, selectCols, single)
- * @returns PostgrestResponse with data/error
+ * @param client - The Supabase client.
+ * @param table - Table name (type-checked against database schema).
+ * @param row - Row object to insert.
+ * @param selectCols - Optional select columns string to apply after insert.
+ * @param single - When true, call `.single()` on the query to return a single row.
+ * @returns PostgrestResponse with data/error.
  */
 export default async function callInsert<
 	DB = unknown,

@@ -21,7 +21,12 @@ const CURRENT_USER_ID = TEST_USER_ID;
 /**
  * Configures useCurrentUserId and app store mocks for share subscription tests.
  *
- * @param opts - various override options for the mocked environment
+ * @param signedIn - When false, simulates no signed-in user.
+ * @param currentUserId - Optional current user id to return from the hook.
+ * @param fetchShares - Mocked fetchShares implementation.
+ * @param subscribeToSentShares - Mocked subscribeToSentShares implementation.
+ * @param setSharesLoading - Mocked setSharesLoading implementation.
+ * @param sentShares - Seeded sent shares for the store.
  * @returns void
  */
 function installMocks(opts: {

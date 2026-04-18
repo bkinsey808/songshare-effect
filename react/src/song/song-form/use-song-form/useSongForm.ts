@@ -73,14 +73,8 @@ export default function useSongForm(): UseSongFormReturn {
 	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
 
 	// Use extracted hooks
-	const {
-		slideOrder,
-		slides,
-		setSlideOrder,
-		setSlides,
-		resetFormState,
-		initialSlideId,
-	} = useFormState();
+	const { slideOrder, slides, setSlideOrder, setSlides, resetFormState, initialSlideId } =
+		useFormState();
 
 	// Derive active display fields from language pickers in formValues
 	const fields: readonly string[] = deriveSongFieldKeys({

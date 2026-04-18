@@ -20,7 +20,8 @@ export default function createSupabaseStorageAdapter(supabase: SupabaseClient): 
 		/**
 		 * @param key - the destination path
 		 * @param data - the binary data to upload
-		 * @param options - upload options (contentType, etc.)
+		 * @param contentType - MIME type of the content
+		 * @param metadata - custom metadata for the upload
 		 * @returns promise that resolves on success
 		 */
 		async upload(key: string, data: ArrayBuffer, options: StorageUploadOptions): Promise<void> {

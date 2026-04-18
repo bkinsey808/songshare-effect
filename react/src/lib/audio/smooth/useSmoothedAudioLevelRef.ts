@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
 import useSmoothedAudioLevel, {
-	type AudioAnalyser,
-	type SmoothedAudioLevel,
+    type AudioAnalyser,
+    type SmoothedAudioLevel,
 } from "@/react/lib/audio/smooth/useSmoothedAudioLevel";
 
 type AudioLevelRefs = {
@@ -22,9 +22,10 @@ type AudioLevelOptions = {
  * `RefObject` that points to the current instance so it can be safely accessed from
  * non-reactic callbacks (render loops, external libs, etc.).
  *
- * @param refs - Refs to the analyser and time-domain buffer (same shape as `useSmoothedAudioLevel`).
- * @param options - Options passed to `useSmoothedAudioLevel`.
- * @returns Object with `audioLevel` and a `RefObject` kept in sync
+ * @param refs - Refs object containing `analyserRef` and `timeDomainBytesRef`.
+ * @param uiIntervalMs - UI timer interval in milliseconds used by the smoothed level helper.
+ * @param smoothingAlpha - Exponential smoothing alpha applied to raw levels.
+ * @returns Object with `audioLevel` and a `RefObject` kept in sync.
  */
 export default function useSmoothedAudioLevelRef(
 	refs: AudioLevelRefs,

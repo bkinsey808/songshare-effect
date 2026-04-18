@@ -13,9 +13,7 @@ type SlideNumberToggleProps = Readonly<{
 /**
  * Toggle button to show or hide slide numbers for the current user.
  *
- * @param props - Component props
  * @param className - Optional className forwarded to the button
- * @param props.className - Optional className forwarded to the button
  * @returns A `Button` ReactElement when a user is present, otherwise `undefined`
  */
 export default function SlideNumberToggle({

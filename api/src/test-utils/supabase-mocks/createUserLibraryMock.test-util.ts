@@ -32,7 +32,10 @@ export type UserLibraryTableMock = {
 
 /**
  * Creates a mock for the `user_library` Supabase table.
- * @param opts - Mock configuration options.
+ * @param userLibraryInsertRows - Mock rows for insert
+ * @param userLibraryInsertError - Mock error for insert
+ * @param userLibrarySelectRow - Mock row for select
+ * @param userLibraryDeleteError - Mock error for delete
  * @returns A mock user library table object.
  */
 export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTableMock {
@@ -42,10 +45,7 @@ export function createUserLibraryMock(opts: UserLibraryMockOpts): UserLibraryTab
 			const promise: MultiResult = (async () => {
 				await Promise.resolve();
 				// On error, Supabase returns null for data; use empty array to avoid null literal
-				const data: unknown[] =
-					opts.userLibraryInsertError === undefined
-						? mergedRows
-						: [];
+				const data: unknown[] = opts.userLibraryInsertError === undefined ? mergedRows : [];
 				const error: unknown = opts.userLibraryInsertError ?? undefined;
 				return { data, error };
 			})();

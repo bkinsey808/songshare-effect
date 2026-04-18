@@ -35,9 +35,7 @@ function MockChordPicker(): ReactElement {
  * @param children - Optional React children to render inside the mock
  * @returns Rendered children wrapped in a `div` for test queries
  */
-function MockCollapsibleSection({
-	children,
-}: Readonly<{ children?: ReactNode }>): ReactElement {
+function MockCollapsibleSection({ children }: Readonly<{ children?: ReactNode }>): ReactElement {
 	return <div>{children}</div>;
 }
 
@@ -106,9 +104,7 @@ function installChildComponentMocks(): void {
  * @param overrides - Optional fields to override for a specific test case
  * @returns Fully populated `UseSongFormReturn`
  */
-function createMockSongFormReturn(
-	overrides: Partial<UseSongFormReturn> = {},
-): UseSongFormReturn {
+function createMockSongFormReturn(overrides: Partial<UseSongFormReturn> = {}): UseSongFormReturn {
 	const formValues: SongFormValues = {
 		song_name: "Test Song",
 		song_slug: "test-song",

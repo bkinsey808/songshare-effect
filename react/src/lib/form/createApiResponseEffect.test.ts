@@ -17,8 +17,10 @@ vi.mock("@/react/lib/utils/clientLogger");
  * behaviour rather than creating a full `Response`.  Disable the unsafe
  * assertion lint rule locally rather than at module scope.
  *
- * @param opts - Partial response shape including `json` implementation
- * @returns Response instance with overridden `json` method for tests
+ * @param ok - Response ok flag (true for 2xx responses).
+ * @param status - HTTP status code for the response.
+ * @param json - Async function returning the parsed JSON payload for the response.
+ * @returns Response instance with overridden `json` method for tests.
  */
 function makeResponse(
 	opts: Partial<Pick<Response, "ok" | "status">> & {

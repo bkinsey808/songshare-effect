@@ -35,7 +35,15 @@ export type SongPublicTableMock = {
 
 /**
  * Creates a mock for the `song_public` Supabase table.
- * @param opts - Mock configuration options.
+ * @param songPublicInsertRows - Mock rows for insert
+ * @param songPublicInsertError - Mock error for insert
+ * @param songPublicSelectSingleRow - Mock row for single select
+ * @param songPublicSelectSingleError - Mock error for single select
+ * @param songPublicSelectThrows - Mock error to throw during select
+ * @param songPublicUpdateRow - Mock row for update
+ * @param songPublicUpdateError - Mock error for update
+ * @param songPublicInRows - Mock rows for 'in' select
+ * @param songPublicInError - Mock error for 'in' select
  * @returns A mock song public table object.
  */
 export function createSongPublicMock(opts: SongPublicMockOpts): SongPublicTableMock {

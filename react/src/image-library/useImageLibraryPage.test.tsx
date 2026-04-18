@@ -31,7 +31,9 @@ function installLocale(): void {
 /**
  * Install a mocked `useImageLibrary` return value for tests.
  *
- * @param opts - options to override default mock implementations
+ * @param entries - Entries to return from the hook.
+ * @param error - Optional error string returned by the hook.
+ * @param isLoading - Whether the hook reports a loading state.
  * @returns void
  */
 function installUseImageLibrary(opts: {

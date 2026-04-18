@@ -40,7 +40,11 @@ const SHARE_REQUEST: ShareCreateRequest = {
 /**
  * Install mocks for `useShareButton` tests.
  *
- * @param opts - Options to control mocked store and auth state
+ * @param currentUserId - Optional user id to return from `useCurrentUserId`.
+ * @param signedIn - When false, simulates no signed-in user.
+ * @param sentShares - Seeded sent shares keyed by id.
+ * @param createShare - Mocked createShare handler.
+ * @param fetchShares - Mocked fetchShares handler.
  * @returns void
  */
 function installMocks(opts: {

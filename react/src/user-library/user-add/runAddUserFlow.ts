@@ -19,7 +19,6 @@ export type RunAddUserFlowParams = Readonly<{
  * so components can run the returned Effect directly. Errors are handled
  * locally so the effect never fails when executed from a component.
  *
- * @param params - flow parameters
  * @param username - username to look up and add
  * @param lookupUserByUsername - function used to resolve a user record by username
  * @param addUserToLibrary - Effect-producing function that adds a followed user to the

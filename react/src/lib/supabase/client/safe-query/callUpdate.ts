@@ -23,10 +23,13 @@ type UpdateOptions = {
 /**
  * Safely call update on a Supabase-like client with type-safe table names.
  *
- * @param client - The Supabase client
- * @param table - Table name (type-checked against database schema)
- * @param opts - Update options (data, eq filter, selectCols, single)
- * @returns PostgrestResponse with data/error
+ * @param client - The Supabase client.
+ * @param table - Table name (type-checked against database schema).
+ * @param data - Data object to update.
+ * @param eq - Optional equality filter describing the column and value to match.
+ * @param selectCols - Optional select columns string to apply after update.
+ * @param single - When true, call `.single()` on the query to return a single row.
+ * @returns PostgrestResponse with data/error.
  */
 export default async function callUpdate<
 	DB = unknown,

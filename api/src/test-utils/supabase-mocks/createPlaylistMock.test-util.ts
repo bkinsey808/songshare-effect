@@ -33,7 +33,15 @@ export type PlaylistTableMock = {
 
 /**
  * Creates a mock for the `playlist` Supabase table.
- * @param opts - Mock configuration options.
+ * @param playlistInsertRows - Mock rows to return after insert
+ * @param playlistInsertError - Mock error to return on insert
+ * @param playlistSelectSingleRow - Mock row to return for single select
+ * @param playlistSelectSingleError - Mock error to return for single select
+ * @param playlistSelectThrows - Mock error to throw during select
+ * @param playlistUpdateRow - Mock row to return after update
+ * @param playlistUpdateError - Mock error to return after update
+ * @param playlistDeleteError - Mock error to return after delete
+ * @param playlistDeleteRows - Mock rows to return after delete
  * @returns A mock playlist table object.
  */
 export function createPlaylistMock(opts: PlaylistMockOpts): PlaylistTableMock {

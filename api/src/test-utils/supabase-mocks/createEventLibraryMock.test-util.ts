@@ -20,7 +20,10 @@ export type EventLibraryTableMock = {
 
 /**
  * Creates a mock for the `event_library` Supabase table.
- * @param opts - Mock configuration options.
+ * @param eventLibraryDeleteError - Mock error for delete
+ * @param eventLibraryInsertRows - Mock rows for insert
+ * @param eventLibraryInsertError - Mock error for insert
+ * @param eventLibraryUpsertError - Mock error for upsert
  * @returns A mock event library table object.
  */
 export function createEventLibraryMock(opts: EventLibraryMockOpts): EventLibraryTableMock {

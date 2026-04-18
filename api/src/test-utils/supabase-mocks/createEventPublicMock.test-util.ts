@@ -29,7 +29,12 @@ export type EventPublicTableMock = {
 
 /**
  * Creates a mock for the `event_public` Supabase table.
- * @param opts - Mock configuration options.
+ * @param eventPublicInsertRows - Mock rows to return after insert
+ * @param eventPublicInsertError - Mock error to return on insert
+ * @param eventPublicUpdateRow - Mock row to return after update
+ * @param eventPublicUpdateError - Mock error to return after update
+ * @param eventPublicSelectRow - Mock row to return for select
+ * @param eventPublicSelectError - Mock error to return for select
  * @returns A mock event public table object.
  */
 export function createEventPublicMock(opts: EventPublicMockOpts): EventPublicTableMock {

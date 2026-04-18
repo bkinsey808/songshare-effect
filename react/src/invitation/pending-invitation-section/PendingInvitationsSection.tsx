@@ -15,7 +15,6 @@ import usePendingInvitationSection from "./usePendingInvitationSection";
  * Each invitation shows the name, type, and "Accept" / "Decline" buttons.
  * After acceptance, a link to visit the joined community/event is displayed.
  *
- * @param currentLang - language code for navigation links
  * @returns React element for the pending invitations section
  */
 export default function PendingInvitationsSection(): ReactElement | undefined {

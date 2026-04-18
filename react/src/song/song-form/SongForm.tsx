@@ -12,12 +12,14 @@ import SongFormFooter from "./SongFormFooter";
 import useSongForm from "./use-song-form/useSongForm";
 
 /**
- * Render the song creation and edit page.
+ * Main wrapper for the interactive song editor form.
+ * Handles the actual form submission, chord picker overlay, and manages the field sections.
  *
- * @returns React element containing the full song editor UI.
+ * @returns Song form component
  */
 export default function SongForm(): ReactElement {
 	const { t } = useTranslation();
+	const songForm = useSongForm();
 
 	const {
 		getFieldError,
@@ -66,7 +68,7 @@ export default function SongForm(): ReactElement {
 		openChordPicker,
 		closeChordPicker,
 		insertChordFromPicker,
-	} = useSongForm();
+	} = songForm;
 
 	return (
 		<>

@@ -87,14 +87,12 @@ export default function SlideDetailCard({
 		isImageLibraryLoading,
 		imageLibraryEntryList,
 		duplicateTintProps,
-		lyricsTextareaRef,
-		selectedChordToken,
+		lyricsEditor,
+		scriptEditor,
 		onEditSlideName,
 		onEditFieldValue,
-		onLyricsChange,
 		onToggleBackgroundPicker,
 		onSelectBackgroundImage,
-		onOpenChordPicker,
 		onClearSlideBackgroundImage,
 		onMoveUp,
 		onMoveDown,
@@ -102,7 +100,6 @@ export default function SlideDetailCard({
 		onConfirmDelete,
 		onRemoveFromPresentation,
 		onRequestDelete,
-		onSyncLyricsSelection,
 	} = useSlideDetailCard({
 		slideId,
 		idx,
@@ -146,14 +143,11 @@ export default function SlideDetailCard({
 			<SlideDetailFields
 				fields={fields}
 				slide={slide}
-				lyricsTextareaRef={lyricsTextareaRef}
-				isEditingChord={selectedChordToken !== undefined}
 				lyricsLanguages={lyricsLanguages}
 				scriptLanguages={scriptLanguages}
+				lyricsEditor={lyricsEditor}
+				scriptEditor={scriptEditor}
 				onEditFieldValue={onEditFieldValue}
-				onLyricsChange={onLyricsChange}
-				onOpenChordPicker={onOpenChordPicker}
-				onSyncLyricsSelection={onSyncLyricsSelection}
 			/>
 			<div className="mb-6">
 				<FormField as="fieldset" label={t("song.slideBackgroundImage", "Slide Background Image")}>

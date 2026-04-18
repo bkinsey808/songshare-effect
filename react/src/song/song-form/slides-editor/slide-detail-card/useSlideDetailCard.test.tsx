@@ -161,7 +161,8 @@ function makeActions(): HookActions {
 /**
  * Builds a valid hook params object with overridable values.
  *
- * @param options - Optional action mocks and partial param overrides
+ * @param options.actions - Optional action mocks to provide instead of defaults.
+ * @param options.overrides - Optional partial overrides for the generated params.
  * @returns Hook params and action mocks used to build them
  */
 function makeParams(
@@ -195,18 +196,9 @@ function makeParams(
  * @returns Rendered harness UI
  */
 function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
-	const {
-		slide,
-		isConfirmingDelete,
-		canMoveUp,
-		lyricsTextareaRef,
-		selectedChordToken,
-		onEditSlideName,
-		onLyricsChange,
-		onMoveUp,
-		onOpenChordPicker,
-		onSyncLyricsSelection,
-	} = useSlideDetailCard(params);
+	"use no memo";
+	const { slide, isConfirmingDelete, canMoveUp, onEditSlideName, onMoveUp, lyricsEditor } =
+		useSlideDetailCard(params);
 	const lyricsValue = safeGet(slide?.field_data ?? {}, "lyrics") ?? "";
 
 	return (
@@ -214,13 +206,15 @@ function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
 			<div data-testid="is-confirming-delete">{String(isConfirmingDelete)}</div>
 			<div data-testid="can-move-up">{String(canMoveUp)}</div>
 			<div data-testid="lyrics-value">{lyricsValue}</div>
-			<div data-testid="is-editing-chord">{String(selectedChordToken !== undefined)}</div>
+			<div data-testid="is-editing-chord">
+				{String(lyricsEditor.selectedChordToken !== undefined)}
+			</div>
 			<textarea
-				ref={lyricsTextareaRef}
+				ref={lyricsEditor.textareaRef}
 				data-testid="lyrics-textarea"
 				value={lyricsValue}
-				onChange={onLyricsChange}
-				onSelect={onSyncLyricsSelection}
+				onChange={lyricsEditor.handleChange}
+				onSelect={lyricsEditor.handleSyncSelection}
 				readOnly={false}
 			/>
 			<button
@@ -241,7 +235,11 @@ function Harness({ params }: Readonly<{ params: HookParams }>): ReactElement {
 			>
 				Move up
 			</button>
-			<button type="button" data-testid="open-chord-picker" onClick={onOpenChordPicker}>
+			<button
+				type="button"
+				data-testid="open-chord-picker"
+				onClick={lyricsEditor.handleOpenChordPicker}
+			>
 				Open chord picker
 			</button>
 		</div>

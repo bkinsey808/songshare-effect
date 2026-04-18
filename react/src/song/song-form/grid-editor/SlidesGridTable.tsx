@@ -73,10 +73,12 @@ type SlidesGridTableProps = Readonly<
  * @returns Comma-separated string of language names
  */
 function formatLanguageList(codes: readonly string[]): string {
-	return codes.map((code) => {
-		const entry = findLanguageByTag(code);
-		return entry ? entry.name : code;
-	}).join(", ");
+	return codes
+		.map((code) => {
+			const entry = findLanguageByTag(code);
+			return entry ? entry.name : code;
+		})
+		.join(", ");
 }
 
 /**
@@ -234,8 +236,8 @@ export default function SlidesGridTable({
 											isResizing={isResizing}
 										/>
 									</th>
-									);
-								})}
+								);
+							})}
 							<th className="relative border border-gray-300 px-4 py-2 text-left font-semibold dark:border-gray-600 dark:text-white w-(--slide-background-width) min-w-(--slide-background-width) max-w-(--slide-background-width)">
 								{t("song.slideBackgroundImage", "Background Image")}
 							</th>
@@ -276,6 +278,8 @@ export default function SlidesGridTable({
 										selectSlideBackgroundImage={selectSlideBackgroundImage}
 										clearSlideBackgroundImage={clearSlideBackgroundImage}
 										openChordPicker={openChordPicker}
+										lyricsLanguages={lyricsLanguages}
+										scriptLanguages={scriptLanguages}
 									/>
 								);
 							})}

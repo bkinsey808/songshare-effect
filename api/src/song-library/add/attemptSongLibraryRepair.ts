@@ -21,7 +21,8 @@ type RepairOptions = {
  * library entry on success, undefined otherwise.
  * @param client - Supabase client.
  * @param userId - ID of the user whose library is being updated.
- * @param options - The add song request and song owner ID.
+ * @param req - The add-song request that triggered the repair.
+ * @param songOwnerId - Optional owner id to use when inserting the missing song row.
  * @returns An Effect that succeeds with the SongLibrary entry or undefined if repair fails.
  */
 export default function attemptSongLibraryRepair(

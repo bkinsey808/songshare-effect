@@ -45,7 +45,16 @@ const ACCEPTED_SHARE: SharedItem = {
 /**
  * Configures `useAppStore` with share slice state and Effect mocks for tests.
  *
- * @param opts - Options to configure received/sent shares and mocked effects.
+ * @param receivedShares - Seeded received shares keyed by id.
+ * @param sentShares - Seeded sent shares keyed by id.
+ * @param shareError - Optional share error string.
+ * @param loadingShareId - Optional id of a share currently loading.
+ * @param fetchShares - Mocked fetchShares effect.
+ * @param updateShareStatus - Mocked updateShareStatus effect.
+ * @param getReceivedSharesByStatus - Helper to get received shares by status.
+ * @param getSentSharesByStatus - Helper to get sent shares by status.
+ * @param subscribeToReceivedShares - Mocked subscribeToReceivedShares effect.
+ * @param subscribeToSentShares - Mocked subscribeToSentShares effect.
  * @returns void
  */
 function installStore(opts: {

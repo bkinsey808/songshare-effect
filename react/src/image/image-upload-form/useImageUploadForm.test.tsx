@@ -30,15 +30,9 @@ function installLocale(): void {
 }
 
 /**
- * Install a mocked `useAppStore` implementation for upload tests.
- *
- * @param opts - options to override default mock implementations
- * @returns void
- */
-/**
  * Install a mocked image upload slice for `useImageUploadForm` tests.
  *
- * @param opts - Optional handlers to seed into the upload slice.
+ * @param uploadImage - Mocked uploadImage handler used by the hook.
  * @returns void
  */
 function installStore(opts: { uploadImage?: ReturnType<typeof vi.fn> }): void {

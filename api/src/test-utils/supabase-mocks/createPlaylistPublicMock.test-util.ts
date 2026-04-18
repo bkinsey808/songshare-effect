@@ -38,8 +38,11 @@ export type PlaylistPublicTableMock = {
  * @param playlistPublicInsertError - Mock error to return on insert
  * @param playlistPublicSelectSingleRow - Mock row to return for single select
  * @param playlistPublicSelectSingleError - Mock error to return for single select
- * @param playlistPublicUpdateSelectRow - Mock row to return after update
- * @param playlistPublicUpdateSelectError - Mock error to return after update
+ * @param playlistPublicSelectThrows - Mock error to throw during select
+ * @param playlistPublicUpdateRow - Mock row to return after update
+ * @param playlistPublicUpdateError - Mock error to return after update
+ * @param playlistPublicDeleteError - Mock error to return after delete
+ * @param playlistPublicDeleteRows - Mock rows to return after delete
  * @returns A mocked Supabase table object
  */
 export function createPlaylistPublicMock(opts: PlaylistPublicMockOpts): PlaylistPublicTableMock {

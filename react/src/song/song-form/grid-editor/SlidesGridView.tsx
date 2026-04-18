@@ -28,18 +28,9 @@ type SlidesGridViewProps = Readonly<
 >;
 
 /**
- * Presentation-oriented grid view of slides.
- * Provides a table-like presentation of slides and quick edit affordances.
+ * Provides a no-op fallback for grid views that do not expose chord editing.
  *
- * @param fields - Dynamic fields to show in the grid
- * @param slideOrder - Order in which slides appear in presentation
- * @param setSlideOrder - Setter to update the presentation order
- * @param slides - Map of slide id to slide data
- * @param setSlides - Setter to update slides map
- * @param openChordPicker - Optional callback to open the chord picker
- * @param lyricsLanguages - Selected lyrics language codes
- * @param scriptLanguages - Selected script language codes
- * @returns React element rendering the slides grid view
+ * @returns Nothing
  */
 function noopOpenChordPicker(): void {
 	return undefined;
@@ -55,10 +46,10 @@ function noopOpenChordPicker(): void {
  * @param scriptLanguages - Selected script language codes
  * @param slideOrder - Order in which slides appear in presentation
  * @param setSlideOrder - Setter to update the presentation order
- * @param slides - Map of slide id to slide data
+ * @param slides - Lookup of all slides by id.
  * @param setSlides - Setter to update slides map
- * @param openChordPicker - Optional callback to open the chord picker
- * @returns React element rendering the slides grid view
+ * @param openChordPicker - Callback to open the chord picker.
+ * @returns React element rendering the grid view.
  */
 export default function SlidesGridView({
 	fields,

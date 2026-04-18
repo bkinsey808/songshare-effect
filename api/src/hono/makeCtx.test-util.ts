@@ -29,7 +29,13 @@ type MakeCtxOpts = {
 
 /**
  * Create a minimal ReadonlyContext for tests.
- * @param opts - Configuration options for the test context.
+ * @param body - Optional request body to be returned by `req.json()`.
+ * @param env - Partial environment overrides to populate the test `Env`.
+ * @param headers - Optional request headers map used by `req.header`.
+ * @param header - Optional spy for `ctx.header` (response-side header setter).
+ * @param req - Partial request overrides (e.g., `method`, `url`).
+ * @param resHeadersAppend - Optional spy called when response headers are appended.
+ * @param redirect - Optional spy/override for `ctx.redirect`.
  * @returns A lightweight `ReadonlyContext` suitable for unit tests.
  */
 export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
@@ -100,8 +106,14 @@ export default function makeCtx(opts: MakeCtxOpts = {}): ReadonlyContext {
  * Create a ReadonlyContext with json returning Response.json(body).
  * Required for testing handleHttpEndpoint, which expects ctx.json to return a Response.
  *
- * @param opts - Same options as makeCtx
- * @returns A ReadonlyContext with json returning Response
+ * @param body - Optional request body to be returned by `req.json()`.
+ * @param env - Partial environment overrides to populate the test `Env`.
+ * @param headers - Optional request headers map used by `req.header`.
+ * @param header - Optional spy for `ctx.header` (response-side header setter).
+ * @param req - Partial request overrides (e.g., `method`, `url`).
+ * @param resHeadersAppend - Optional spy called when response headers are appended.
+ * @param redirect - Optional spy/override for `ctx.redirect`.
+ * @returns A ReadonlyContext with json returning Response.
  */
 export function makeCtxWithJsonResponse(opts: MakeCtxOpts = {}): ReadonlyContext {
 	const ctx = makeCtx(opts);

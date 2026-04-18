@@ -13,8 +13,10 @@ const OTHER_ID = "other-1";
 /**
  * Create a test participant entry.
  *
- * @param opts - participant options used to construct the entry
- * @returns EventParticipant test fixture
+ * @param user_id - Participant user id.
+ * @param role - Participant role string.
+ * @param username - Optional participant username.
+ * @returns EventParticipant test fixture.
  */
 function makeParticipant(opts: {
 	user_id: string;

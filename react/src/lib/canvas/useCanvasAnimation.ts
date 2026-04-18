@@ -107,9 +107,11 @@ export function useCanvasAnimation(): {
 	 *   animation after `options.duration` milliseconds and call
 	 *   `options.onFinish()` if provided.
 	 *
-	 * @param canvas - Canvas element to draw into
-	 * @param draw - Per-frame draw callback
-	 * @param options - Animation options (loop/duration/onFinish)
+	 * @param canvas - Canvas element to draw into.
+	 * @param draw - Per-frame draw callback.
+	 * @param loop - If true, the animation continues until `stop()` is called.
+	 * @param duration - Duration in milliseconds after which a non-looping animation stops.
+	 * @param onFinish - Optional callback invoked when a non-looping animation finishes.
 	 * @returns void
 	 */
 	function start(

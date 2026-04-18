@@ -37,7 +37,7 @@ function installLocale(): void {
 /**
  * Install a mocked image edit slice for `useImageEditForm` tests.
  *
- * @param opts - Optional handlers to seed into the edit slice.
+ * @param updateImage - Mocked updateImage handler used by the hook.
  * @returns void
  */
 function installStore(opts: { updateImage?: ReturnType<typeof vi.fn> }): void {
@@ -52,8 +52,7 @@ function installStore(opts: { updateImage?: ReturnType<typeof vi.fn> }): void {
 /**
  * Test harness for `useImageEditForm` demonstrating DOM integration.
  *
- * @param props - Harness props
- * @param props.image - Image public object passed into the hook
+ * @param image - Image public object passed into the hook.
  * @returns A small DOM tree used to validate the hook in tests.
  */
 function Harness(props: { image: ImagePublic }): ReactElement {
