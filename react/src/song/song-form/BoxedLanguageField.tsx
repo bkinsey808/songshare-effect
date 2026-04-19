@@ -4,7 +4,7 @@ import FormField from "@/react/lib/design-system/form/FormField";
 
 import MultiLanguagePicker from "./language-picker/MultiLanguagePicker";
 
-const PICKER_BOX_CLASS = "rounded border border-gray-600 bg-gray-900/60 px-3 py-3";
+const PICKER_BOX_CLASS = "rounded border border-gray-600 bg-slate-950 px-3 py-3";
 
 type BoxedLanguageFieldProps = Readonly<{
 	label: string;

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 
+import Chip from "@/react/lib/design-system/Chip";
 import type { SongKey } from "@/shared/song/songKeyOptions";
 
 import getLetterSuffix from "./getLetterSuffix";
@@ -39,12 +40,30 @@ export default function SongChordChip({
 	const { t } = useTranslation();
 	const letterSuffix = getLetterSuffix(token, songKey);
 
+	const label = (
+		<>
+			{token}
+			{letterSuffix !== "" && <span className="text-blue-400">{letterSuffix}</span>}
+		</>
+	);
+
 	return (
-		<span className="inline-flex items-center gap-2 rounded border border-gray-500 bg-gray-800 px-2 py-1 text-sm text-gray-200">
+		<Chip
+			onRemove={
+				isUnusedChord
+					? () => {
+							onRemoveSongChord(token);
+						}
+					: undefined
+			}
+			removeAriaLabel={t("song.removeUnusedChord", "Remove unused chord {{token}}", {
+				token,
+			})}
+		>
 			{isUnusedChord ? (
 				<button
 					type="button"
-					className="rounded px-0.5 text-left text-sm text-gray-200 hover:text-white"
+					className="rounded-full px-0.5 text-left text-blue-300 hover:text-blue-100"
 					onClick={() => {
 						onEditSongChord(token);
 					}}
@@ -52,25 +71,11 @@ export default function SongChordChip({
 						token,
 					})}
 				>
-					{token}{letterSuffix !== "" && <span className="text-gray-400">{letterSuffix}</span>}
+					{label}
 				</button>
 			) : (
-				<span>{token}{letterSuffix !== "" && <span className="text-gray-400">{letterSuffix}</span>}</span>
+				label
 			)}
-			{isUnusedChord ? (
-				<button
-					type="button"
-					className="rounded px-1 text-xs text-gray-300 hover:bg-red-900/40 hover:text-red-200"
-					onClick={() => {
-						onRemoveSongChord(token);
-					}}
-					aria-label={t("song.removeUnusedChord", "Remove unused chord {{token}}", {
-						token,
-					})}
-				>
-					x
-				</button>
-			) : undefined}
-		</span>
+		</Chip>
 	);
 }

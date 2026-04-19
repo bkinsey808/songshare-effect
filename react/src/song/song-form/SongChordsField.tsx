@@ -42,7 +42,7 @@ export default function SongChordsField({
 	return (
 		<FormField label={t("song.chords", "Chords")} as="div">
 			<div
-				className="flex min-h-11 flex-col gap-3 rounded border border-gray-600 bg-gray-900/60 px-3 py-3"
+				className="flex min-h-11 flex-col gap-3 rounded border border-gray-600 bg-slate-950 px-3 py-3"
 				data-testid="song-chords-array"
 			>
 				<div className="flex min-h-8 flex-wrap items-start gap-2">

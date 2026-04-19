@@ -6,11 +6,12 @@ import FormSection from "@/react/lib/design-system/form/FormSection";
 import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
 import TagInput from "@/react/tag/input/TagInput";
 import type { SongKey } from "@/shared/song/songKeyOptions";
+
 import BoxedLanguageField from "./BoxedLanguageField";
 import MultiLanguagePicker from "./language-picker/MultiLanguagePicker";
 import SongChordsField from "./SongChordsField";
 import SongKeyFormField from "./SongKeyFormField";
-const PICKER_BOX_CLASS = "rounded border border-gray-600 bg-gray-900/60 px-3 py-3";
+const PICKER_BOX_CLASS = "rounded border border-gray-600 bg-slate-950 px-3 py-3";
 
 type SongFormFieldsProps = Readonly<{
 	getFieldError: (
@@ -162,6 +163,7 @@ export default function SongFormFields({
 					value={formValues.song_name}
 					onChange={handleSongNameChange}
 					onBlur={onSongNameBlur}
+					className="border-gray-600 bg-slate-950 text-white"
 				/>
 			</FormField>
 
@@ -182,11 +184,12 @@ export default function SongFormFields({
 					name="song_slug"
 					value={formValues.song_slug}
 					onChange={handleSongSlugChange}
+					className="border-gray-600 bg-slate-950 text-white"
 				/>
 			</FormField>
 
 			<BoxedLanguageField
-				label={t("song.lyricsLanguage", "Lyrics Language")}
+				label={t("song.lyricsLanguages", "Lyrics Languages")}
 				error={getFieldError("lyrics")}
 				value={formValues.lyrics}
 				onChange={(codes) => {
@@ -198,7 +201,7 @@ export default function SongFormFields({
 			/>
 
 			<BoxedLanguageField
-				label={t("song.scriptLanguage", "Script Language")}
+				label={t("song.scriptLanguages", "Script Languages")}
 				error={getFieldError("script")}
 				value={formValues.script}
 				onChange={(codes) => {
@@ -272,6 +275,7 @@ export default function SongFormFields({
 					name="short_credit"
 					value={formValues.short_credit}
 					onChange={handleShortCreditChange}
+					className="border-gray-600 bg-slate-950 text-white"
 				/>
 			</FormField>
 
@@ -282,6 +286,7 @@ export default function SongFormFields({
 					onChange={handleLongCreditChange}
 					placeholder="Enter long credit..."
 					autoExpand
+					className="border-gray-600 bg-slate-950 text-white"
 				/>
 			</FormField>
 
@@ -292,6 +297,7 @@ export default function SongFormFields({
 					onChange={handlePublicNotesChange}
 					placeholder="Enter public notes..."
 					autoExpand
+					className="border-gray-600 bg-slate-950 text-white"
 				/>
 			</FormField>
 
@@ -302,6 +308,7 @@ export default function SongFormFields({
 					onChange={handlePrivateNotesChange}
 					placeholder="Enter private notes..."
 					autoExpand
+					className="border-gray-600 bg-slate-950 text-white"
 				/>
 			</FormField>
 

@@ -2,7 +2,9 @@ import { render, renderHook, waitFor } from "@testing-library/react";
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
+import forceCast from "@/react/lib/test-utils/forceCast";
 import RouterWrapper from "@/react/lib/test-utils/RouterWrapper";
+import type { SongFormValuesFromSchema as SongFormData } from "@/react/song/song-form/songSchema";
 import { apiSongsSavePath } from "@/shared/paths";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
@@ -10,8 +12,51 @@ import useFormSubmission from "./useFormSubmission";
 
 const ONE_CALL = 1;
 
+/**
+ * Minimal harness demonstrating `useFormSubmission` handlers.
+ *
+ * @param handleApiResponseEffect - Effect handler for API responses
+ * @param resetFormState - Function to reset the form state
+ * @param formData - The form data to submit
+ * @returns A small DOM fragment used by the harness test
+ */
+function Harness({
+	handleApiResponseEffect,
+	resetFormState,
+	formData,
+}: {
+	readonly handleApiResponseEffect: (
+		response: Response,
+		onError: (message: string) => void,
+	) => Effect.Effect<boolean>;
+	readonly resetFormState: () => void;
+	readonly formData: SongFormData;
+}): ReactElement {
+	const { handleCancel, onSubmit } = useFormSubmission({
+		handleApiResponseEffect,
+		resetFormState,
+	});
+	return (
+		<div data-testid="harness-root">
+			<button type="button" data-testid="cancel" onClick={handleCancel}>
+				Cancel
+			</button>
+			<button
+				type="button"
+				data-testid="submit"
+				onClick={() => {
+					void onSubmit(formData);
+				}}
+			>
+				Submit
+			</button>
+		</div>
+	);
+}
+
 describe("useFormSubmission — renderHook", () => {
 	it("handleCancel navigates back", () => {
+		// Arrange
 		const handleApiResponseEffect = vi.fn(() => Effect.succeed(false));
 		const resetFormState = vi.fn();
 
@@ -30,12 +75,15 @@ describe("useFormSubmission — renderHook", () => {
 			},
 		);
 
+		// Act
 		result.current.handleCancel();
 
+		// Assert
 		expect(resetFormState).not.toHaveBeenCalled();
 	});
 
 	it("onSubmit posts to API and navigates on success", async () => {
+		// Arrange
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({
@@ -66,7 +114,7 @@ describe("useFormSubmission — renderHook", () => {
 			},
 		);
 
-		const formData = {
+		const formData: SongFormData = {
 			song_name: "Test",
 			song_slug: "test",
 			lyrics: ["en"],
@@ -76,8 +124,10 @@ describe("useFormSubmission — renderHook", () => {
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
 		};
 
+		// Act
 		await result.current.onSubmit(formData);
 
+		// Assert
 		await waitFor(() => {
 			expect(fetch).toHaveBeenCalledWith(
 				apiSongsSavePath,
@@ -119,7 +169,7 @@ describe("useFormSubmission — renderHook", () => {
 			},
 		);
 
-		// Assert
+		// Assert — no Act: verifying initial render state only
 		expect(typeof result.current.handleCancel).toBe("function");
 		expect(typeof result.current.onSubmit).toBe("function");
 	});
@@ -161,7 +211,7 @@ describe("useFormSubmission — renderHook", () => {
 			},
 		);
 
-		const formData = {
+		const formData: SongFormData = {
 			song_name: "Test",
 			song_slug: "test",
 			lyrics: ["en"],
@@ -187,6 +237,7 @@ describe("useFormSubmission — renderHook", () => {
 
 describe("useFormSubmission — Harness", () => {
 	it("harness renders with handleCancel and onSubmit", () => {
+		// Arrange
 		vi.stubGlobal(
 			"fetch",
 			vi.fn().mockResolvedValue({
@@ -200,7 +251,7 @@ describe("useFormSubmission — Harness", () => {
 		);
 		const resetFormState = vi.fn();
 
-		const MINIMAL_FORM_DATA = {
+		const MINIMAL_FORM_DATA = forceCast<SongFormData>({
 			song_name: "",
 			song_slug: "",
 			lyrics: ["en"],
@@ -208,42 +259,20 @@ describe("useFormSubmission — Harness", () => {
 			translations: [],
 			slide_order: ["s1"],
 			slides: { s1: { slide_name: "Slide 1", field_data: {} } },
-		};
+		});
 
-		/**
-		 * Minimal harness demonstrating `useFormSubmission` handlers.
-		 *
-		 * @returns A small DOM fragment used by the harness test
-		 */
-		function Harness(): ReactElement {
-			const { handleCancel, onSubmit } = useFormSubmission({
-				handleApiResponseEffect,
-				resetFormState,
-			});
-			return (
-				<div data-testid="harness-root">
-					<button type="button" data-testid="cancel" onClick={handleCancel}>
-						Cancel
-					</button>
-					<button
-						type="button"
-						data-testid="submit"
-						onClick={() => {
-							void onSubmit(MINIMAL_FORM_DATA);
-						}}
-					>
-						Submit
-					</button>
-				</div>
-			);
-		}
-
+		// Act
 		const { getByTestId } = render(
 			<RouterWrapper initialEntries={["/en/song/new/edit"]} path="*">
-				<Harness />
+				<Harness
+					handleApiResponseEffect={handleApiResponseEffect}
+					resetFormState={resetFormState}
+					formData={MINIMAL_FORM_DATA}
+				/>
 			</RouterWrapper>,
 		);
 
+		// Assert — no Act: verifying initial render state only
 		expect(getByTestId("harness-root")).toBeTruthy();
 		expect(getByTestId("cancel")).toBeTruthy();
 		expect(getByTestId("submit")).toBeTruthy();

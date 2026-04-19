@@ -1,6 +1,7 @@
 import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
 import cssVars from "@/react/lib/utils/cssVars";
 import { type Slide } from "@/react/song/song-form/song-form-types";
+import { findLanguageByTag } from "@/shared/language/translationLanguages";
 
 type EditFieldValue = ({
 	slideId,
@@ -58,6 +59,8 @@ export default function SlideFieldCell({
 	const colStyle = cssVars({
 		"slides-grid-field-width": `var(--${varName})`,
 	});
+	const languageEntry = findLanguageByTag(field);
+	const fieldLabel = languageEntry?.name ?? field;
 
 	return (
 		<td
@@ -71,7 +74,7 @@ export default function SlideFieldCell({
 					editFieldValue({ slideId, field, value: event.target.value });
 				}}
 				className="block h-full w-full border-none text-base leading-normal pt-[calc(var(--slides-grid-baseline-offset) - var(--slides-grid-textarea-baseline-correction))] px-2 pb-2 focus:outline-none text-black dark:text-white bg-transparent"
-				placeholder={`Enter ${field}...`}
+				placeholder={`Enter ${fieldLabel}...`}
 				minRows={2}
 				fillParentHeight
 				growWithContent

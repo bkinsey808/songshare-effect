@@ -1,8 +1,9 @@
-import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 import { useTranslation } from "react-i18next";
 
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
+import toUnicodeAccidentals from "@/react/music/intervals/toUnicodeAccidentals";
 import type { SongKey } from "@/shared/song/songKeyOptions";
+
 import SongKeyButton from "./SongKeyButton";
 import useSongKeyPicker from "./useSongKeyPicker";
 
@@ -48,7 +49,7 @@ export default function SongKeyPicker({ value, onChange }: SongKeyPickerProps): 
 
 			<button
 				type="button"
-				className="flex w-full items-center justify-between rounded-lg border border-gray-600 bg-gray-900 px-3 py-2 text-left text-white transition hover:border-gray-500 hover:bg-gray-850"
+				className="flex w-full items-center justify-between rounded-lg border border-gray-600 bg-slate-950 px-3 py-2 text-left text-white transition hover:border-gray-500 hover:bg-slate-900"
 				onClick={() => {
 					setIsOpen(!isOpen);
 				}}
@@ -64,13 +65,13 @@ export default function SongKeyPicker({ value, onChange }: SongKeyPickerProps): 
 			</button>
 
 			{isOpen ? (
-				<div className="absolute z-20 mt-2 w-[16rem] max-w-[calc(100vw-2rem)] rounded-xl border border-gray-700 bg-gray-950 p-3 shadow-2xl ring-1 ring-white/10">
+				<div className="absolute z-20 mt-2 w-[16rem] max-w-[calc(100vw-2rem)] rounded-xl border border-gray-600 bg-slate-950 p-3 shadow-2xl ring-1 ring-white/10">
 					<button
 						type="button"
 						className={`mb-2 w-full rounded-lg border px-3 py-2 text-left text-sm transition ${
 							value === ""
 								? "border-blue-400 bg-blue-500/20 text-white"
-								: "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-500 hover:bg-gray-800"
+								: "border-gray-600 bg-slate-900 text-gray-300 hover:border-gray-500 hover:bg-slate-800"
 						}`}
 						onClick={() => {
 							onChange("");
@@ -96,18 +97,16 @@ export default function SongKeyPicker({ value, onChange }: SongKeyPickerProps): 
 										setIsOpen(false);
 									}}
 								/>
-								{row.secondary === undefined
-									? undefined
-									: (
-										<SongKeyButton
-											songKey={row.secondary}
-											selectedValue={value}
-											onChange={(nextValue) => {
-												onChange(nextValue);
-												setIsOpen(false);
-											}}
-										/>
-									)}
+								{row.secondary === undefined ? undefined : (
+									<SongKeyButton
+										songKey={row.secondary}
+										selectedValue={value}
+										onChange={(nextValue) => {
+											onChange(nextValue);
+											setIsOpen(false);
+										}}
+									/>
+								)}
 							</div>
 						))}
 					</div>

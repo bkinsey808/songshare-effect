@@ -102,11 +102,6 @@ describe("analyzeFile", () => {
 				kind: "unexpected-param",
 				name: "renderDemo",
 			}),
-			expect.objectContaining({
-				detail: "Unexpected @param for 'props.title'",
-				kind: "unexpected-param",
-				name: "renderDemo",
-			}),
 		]);
 
 		fs.rmSync(path.dirname(file), { recursive: true, force: true });

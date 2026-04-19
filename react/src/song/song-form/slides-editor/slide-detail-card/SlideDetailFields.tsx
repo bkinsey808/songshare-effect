@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import AutoExpandingTextarea from "@/react/lib/design-system/auto-expanding-textarea/AutoExpandingTextarea";
 import FormField from "@/react/lib/design-system/form/FormField";
+import FormTextarea from "@/react/lib/design-system/form/FormTextarea";
 import ChordSelect from "@/react/song/song-form/chord-picker/ChordSelect";
 import { findLanguageByTag } from "@/shared/language/translationLanguages";
 import { safeGet } from "@/shared/utils/safe";
@@ -11,6 +12,7 @@ import type useSlideDetailCard from "./useSlideDetailCard";
 const TEXTAREA_MIN_ROWS = 3;
 const EMPTY_LENGTH = 0;
 const SINGLE_LANGUAGE_LENGTH = 1;
+const SLIDE_TEXTAREA_CLASS = "border-gray-600 bg-slate-950 text-white";
 
 type SlideDetailFieldsProps = Readonly<{
 	fields: readonly string[];
@@ -140,7 +142,7 @@ export default function SlideDetailFields({
 									onFocus={lyricsEditor.handleSyncSelection}
 									onKeyUp={lyricsEditor.handleSyncSelection}
 									onSelect={lyricsEditor.handleSyncSelection}
-									className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
+									className={`mt-1 w-full rounded border px-2 py-1 ${SLIDE_TEXTAREA_CLASS}`}
 									minRows={TEXTAREA_MIN_ROWS}
 									growWithContent
 									resizeOnExternalValueChange={false}
@@ -186,7 +188,7 @@ export default function SlideDetailFields({
 									onFocus={scriptEditor.handleSyncSelection}
 									onKeyUp={scriptEditor.handleSyncSelection}
 									onSelect={scriptEditor.handleSyncSelection}
-									className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
+									className={`mt-1 w-full rounded border px-2 py-1 ${SLIDE_TEXTAREA_CLASS}`}
 									minRows={TEXTAREA_MIN_ROWS}
 									growWithContent
 									resizeOnExternalValueChange={false}
@@ -204,7 +206,7 @@ export default function SlideDetailFields({
 								return langEntry ? langEntry.name : t(`song.${field}`, field);
 							})()}
 						>
-							<AutoExpandingTextarea
+							<FormTextarea
 								value={safeGet(slide.field_data, field) ?? ""}
 								onChange={(event) => {
 									onEditFieldValue({
@@ -212,10 +214,9 @@ export default function SlideDetailFields({
 										value: event.target.value,
 									});
 								}}
-								className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-2 py-1 text-white"
-								minRows={TEXTAREA_MIN_ROWS}
-								growWithContent
-								resizeOnExternalValueChange={false}
+								className={SLIDE_TEXTAREA_CLASS}
+								rows={TEXTAREA_MIN_ROWS}
+								autoExpand
 							/>
 						</FormField>
 					</div>

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import XIcon from "@/react/lib/design-system/icons/XIcon";
+import Chip from "@/react/lib/design-system/Chip";
 import { findLanguageByTag } from "@/shared/language/translationLanguages";
 
 import LanguagePicker from "./LanguagePicker";
@@ -66,10 +66,7 @@ export default function MultiLanguagePicker({
 		<div className="flex flex-col gap-3">
 			{value.length === EMPTY_TRANSLATION_COUNT ? (
 				<p className="text-sm text-gray-400">
-					{emptyText ?? t(
-						"song.languagePicker.empty",
-						"No languages selected yet.",
-					)}
+					{emptyText ?? t("song.languagePicker.empty", "No languages selected yet.")}
 				</p>
 			) : (
 				<ul className="flex flex-wrap gap-2">
@@ -80,29 +77,24 @@ export default function MultiLanguagePicker({
 
 						return (
 							<li key={code}>
-								<span className="inline-flex items-center gap-2 rounded-full border border-blue-700/40 bg-blue-900/30 px-3 py-1 text-sm text-blue-100">
+								<Chip
+									onRemove={() => {
+										handleRemoveLanguage(code);
+									}}
+									removeAriaLabel={t(
+										"song.translationLanguagePicker.removeAria",
+										"Remove {{language}}",
+										{ language: label },
+									)}
+								>
 									<span className="flex items-center gap-2">
 										<span>{label}</span>
-										{supportingLabel === label ? undefined : (
+										{supportingLabel !== label && (
 											<span className="text-xs text-blue-200/70">{supportingLabel}</span>
 										)}
 										<span className="font-mono text-xs text-blue-200/70">{code}</span>
 									</span>
-									<button
-										type="button"
-										onClick={() => {
-											handleRemoveLanguage(code);
-										}}
-										aria-label={t(
-											"song.translationLanguagePicker.removeAria",
-											"Remove {{language}}",
-											{ language: label },
-										)}
-										className="rounded-full p-0.5 text-blue-200 transition hover:bg-blue-700/40 hover:text-white"
-									>
-										<XIcon className="size-3" />
-									</button>
-								</span>
+								</Chip>
 							</li>
 						);
 					})}
@@ -113,10 +105,7 @@ export default function MultiLanguagePicker({
 				value={undefined}
 				onChange={handleAddLanguage}
 				excludedCodes={pickerExcludedCodes}
-				placeholder={placeholder ?? t(
-					"song.languagePicker.addPlaceholder",
-					"Add language...",
-				)}
+				placeholder={placeholder ?? t("song.languagePicker.addPlaceholder", "Add language...")}
 			/>
 		</div>
 	);

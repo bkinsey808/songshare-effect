@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
 import FormField from "@/react/lib/design-system/form/FormField";
+import FormInput from "@/react/lib/design-system/form/FormInput";
 import ChevronDownIcon from "@/react/lib/design-system/icons/ChevronDownIcon";
 import ChevronUpIcon from "@/react/lib/design-system/icons/ChevronUpIcon";
 import TrashIcon from "@/react/lib/design-system/icons/TrashIcon";
@@ -128,13 +129,13 @@ export default function SlideDetailCard({
 		<div className="mb-6 rounded-lg border border-gray-600 p-4" {...duplicateTintProps}>
 			<div className="mb-6">
 				<FormField label={t("song.slideName", "Slide Name")}>
-					<input
-						type="text"
+					<FormInput
+						name="slide_name"
 						value={slide.slide_name}
 						onChange={(event) => {
 							onEditSlideName(event.target.value);
 						}}
-						className="mt-1 w-full rounded border border-gray-600 bg-gray-800 px-4 py-1 text-white"
+						className="border-gray-600 bg-slate-950 text-white"
 						placeholder="Slide name"
 					/>
 				</FormField>

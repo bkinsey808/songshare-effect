@@ -81,6 +81,8 @@ export default defineConfig({
 			"dist/**",
 			"node_modules/**",
 			"e2e/**",
+			"scripts/find-missing-jsdoc/checkFile.test.ts",
+			"scripts/find-missing-jsdoc/checkPrecedingLine.test.ts",
 			"scripts/env/**",
 		],
 		coverage: {

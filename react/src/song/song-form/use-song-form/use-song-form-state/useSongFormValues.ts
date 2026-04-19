@@ -1,10 +1,10 @@
 import { useState } from "react";
 
 import generateSlug from "@/react/lib/slug/generateSlug";
+import type { SongFormValues } from "@/react/song/song-form/song-form-types";
 
-import type { SongFormValues } from "../song-form-types";
-import createEmptySongFormValues from "./createEmptySongFormValues";
-import setFieldValue from "./setFieldValue";
+import createEmptySongFormValues from "../createEmptySongFormValues";
+import setFieldValue from "../setFieldValue";
 
 type UseSongFormValuesParams = {
 	readonly formRef: React.RefObject<HTMLFormElement | null>;
@@ -46,10 +46,7 @@ export default function useSongFormValues({
 		setFormValuesState((previousValues) => ({ ...previousValues, [field]: value }));
 		// React will update the DOM automatically via the value prop.
 		// We also write through to the form element so FormData sees the latest value.
-		if (
-			formRef.current &&
-			(typeof value === "string" || value === undefined)
-		) {
+		if (formRef.current && (typeof value === "string" || value === undefined)) {
 			setFieldValue(formRef.current, field, value);
 		}
 	}

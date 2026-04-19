@@ -147,7 +147,7 @@ describe("song form footer", () => {
 			/>,
 		);
 
-		expect(Boolean(footer?.classList.contains("bg-gray-800"))).toBe(true);
+		expect(Boolean(footer?.classList.contains("bg-slate-950/95"))).toBe(true);
 		cleanup();
 	});
 

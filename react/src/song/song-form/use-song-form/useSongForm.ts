@@ -1,31 +1,22 @@
-import { Effect, Schema } from "effect";
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Schema } from "effect";
+import { useRef, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 
-import useAppStore from "@/react/app-store/useAppStore";
 import useAppForm from "@/react/lib/form/useAppForm";
-import useFormChanges from "@/react/lib/form/useFormChanges";
 import { type SongPublic, songPublicSchema } from "@/react/song/song-schema";
 import useItemTags from "@/react/tag/useItemTags";
-import extractErrorMessage from "@/shared/error-message/extractErrorMessage";
-import { defaultLanguage } from "@/shared/language/supported-languages";
-import deriveSongChords from "@/shared/song/deriveSongChords";
-import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
 
-import { type FormState, type Slide, type UseSongFormReturn } from "../song-form-types";
+import { type UseSongFormReturn } from "../song-form-types";
 import { type SongFormValuesFromSchema as SongFormData, songFormSchema } from "../songSchema";
 import createFormSubmitHandler from "./submit/createFormSubmitHandler";
-import deleteSongEffect from "./submit/deleteSongRequest";
 import useFormSubmission from "./submit/useFormSubmission";
+import useSongFormState from "./use-song-form-state/useSongFormState";
 import useChordPickerRequest from "./useChordPickerRequest";
 import useCollapsibleSections from "./useCollapsibleSections";
 import useFetchSongData from "./useFetchSongData";
-import useFormState from "./useFormState";
-import useInitialFormState from "./useInitialFormState";
+import useFormStoreSelectors from "./useFormStoreSelectors";
 import usePopulateSongForm from "./usePopulateSongForm";
-import useSongFormValues from "./useSongFormValues";
-
-const NAVIGATE_BACK = -1;
+import useSongFormDelete from "./useSongFormDelete";
 
 /**
  * High-level hook that composes all song form logic: state, validation,
@@ -37,7 +28,6 @@ export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
 	const { tags, getTags, setTags } = useItemTags("song", songId);
 	const location = useLocation();
-	const navigate = useNavigate();
 	const formRef = useRef<HTMLFormElement | null>(null);
 
 	// Form field refs
@@ -55,33 +45,31 @@ export default function useSongForm(): UseSongFormReturn {
 	const isEditing = songId !== undefined && songId.trim() !== "";
 	const [isLoadingData, setIsLoadingData] = useState(isEditing);
 
-	const { formValues, setFormValuesState, setFormValue, handleSongNameBlur, resetFormValues } =
-		useSongFormValues({ formRef });
-
-	// Get store methods for fetching song data
-	const addActivePrivateSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error> =
-		useAppStore((state) => state.addActivePrivateSongIds);
-	const addActivePublicSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error> =
-		useAppStore((state) => state.addActivePublicSongIds);
-	const addOrUpdatePublicSongs = useAppStore((state) => state.addOrUpdatePublicSongs);
-	const removeActivePrivateSongIds = useAppStore((state) => state.removeActivePrivateSongIds);
-	const removeActivePublicSongIds = useAppStore((state) => state.removeActivePublicSongIds);
-	const removeSongsFromCache = useAppStore((state) => state.removeSongsFromCache);
-	const removeSongLibraryEntry = useAppStore((state) => state.removeSongLibraryEntry);
-	const addSongLibraryEntry = useAppStore((state) => state.addSongLibraryEntry);
-	const privateSongs = useAppStore((state) => state.privateSongs);
-	const publicSongs = useAppStore((state) => state.publicSongs);
-	const currentUserId = useAppStore((state) => state.userSessionData?.user.user_id);
-
-	// Use extracted hooks
-	const { slideOrder, slides, setSlideOrder, setSlides, resetFormState, initialSlideId } =
-		useFormState();
-
-	// Derive active display fields from language pickers in formValues
-	const fields: readonly string[] = deriveSongFieldKeys({
-		lyrics: formValues.lyrics,
-		script: formValues.script,
-		translations: formValues.translations,
+	// Composite hook for form state, change tracking, and initial values
+	const {
+		formValues,
+		setFormValuesState,
+		setFormValue,
+		handleSongNameBlur,
+		fields,
+		hasUnsavedChanges,
+		clearInitialState,
+		initialValues,
+		resetForm,
+		updateSlideOrder,
+		updateSlides,
+		slideOrder,
+		slides,
+		resetFormState,
+		initialSlideId,
+		setSlideOrder,
+		setSlides,
+	} = useSongFormState({
+		formRef,
+		songId,
+		isLoadingData,
+		tags,
+		hasPopulatedRef,
 	});
 
 	const {
@@ -93,44 +81,20 @@ export default function useSongForm(): UseSongFormReturn {
 		setIsGridExpanded,
 	} = useCollapsibleSections();
 
-	// Combine all form state for change tracking
-	const currentFormState: FormState = {
-		formValues,
-		slideOrder,
-		tags,
-		slides,
-	};
-
-	// Use generic form changes hook - default deep equality comparison handles nested state
+	// Get store methods for fetching song data
 	const {
-		hasUnsavedChanges,
-		setInitialState: setInitialFormState,
-		clearInitialState,
-	} = useFormChanges<FormState>({
-		currentState: currentFormState,
-		enabled: !isLoadingData,
-	});
-
-	const initialValues: Partial<SongFormData> = {
-		song_id: songId,
-		song_name: "",
-		song_slug: "",
-		lyrics: [defaultLanguage],
-		script: [],
-		translations: [],
-		short_credit: "",
-		long_credit: "",
-		private_notes: "",
-		public_notes: "",
-		slide_order: [initialSlideId],
-		tags: [],
-		slides: {
-			[initialSlideId]: {
-				slide_name: "Slide 1",
-				field_data: {},
-			},
-		},
-	};
+		addActivePrivateSongIds,
+		addActivePublicSongIds,
+		addOrUpdatePublicSongs,
+		removeActivePrivateSongIds,
+		removeActivePublicSongIds,
+		removeSongsFromCache,
+		removeSongLibraryEntry,
+		addSongLibraryEntry,
+		privateSongs,
+		publicSongs,
+		currentUserId,
+	} = useFormStoreSelectors();
 
 	const { getFieldError, handleSubmit, isSubmitting, handleApiResponseEffect } =
 		useAppForm<SongFormData>({
@@ -198,38 +162,6 @@ export default function useSongForm(): UseSongFormReturn {
 		initialSlideId,
 	});
 
-	useInitialFormState({
-		songId,
-		formValues,
-		slideOrder,
-		tags,
-		slides,
-		isLoadingData,
-		hasPopulatedRef,
-		setInitialState: setInitialFormState,
-	});
-
-	// Keep the song-level chord cache aligned with live lyrics content and slide order.
-	useEffect(() => {
-		setFormValuesState((previousValues) => {
-			const nextChords = deriveSongChords({
-				slideOrder,
-				slides,
-				existingChords: previousValues.chords,
-			});
-			const chordsUnchanged =
-				previousValues.chords.length === nextChords.length &&
-				previousValues.chords.every((token, index) => token === nextChords[index]);
-
-			return chordsUnchanged
-				? previousValues
-				: {
-						...previousValues,
-						chords: nextChords,
-					};
-		});
-	}, [setFormValuesState, slideOrder, slides]);
-
 	// Handle form submission with data collection
 	const handleFormSubmit = createFormSubmitHandler<SongFormData>({
 		songId,
@@ -243,27 +175,6 @@ export default function useSongForm(): UseSongFormReturn {
 		onSubmit,
 	});
 
-	// Update internal state when form data changes
-	/**
-	 * Replace the current slide order with `newOrder`.
-	 *
-	 * @param newOrder - New ordered array of slide ids
-	 * @returns void
-	 */
-	function updateSlideOrder(newOrder: readonly string[]): void {
-		setSlideOrder(newOrder);
-	}
-
-	/**
-	 * Replace the slides map with `newSlides`.
-	 *
-	 * @param newSlides - New slides map keyed by id
-	 * @returns void
-	 */
-	function updateSlides(newSlides: Readonly<Record<string, Slide>>): void {
-		setSlides(newSlides);
-	}
-
 	// Handle save button click
 	/**
 	 * Trigger form submission via the form submit handler.
@@ -276,54 +187,13 @@ export default function useSongForm(): UseSongFormReturn {
 		void handleFormSubmit(formRef.current);
 	}
 
-	// Wrapper for resetForm that also resets form values
-	/**
-	 * Reset the form state and controlled values to their defaults.
-	 *
-	 * @returns void
-	 */
-	function resetForm(): void {
-		const newFirstId = resetFormState();
-		const emptyFormValues = resetFormValues();
-		hasPopulatedRef.current = false;
-		// Sync initial state with the new reset state so hasUnsavedChanges clears
-		setInitialFormState({
-			formValues: emptyFormValues,
-			slideOrder: [newFirstId],
-			tags: [],
-			slides: {
-				[newFirstId]: {
-					slide_name: "Slide 1",
-					field_data: {},
-				},
-			},
-		});
-	}
-
-	/**
-	 * Delete the current song by id and clean up local store caches.
-	 *
-	 * @returns Promise<void>
-	 */
-	async function handleDelete(): Promise<void> {
-		const id = songId?.trim();
-		if (id === undefined || id === "") {
-			return;
-		}
-		try {
-			await Effect.runPromise(deleteSongEffect(id));
-			removeActivePrivateSongIds([id]);
-			removeActivePublicSongIds([id]);
-			removeSongsFromCache([id]);
-			removeSongLibraryEntry(id);
-			void navigate(NAVIGATE_BACK);
-		} catch (error) {
-			console.error(
-				"[useSongForm] Delete failed:",
-				extractErrorMessage(error, "Failed to delete song"),
-			);
-		}
-	}
+	const { handleDelete: handleDeleteSong } = useSongFormDelete({
+		songId,
+		removeActivePrivateSongIds,
+		removeActivePublicSongIds,
+		removeSongsFromCache,
+		removeSongLibraryEntry,
+	});
 
 	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
 
@@ -364,7 +234,7 @@ export default function useSongForm(): UseSongFormReturn {
 		handleSongNameBlur,
 		handleSave,
 		handleCancel,
-		handleDelete,
+		handleDelete: handleDeleteSong,
 		hasChanges,
 
 		// Tag state

@@ -137,7 +137,9 @@ function Harness(): ReactElement {
 		fields, // active display-language field list
 		setFormValue, // updates a single controlled field
 		handleSongNameBlur, // auto-generates slug when blurring the name input
-		handleCancel, // navigates back without saving
+		handleSave,
+		handleCancel,
+		handleDelete,
 		setIsFormFieldsExpanded, // toggle form fields collapsible
 		setIsSlidesExpanded, // toggle slides collapsible
 		setIsGridExpanded, // toggle grid collapsible
@@ -214,6 +216,20 @@ function Harness(): ReactElement {
 				}}
 			>
 				insert Am
+			</button>
+
+			{/* Handlers */}
+			<button type="button" data-testid="save" onClick={handleSave}>
+				save
+			</button>
+			<button
+				type="button"
+				data-testid="delete"
+				onClick={() => {
+					void handleDelete();
+				}}
+			>
+				delete
 			</button>
 
 			{/* Form controls */}
@@ -446,6 +462,45 @@ describe("useSongForm — Harness", () => {
 		// Assert
 		await waitFor(() => {
 			expect(within(rendered.container).getByTestId("fields").textContent).toBe("lyrics,script");
+		});
+	});
+
+	it("clicking save triggers form submission effect", async () => {
+		cleanup();
+		setupCreateMode();
+
+		// Arrange
+		const rendered = render(<Harness />);
+
+		// Act
+		fireEvent.click(within(rendered.container).getByTestId("save"));
+
+		// Assert (no crash, ensures handler is wired)
+		await waitFor(() => {
+			expect(within(rendered.container).getByTestId("is-submitting")).toBeDefined();
+		});
+	});
+
+	it("clicking delete triggers deletion flow", async () => {
+		cleanup();
+		const mockNavigate = vi.fn();
+		installStore();
+		mockUseItemTags();
+		vi.mocked(useParams).mockReturnValue({ song_id: MOCK_SONG_ID });
+		vi.mocked(useLocation).mockReturnValue(MOCK_LOCATION_EDIT);
+		vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+		vi.mocked(deleteSongEffect).mockReturnValue(Effect.void);
+
+		// Arrange
+		const rendered = render(<Harness />);
+
+		// Act
+		fireEvent.click(within(rendered.container).getByTestId("delete"));
+
+		// Assert
+		await waitFor(() => {
+			expect(deleteSongEffect).toHaveBeenCalledWith(MOCK_SONG_ID);
+			expect(mockNavigate).toHaveBeenCalledWith(NAVIGATE_BACK);
 		});
 	});
 });
