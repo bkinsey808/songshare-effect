@@ -18,14 +18,11 @@ afterAll(() => {
 
 describe("checkFile", () => {
 	test("flags touching JSDoc blocks", () => {
-		setup(`/**
- * Block 1
- */
-/**
- * Block 2
- */
-export function foo() {}
-`);
+		setup(
+			["/**", " * Block 1", " */", "/**", " * Block 2", " */", "export function foo() {}", ""].join(
+				"\n",
+			),
+		);
 		const issues: { line: number; reason: string }[] = checkFile(TEMP_FILE);
 		const hasCombinedIssue = issues.some((i) =>
 			i.reason.includes("comment touches JSDoc; they should be combined"),
@@ -35,6 +32,7 @@ export function foo() {}
 
 	test("flags // comment touching JSDoc", () => {
 		setup(`// some comment
+
 /**
  * JSDoc block
  */
@@ -61,6 +59,7 @@ export function foo() {}
 
 	test("allows JSDoc at start of block", () => {
 		setup(`function bar() {
+
 	/**
 	 * JSDoc block
 	 */
@@ -83,13 +82,7 @@ export function foo() {}
 	});
 
 	test("flags touching JSDocs even without a symbol", () => {
-		setup(`/**
- * Block 1
- */
-/**
- * Block 2
- */
-`);
+		setup(["/**", " * Block 1", " */", "/**", " * Block 2", " */", ""].join("\n"));
 		const issues: { line: number; reason: string }[] = checkFile(TEMP_FILE);
 		const hasCombinedIssue = issues.some((i) =>
 			i.reason.includes("comment touches JSDoc; they should be combined"),

@@ -104,6 +104,7 @@ export default function useImageView(): UseImageViewReturn {
 			);
 		}
 	}
+
 	/**
 	 * Enter confirming delete state.
 	 *
@@ -112,6 +113,7 @@ export default function useImageView(): UseImageViewReturn {
 	function handleDeleteClick(): void {
 		setIsConfirmingDelete(true);
 	}
+
 	/**
 	 * Exit confirming delete state.
 	 *
@@ -120,6 +122,7 @@ export default function useImageView(): UseImageViewReturn {
 	function handleDeleteCancel(): void {
 		setIsConfirmingDelete(false);
 	}
+
 	/**
 	 * Confirm deletion of the current image and navigate away on success.
 	 *

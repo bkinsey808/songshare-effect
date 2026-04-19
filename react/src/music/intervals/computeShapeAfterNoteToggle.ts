@@ -3,8 +3,10 @@ import { getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 import { SEMITONE_INTERVAL_LABELS } from "./interval-constants";
 
 const ROOT_SEMITONE_OFFSET = 0;
+
 /** Start index for slicing SEMITONE_INTERVAL_LABELS to exclude the root interval. */
 const NON_ROOT_INTERVAL_START = 1;
+
 /** The root note is always counted, adding one to the interval count for total note count. */
 const ROOT_NOTE_COUNT = 1;
 

@@ -34,6 +34,7 @@ describe("useSetInitialStateAfterChords — renderHook", () => {
 		// Act
 		renderHook(() => {
 			useSetInitialStateAfterChords({
+				isChangeTrackingReady: true,
 				isLoadingData: false,
 				hasPopulatedRef,
 				formValues: MOCK_STATE.formValues,
@@ -58,6 +59,7 @@ describe("useSetInitialStateAfterChords — renderHook", () => {
 		// Act
 		renderHook(() => {
 			useSetInitialStateAfterChords({
+				isChangeTrackingReady: true,
 				isLoadingData: true,
 				hasPopulatedRef,
 				formValues: MOCK_STATE.formValues,
@@ -82,6 +84,7 @@ describe("useSetInitialStateAfterChords — renderHook", () => {
 		// Act
 		renderHook(() => {
 			useSetInitialStateAfterChords({
+				isChangeTrackingReady: true,
 				isLoadingData: false,
 				hasPopulatedRef,
 				formValues: MOCK_STATE.formValues,
@@ -103,16 +106,19 @@ describe("useSetInitialStateAfterChords — Harness", () => {
 	/**
 	 * Harness for useSetInitialStateAfterChords.
 	 *
+	 * @param isChangeTrackingReady - Whether the hook should track and set baseline state
 	 * @param isLoadingData - Whether data is still loading
 	 * @param hasPopulated - Whether the form has been populated
 	 * @param setInitialState - Function to set the initial form state
 	 * @returns A small DOM fragment
 	 */
 	function Harness({
+		isChangeTrackingReady = true,
 		isLoadingData,
 		hasPopulated,
 		setInitialState,
 	}: {
+		readonly isChangeTrackingReady?: boolean;
 		readonly isLoadingData: boolean;
 		readonly hasPopulated: boolean;
 		readonly setInitialState: (state: FormState) => void;
@@ -125,6 +131,7 @@ describe("useSetInitialStateAfterChords — Harness", () => {
 		}, [hasPopulated]);
 
 		useSetInitialStateAfterChords({
+			isChangeTrackingReady,
 			isLoadingData,
 			hasPopulatedRef,
 			formValues: MOCK_STATE.formValues,

@@ -202,6 +202,7 @@ function onPlaylistSelect(playlistId: string): void {
 			updateActivePlaylist(playlistId);
 		}
 	}
+
 /**
  * Handler invoked when a song is selected for playback.
  *

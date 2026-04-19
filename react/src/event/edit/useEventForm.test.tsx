@@ -15,17 +15,8 @@ const ONCE = 1;
 /**
  * Harness for useEventForm — "Documentation by Harness".
  *
- * Shows how useEventForm integrates into a realistic event editing UI:
- * - A form with fields for name, slug, description, date, and notes
- * - A checkbox for public visibility
- * - A playlist selector
- * - Submit, reset, and cancel buttons
- * - Displays validation errors, submit label, and unsaved-changes indicator
- *
- * The harness uses formRef so the real form submission path is exercised.
- */
-/**
- * Harness for useEventForm — "Documentation by Harness".
+ * Renders a realistic event-editing form so tests exercise the hook's real
+ * form wiring, validation, submission, reset, and cancel behavior.
  *
  * @returns ReactElement that renders a sample form wiring the hook for tests.
  */

@@ -136,7 +136,6 @@ export default function useEventForm(): UseEventFormReturn {
 		initialValues,
 	});
 
-	// Handle Name Change (auto-generate slug)
 	/**
 	 * Handle name input changes and auto-generate a slug for new events.
 	 *
@@ -150,8 +149,6 @@ export default function useEventForm(): UseEventFormReturn {
 		}
 	}
 
-	// Handle Form Submission
-	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	/**
 	 * Form submit handler that validates and persists the event via the
 	 * `saveEvent` action.

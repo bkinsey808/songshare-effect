@@ -15,13 +15,12 @@ vi.mock("@/react/language/locale/useLocale");
 
 const FIRST_POSITION = 1;
 
-/*
- Reuse the same auth fetch stub used in playlist tests to prevent background
- auth requests from interfering with tests (getSupabaseAuthToken calls).
-*/
 /**
  * Temporarily patches global `fetch` with an auth-aware stub while running
  * the provided task, restoring the original fetch afterwards.
+ *
+ * Reuses the same auth-aware fetch behavior as related playlist tests so
+ * background token requests do not interfere with expectations.
  *
  * @param task - async function executed while the stub is installed
  * @returns the value returned by `task`

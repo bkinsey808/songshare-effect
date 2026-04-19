@@ -14,6 +14,7 @@ describe("removeEventFromCommunity", () => {
 
 	const setCommunityLoading = vi.fn();
 	const setCommunityError = vi.fn();
+
 	/**
 	 * Test getter returning a `CommunitySlice` with loading/error setters.
 	 *

@@ -2,12 +2,6 @@ import { verify } from "hono/jwt";
 import { vi } from "vitest";
 
 /**
- * Helpers to centralize typed mocks for `hono/jwt` in tests.
- *
- * Keep the small unsafe assertions and ESLint disables inside this helper
- * so individual tests remain lint-clean and don't need inline disables.
- */
-/**
  * Mocks `verify` to return success with the given payload.
  * @param payload - The payload to resolve with.
  * @returns void

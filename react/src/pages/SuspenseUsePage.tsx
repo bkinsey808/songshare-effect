@@ -3,19 +3,19 @@ import { Suspense, use, useState } from "react";
 
 import ErrorBoundary from "@/react/demo/ErrorBoundary";
 import {
-    DEMO_ALT_USER_ID,
-    DEMO_DEFAULT_USER_ID,
-    SUSPENSE_ALBUM_DELAY_MS,
-    SUSPENSE_ALBUM_TRACKS,
-    SUSPENSE_ALBUM_TRACKS_DISPLAY,
-    SUSPENSE_ARTIST_ALBUMS,
-    SUSPENSE_ARTIST_DELAY_MS,
-    SUSPENSE_ERROR_ID,
-    SUSPENSE_PLAYLIST_BASE_SONGS,
-    SUSPENSE_PLAYLIST_DELAY_MS,
-    SUSPENSE_PLAYLIST_DISPLAY,
-    SUSPENSE_PLAYLIST_INCREMENT,
-    SUSPENSE_PLAYLIST_SONGS,
+	DEMO_ALT_USER_ID,
+	DEMO_DEFAULT_USER_ID,
+	SUSPENSE_ALBUM_DELAY_MS,
+	SUSPENSE_ALBUM_TRACKS,
+	SUSPENSE_ALBUM_TRACKS_DISPLAY,
+	SUSPENSE_ARTIST_ALBUMS,
+	SUSPENSE_ARTIST_DELAY_MS,
+	SUSPENSE_ERROR_ID,
+	SUSPENSE_PLAYLIST_BASE_SONGS,
+	SUSPENSE_PLAYLIST_DELAY_MS,
+	SUSPENSE_PLAYLIST_DISPLAY,
+	SUSPENSE_PLAYLIST_INCREMENT,
+	SUSPENSE_PLAYLIST_SONGS,
 } from "@/shared/constants/http";
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
@@ -52,12 +52,11 @@ const DURATION_BASE_HOUR = 2;
 const DURATION_BASE_MINUTES = 30;
 const GENRES: readonly string[] = ["Pop", "Rock", "Jazz", "Classical"];
 
-// This function returns a Promise by delegating to the typed shared cache. We deliberately keep
-// it synchronous (returns Promise) and disable the rule that requires promise-returning
-// functions to be declared async — callers still get a fully typed Promise.
-// helper for readability - delegates to the typed per-resource caches
 /**
  * Retrieve a cached promise for the given id or invoke the fetcher.
+ *
+ * This helper intentionally stays synchronous while returning a Promise so callers
+ * get a typed cached result without duplicating cache access logic.
  *
  * @param cache - typed cache instance for the resource
  * @param id - string key identifying the resource
@@ -144,7 +143,6 @@ async function fetchPlaylistData(playlistId: number): Promise<{
 
 // (no local type aliases required; inference is sufficient)
 
-// Fetch album data (was previously accidentally duplicated elsewhere)
 /**
  * Simulate fetching album data with an artificial delay and occasional errors.
  *
@@ -185,7 +183,6 @@ type LoadingSpinnerProps = Readonly<{
 	message: string;
 }>;
 
-// Loading components for different sections
 /**
  * Small loading spinner used as a Suspense fallback.
  *
@@ -207,7 +204,6 @@ type AlbumCardParams = Readonly<{
 	albumId: number;
 }>;
 
-// Component that uses 'use' hook to fetch album data
 /**
  * Card component that displays album details fetched via `use`.
  *
@@ -250,7 +246,6 @@ type ArtistProfileParams = Readonly<{
 	artistId: number;
 }>;
 
-// Component that uses 'use' hook to fetch artist data
 /**
  * Profile component that displays artist details fetched via `use`.
  *
@@ -289,7 +284,6 @@ type PlaylistDetailsParams = Readonly<{
 	playlistId: number;
 }>;
 
-// Component that uses 'use' hook to fetch playlist data
 /**
  * Details component that displays playlist information fetched via `use`.
  *
@@ -331,7 +325,6 @@ function PlaylistDetails({ playlistId }: PlaylistDetailsParams): ReactElement {
 	);
 }
 
-// Main page component
 /**
  * Demo page showcasing Suspense and the `use` hook with cached promises.
  *

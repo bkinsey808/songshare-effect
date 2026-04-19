@@ -5,9 +5,6 @@ import makeNull from "@/shared/test-utils/makeNull.test-util";
 import promiseResolved from "@/shared/test-utils/promiseResolved.test-util";
 
 /**
- * Test helper for communitySongAdd - builds a Supabase client stub.
- */
-/**
  * Mock Supabase client for testing community song additions.
  * @param requesterRole - Role to return for the requester lookup.
  * @param requesterRoleError - When true, requester lookup will return an error.

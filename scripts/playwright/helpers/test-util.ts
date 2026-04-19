@@ -1,18 +1,10 @@
 import { type Interface } from "node:readline/promises";
 
 /**
- * Test helper to create a fake readline.Interface for prompting tests.
- *
- * This helper centralizes the narrow, documented type assertions so individual
- * tests do not need to repeat oxlint-disable comments. The unsafe assertions are
- * intentionally localized here because the runtime shape is simple and tests
- * only need the `question` and `close` methods.
- */
-// Helper: narrow an arbitrary object to the `Interface` test shape. Keep the
-// unsafe cast localized here and documented so individual tests don't need
-// their own oxlint-disable comments.
-/**
  * Narrow an arbitrary value to the readline `Interface` shape used in tests.
+ *
+ * The unsafe cast stays localized here so individual tests do not need their
+ * own inline disable comments.
  *
  * @param value - Candidate object that should behave like a readline interface.
  * @returns The value cast to `Interface`.

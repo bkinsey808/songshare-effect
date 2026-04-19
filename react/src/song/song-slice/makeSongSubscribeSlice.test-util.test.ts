@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
 import type { Song } from "../song-schema";
-import makeSongSubscribeSlice from "./makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "./makeSongSubscribeSlice.test-util";
 
 describe("makeSongSubscribeSlice", () => {
 	it("reflects initial entries and setters update state", () => {

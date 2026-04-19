@@ -46,9 +46,10 @@ export type UseSongViewResult = {
 /**
  * Resolve the current song from the route slug and derive view state.
  *
- * Normalizes the route slug, registers it for background fetching, validates
- * the public song payload, subscribes to shared data, and derives the name and
- * QR code URL used by the view.
+ * Normalizes the route slug, registers it via a `useEffect` for background
+ * fetching and realtime subscription, validates the public song payload,
+ * subscribes to shared data, and derives the name and QR code URL used by the
+ * view.
  *
  * @returns isNotFound - `true` when the slug did not resolve or validation failed.
  * @returns isSignedIn - Whether the current user is authenticated.
@@ -91,12 +92,14 @@ export function useSongView(): UseSongViewResult {
 	// Fetch and subscribe to sent shares - must be called before any early return
 	useShareSubscription();
 
-	if (songSlug !== undefined && songSlug !== "") {
-		// Register the slug with the app store so background fetching / caching can start.
-		// We intentionally fire-and-forget the returned Promise; the store manages
-		// any side effects or errors for activation.
+	// Register the slug with the app store so background fetching and realtime
+	// subscription can start once the slug is available.
+	useEffect(() => {
+		if (songSlug === undefined || songSlug === "") {
+			return;
+		}
 		void addActivePublicSongSlugs([songSlug]);
-	}
+	}, [songSlug, addActivePublicSongSlugs]);
 
 	const songData =
 		songPublicEntry === undefined

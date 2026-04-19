@@ -46,11 +46,8 @@ function installStore(entries: Record<string, unknown> = {}): void {
 /**
  * Harness for `usePlaylistLibraryManagement` (Documentation by Harness).
  *
- * Exposes the store selectors this void hook drives and documents the
- * subscription/fetch handlers via buttons so readers see how to use the hook.
- */
-/**
- * Harness for `usePlaylistLibraryManagement` (Documentation by Harness).
+ * Exposes the selectors and store-driven handlers this void hook relies on so
+ * DOM-based tests can verify the management flow end to end.
  *
  * @returns ReactElement that exposes handlers and state for DOM-based tests.
  */
@@ -114,6 +111,7 @@ describe("usePlaylistLibraryManagement", () => {
 			// flips a local flag so the test can assert it was invoked without
 			// introducing a Mock type that conflicts with strict TS settings.
 			let unsubCalled = false;
+
 			/**
 			 * Local unsubscribe stub used to assert unsubscribe was invoked.
 			 *
@@ -172,6 +170,7 @@ describe("usePlaylistLibraryManagement", () => {
 			installStore({ p1: { name: "one" }, p2: { name: "two" } });
 
 			let publicUnsubCalled = false;
+
 			/**
 			 * Local unsubscribe stub for public subscription assertions.
 			 *
@@ -221,6 +220,7 @@ describe("usePlaylistLibraryManagement", () => {
 			);
 			// ensure subscribe still resolves
 			let unsubCalled = false;
+
 			/**
 			 * Local unsubscribe stub used to assert unsubscribe was invoked.
 			 *

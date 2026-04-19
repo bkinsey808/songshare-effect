@@ -4,12 +4,15 @@ import { getChordShapes, type ChordShape } from "@/shared/music/chord-shapes";
 
 /** Semitone offset of the chord root (always zero relative to itself). */
 const ROOT_SEMITONE_OFFSET = 0;
+
 /** Start index after root when slicing the full offset array. */
 const NON_ROOT_OFFSET_START = 1;
 
 type InversionMatch = Readonly<{
+
 	/** Catalog shape whose spelling matches a rotation of the given interval set. */
 	shape: ChordShape;
+
 	/** Semitone offset (relative to the original root) of the matched shape's root. */
 	inversionRootOffset: number;
 }>;

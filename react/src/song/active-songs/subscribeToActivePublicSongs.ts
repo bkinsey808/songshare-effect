@@ -12,6 +12,8 @@ import isRecord from "@/shared/type-guards/isRecord";
 import { type ReadonlyDeep } from "@/shared/types/ReadonlyDeep.type";
 
 import { type SongSubscribeSlice } from "../song-slice/song-slice";
+import buildSongPublicRealtimeFilter from "./buildSongPublicRealtimeFilter";
+import handleSongDeletion from "./handleSongDeletion";
 
 /**
  * Payload shape emitted by Supabase Realtime for `song_public` table changes.
@@ -53,39 +55,6 @@ type SupabaseRealtimeClientLike = {
 };
 
 /**
- * Remove a deleted public song from both the `publicSongs` map and the
- * `activePublicSongIds` list in a single, immutable state update.
- *
- * The implementation uses object rest destructuring to exclude the deleted key
- * and returns the remaining map. `void _deleted` intentionally silences the
- * unused variable lint while keeping the destructuring readable.
- *
- * @param deletedPublicSongId - id of the public song that was deleted
- * @param set - Zustand `set` function for the SongSubscribeSlice
- * @returns void
- */
-function handleSongDeletion(
-	deletedPublicSongId: string,
-	set: (
-		partial:
-			| Partial<ReadonlyDeep<SongSubscribeSlice>>
-			| ((state: ReadonlyDeep<SongSubscribeSlice>) => Partial<ReadonlyDeep<SongSubscribeSlice>>),
-	) => void,
-): void {
-	set((state) => {
-		const { [deletedPublicSongId]: _deleted, ...rest } = state.publicSongs;
-		// Keep the destructured variable to clearly show we intentionally removed it
-		void _deleted;
-		return {
-			publicSongs: rest,
-			activePublicSongIds: state.activePublicSongIds.filter(
-				(songId) => songId !== deletedPublicSongId,
-			),
-		};
-	});
-}
-
-/**
  * Create and manage a Supabase Realtime subscription for the currently active
  * public songs in the store. This function is designed to be used from the
  * SongSubscribeSlice and receives `set`/`get` from the slice initializer.
@@ -111,10 +80,11 @@ export default function subscribeToActivePublicSongs(
 	return (): (() => void) | undefined => {
 		let unsubscribeFn: (() => void) | undefined = undefined;
 
-		// Type guards are declared here so they can be reused in the async block
-		// without recreating closures on every call.
 		/**
 		 * Runtime type guard for Supabase realtime client shape.
+		 *
+		 * Declared here so the async subscription setup can reuse it without
+		 * recreating closures on every call.
 		 *
 		 * @param value - Unknown value to test
 		 * @returns True when the value provides the minimal realtime client surface
@@ -168,13 +138,7 @@ export default function subscribeToActivePublicSongs(
 					return undefined;
 				}
 
-				// Build an `in.` filter for Postgres; escape single quotes in IDs to avoid
-				// accidental injection/truncation of the filter string.
-				const quoted = activePublicSongIds
-					.map((id) => String(id).replaceAll("'", String.raw`\'`))
-					.map((id) => `'${id}'`)
-					.join(",");
-				const filter = `song_id=in.(${quoted})`;
+				const filter = buildSongPublicRealtimeFilter(activePublicSongIds);
 
 				if (!isSupabaseRealtimeClientLike(client)) {
 					// Not all runtime environments expose the realtime API; be defensive.

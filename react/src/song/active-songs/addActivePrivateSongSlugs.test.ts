@@ -2,17 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.test-util";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import addActivePrivateSongSlugs from "./addActivePrivateSongSlugs";
 
 const DB_NULL = forceCast<null>(JSON.parse("null"));
 
-/**
- * Return a `SongSubscribeSlice` pre-populated with an active slug for test assertions.
- *
- * @returns Mocked `SongSubscribeSlice` with one active slug
- */
 /**
  * Return a `SongSubscribeSlice` pre-populated with an active slug for test assertions.
  *
@@ -45,11 +40,6 @@ function makeGetWithActiveSlug(): SongSubscribeSlice {
 	return get();
 }
 
-/**
- * Return a `SongSubscribeSlice` without a user token to simulate unauthenticated state.
- *
- * @returns Mocked `SongSubscribeSlice` without user token
- */
 /**
  * Return a `SongSubscribeSlice` without a user token to simulate unauthenticated state.
  *

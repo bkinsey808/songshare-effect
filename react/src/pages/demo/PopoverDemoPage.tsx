@@ -161,6 +161,7 @@ function PopoverDemoGrid(): ReactElement {
 		</div>
 	);
 }
+
 /**
  * Section showing custom/native popover combinations.
  *

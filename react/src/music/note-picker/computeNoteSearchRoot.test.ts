@@ -5,6 +5,7 @@ import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearch
 
 /** Spelling for a chord containing only the root note. */
 const ROOT_ONLY_SPELLING = "";
+
 /** Spelling for a major triad (root + major third + perfect fifth). */
 const MAJOR_SPELLING = "3,5";
 

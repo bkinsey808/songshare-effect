@@ -14,6 +14,7 @@ describe("joinCommunity", () => {
 
 	const setCommunityLoading = vi.fn();
 	const setCommunityError = vi.fn();
+
 	/**
 	 * Minimal store getter used by the test to supply the community slice
 	 * functions consumed by `joinCommunity`.

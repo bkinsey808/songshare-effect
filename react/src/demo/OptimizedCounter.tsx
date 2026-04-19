@@ -18,10 +18,9 @@ function OptimizedCounter(): ReactElement {
 	const LARGE_ITERATIONS = 1_000_000;
 	const STEP = ONE;
 
-	// This expensive computation should be automatically memoized by React Compiler
-	// and should only run when 'count' changes, not when 'name' changes
 	/**
-	 * Perform a CPU-intensive computation based on the provided value.
+	 * Perform a CPU-intensive computation that React Compiler should only re-run
+	 * when `count` changes, not when `name` changes.
 	 *
 	 * @param value - numeric input used in the computation
 	 * @returns computed numeric result

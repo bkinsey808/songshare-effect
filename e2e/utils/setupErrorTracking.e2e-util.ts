@@ -6,6 +6,7 @@ export type ErrorCollector = {
 };
 
 /* oxlint-disable jest/no-conditional-in-test */
+
 /**
  * Attach console and page error listeners to a Playwright page.
  *

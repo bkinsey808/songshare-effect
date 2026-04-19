@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { Effect } from "effect";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import useAppStore from "@/react/app-store/useAppStore";
@@ -23,7 +24,8 @@ const TOP_BAR_TRIGGER_Y = 96;
 /**
  * Hook for managing event view state and actions.
  *
- * Handles fetching event details, auto-joining participants, and managing join/leave actions.
+ * Handles fetching event details, subscribing to the active song for realtime
+ * content updates, and managing join/leave actions.
  *
  * @returns Object containing event state, participant info, and action handlers
  */
@@ -85,6 +87,7 @@ export default function useEventView(): {
 	const setCurrentEvent = useAppStore((state) => state.setCurrentEvent);
 	const fetchPlaylistById = useAppStore((state) => state.fetchPlaylistById);
 	const publicSongs = useAppStore((state) => state.publicSongs);
+	const addActivePublicSongIds = useAppStore((state) => state.addActivePublicSongIds);
 	const currentUsername = useAppStore((state) => state.userSessionData?.userPublic.username);
 	const currentUserId = useCurrentUserId();
 	const { effectiveSlideOrientation } = useSlideOrientationPreference();
@@ -109,6 +112,16 @@ export default function useEventView(): {
 		currentUserId,
 		fetchEventBySlug,
 	});
+
+	const activeSongId = derivedState.eventPublic?.active_song_id;
+	// When the event's active song changes, load it into publicSongs and ensure
+	// it is included in the realtime subscription so slide content updates live.
+	useEffect(() => {
+		if (activeSongId === null || activeSongId === undefined) {
+			return;
+		}
+		void Effect.runPromise(addActivePublicSongIds([activeSongId]));
+	}, [activeSongId, addActivePublicSongIds]);
 
 	const tags = useItemTagsDisplay("event", currentEvent?.event_id);
 
@@ -137,7 +150,6 @@ export default function useEventView(): {
 		}
 	}
 
-
 	/**
 	 * Navigate back to the main event view.
 	 *
@@ -149,7 +161,6 @@ export default function useEventView(): {
 		}
 	}
 
-
 	/**
 	 * Show or hide the top bar based on mouse vertical position.
 	 *
@@ -159,7 +170,6 @@ export default function useEventView(): {
 	function handleSlideShowMouseMove(event: React.MouseEvent<HTMLDivElement>): void {
 		setIsTopBarVisible(event.clientY <= TOP_BAR_TRIGGER_Y);
 	}
-
 
 	/**
 	 * Hide the top bar when the mouse leaves the slide show area.

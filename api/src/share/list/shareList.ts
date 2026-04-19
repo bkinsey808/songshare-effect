@@ -31,9 +31,6 @@ type ShareItem = {
 };
 
 /**
- * Extract and validate query parameters for listing shares.
- */
-/**
  * Validates the view parameter.
  * @param value - The view string to check.
  * @returns true if value is 'sent' or 'received'.

@@ -7,6 +7,7 @@ import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import decodeSongData from "./decodeSongData";
 import fetchPublicSongsBySlugs from "./fetchPublicSongsBySlugs";
 import findMissingSongSlugs from "./findMissingSongSlugs";
+import getCachedPublicSongsToActivate from "./getCachedPublicSongsToActivate";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
 
 /**
@@ -27,17 +28,39 @@ export default function addActivePublicSongSlugs(
 ) {
 	return async (songSlugs: readonly string[]): Promise<void> => {
 		const state = get();
+		const cachedPublicSongsToActivate = getCachedPublicSongsToActivate(state, songSlugs);
+		const NO_CACHED_PUBLIC_SONGS_TO_ACTIVATE = 0;
+
+		if (Object.keys(cachedPublicSongsToActivate).length > NO_CACHED_PUBLIC_SONGS_TO_ACTIVATE) {
+			updateStoreWithPublicSongs({
+				publicSongsToAdd: cachedPublicSongsToActivate,
+				state,
+				set,
+			});
+		}
+
+		const refreshedState = get();
 
 		// Find missing song slugs that are not already being subscribed to
 		const missingSongSlugs = findMissingSongSlugs({
 			songSlugs,
-			activePublicSongIds: state.activePublicSongIds,
-			publicSongs: state.publicSongs,
+			activePublicSongIds: refreshedState.activePublicSongIds,
+			publicSongs: refreshedState.publicSongs,
 		});
 
 		const NO_MISSING_SONGS = 0;
 
 		if (missingSongSlugs.length === NO_MISSING_SONGS) {
+			// Subscription is not persisted. After a page reload activePublicSongIds
+			// may already have entries but no live Supabase channel exists.
+			const NO_ACTIVE_PUBLIC_SONG_IDS = 0;
+			if (
+				refreshedState.activePublicSongIds.length > NO_ACTIVE_PUBLIC_SONG_IDS &&
+				typeof refreshedState.activePublicSongsUnsubscribe !== "function"
+			) {
+				const unsub = refreshedState.subscribeToActivePublicSongs();
+				set({ activePublicSongsUnsubscribe: unsub ?? ((): undefined => undefined) });
+			}
 			return;
 		}
 
@@ -73,7 +96,7 @@ export default function addActivePublicSongSlugs(
 		// Update store with new songs
 		updateStoreWithPublicSongs({
 			publicSongsToAdd,
-			state,
+			state: refreshedState,
 			set,
 		});
 	};

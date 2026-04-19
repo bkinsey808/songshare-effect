@@ -9,8 +9,8 @@ import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import {
-    ResolvedSlideOrientation,
-    SlideOrientationPreference,
+	ResolvedSlideOrientation,
+	SlideOrientationPreference,
 } from "@/shared/user/slideOrientationPreference";
 
 import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
@@ -188,7 +188,7 @@ function Harness({
 	currentSlide: unknown;
 	totalSlides: number;
 }): ReactElement {
-	const hook = useSongViewCurrentSlide({ currentSlide, totalSlides });
+	const hook = useSongViewCurrentSlide({ currentSlide, songKey: undefined, totalSlides });
 
 	return (
 		<div data-testid="harness-root" className={hook.slideAspectClassName}>
@@ -281,7 +281,11 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 		installSlideNumberPreferenceMock();
 
 		const { result } = renderHook(() =>
-			useSongViewCurrentSlide({ currentSlide: undefined, totalSlides: ZERO_SLIDES }),
+			useSongViewCurrentSlide({
+				currentSlide: undefined,
+				songKey: undefined,
+				totalSlides: ZERO_SLIDES,
+			}),
 		);
 
 		expect(result.current).toMatchObject({
@@ -305,6 +309,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 		const { result } = renderHook(() =>
 			useSongViewCurrentSlide({
 				currentSlide: makeCurrentSlide(),
+				songKey: undefined,
 				totalSlides: SINGLE_SLIDE_TOTAL,
 			}),
 		);
@@ -330,6 +335,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 		const { result } = renderHook(() =>
 			useSongViewCurrentSlide({
 				currentSlide: makeCurrentSlide(),
+				songKey: undefined,
 				totalSlides: SINGLE_SLIDE_TOTAL,
 			}),
 		);
@@ -363,6 +369,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 					background_image_focal_point_x: FOCAL_POINT_X,
 					background_image_focal_point_y: FOCAL_POINT_Y,
 				},
+				songKey: undefined,
 				totalSlides: SINGLE_SLIDE_TOTAL,
 			}),
 		);
@@ -390,6 +397,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 					slide_name: 123,
 					field_data: { [LYRICS_FIELD]: 456 },
 				},
+				songKey: undefined,
 				totalSlides: SINGLE_SLIDE_TOTAL,
 			}),
 		);
@@ -409,6 +417,7 @@ describe("useSongViewCurrentSlide — renderHook", () => {
 		const { result } = renderHook(() =>
 			useSongViewCurrentSlide({
 				currentSlide: makeCurrentSlide(),
+				songKey: undefined,
 				totalSlides: SINGLE_SLIDE_TOTAL,
 			}),
 		);

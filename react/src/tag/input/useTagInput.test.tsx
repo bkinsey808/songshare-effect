@@ -32,16 +32,6 @@ function makeKeyDownEvent(key: string): React.KeyboardEvent<HTMLInputElement> {
 }
 
 /**
- * Harness for useTagInput — "Documentation by Harness".
- *
- * Shows how useTagInput integrates into a tag input component:
- * - Typing triggers debounced autocomplete
- * - Enter/blur add the current input value as a tag
- * - Escape closes suggestions
- * - Suggestion click adds a tag
- * - Badge remove button removes a tag
- */
-/**
  * Harness for `useTagInput` — a lightweight UI used in tests.
  *
  * Shows how `useTagInput` integrates into a tag input component:

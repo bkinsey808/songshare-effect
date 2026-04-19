@@ -6,6 +6,7 @@ import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSelect";
 import type { SongPublic } from "@/react/song/song-schema";
 import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
+import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 
 import SongViewSlides from "./SongViewSlides";
@@ -56,10 +57,18 @@ describe("song view slides", () => {
 			goNext: mockGo,
 			goPrev: mockGo,
 			isFullScreen: false,
+			selectedFields: ["lyrics"],
 			setIsFullScreen: DEFAULT_SET_IS_FULLSCREEN,
+			setChordDisplayMode: vi.fn(),
+			showChords: true,
+			showLanguageTags: false,
 			slideContainerClassName: "mx-auto w-full max-w-5xl",
+			toggleChords: vi.fn(),
+			toggleField: vi.fn(),
+			toggleLanguageTags: vi.fn(),
 			totalSlides: 2,
 			viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
+			chordDisplayMode: ChordDisplayMode.letters,
 		});
 
 		const { getByLabelText, getByTestId, getByText } = render(
@@ -101,10 +110,18 @@ describe("song view slides", () => {
 				goNext: mockGo,
 				goPrev: mockGo,
 				isFullScreen,
+				selectedFields: ["lyrics"],
 				setIsFullScreen,
+				setChordDisplayMode: vi.fn(),
+				showChords: true,
+				showLanguageTags: false,
 				slideContainerClassName: "mx-auto w-full max-w-5xl",
+				toggleChords: vi.fn(),
+				toggleField: vi.fn(),
+				toggleLanguageTags: vi.fn(),
 				totalSlides: 2,
 				viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
+				chordDisplayMode: ChordDisplayMode.letters,
 			};
 		});
 
@@ -149,10 +166,18 @@ describe("song view slides", () => {
 			goNext: mockGo,
 			goPrev: mockGo,
 			isFullScreen: false,
+			selectedFields: [],
 			setIsFullScreen: DEFAULT_SET_IS_FULLSCREEN,
+			setChordDisplayMode: vi.fn(),
+			showChords: true,
+			showLanguageTags: false,
 			slideContainerClassName: "mx-auto w-full max-w-5xl",
+			toggleChords: vi.fn(),
+			toggleField: vi.fn(),
+			toggleLanguageTags: vi.fn(),
 			totalSlides: 0,
 			viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
+			chordDisplayMode: ChordDisplayMode.letters,
 		});
 
 		const { queryByLabelText, queryByText, getByText } = render(

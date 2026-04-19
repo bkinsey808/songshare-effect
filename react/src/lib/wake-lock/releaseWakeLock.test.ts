@@ -16,20 +16,7 @@ import { getWakeLockSentinel, setWakeLockSentinel } from "./sentinel";
  * @param releaseImpl - invoked when `release()` is called
  * @returns a test `WakeLockSentinel`
  */
-/**
- * Create a minimal `WakeLockSentinel`-like object for tests.
- *
- * This factory returns a small object that satisfies the DOM `WakeLockSentinel`
- * shape (including the `type` and `onrelease` fields) while delegating the
- * `release()` implementation to the provided `releaseImpl` callback so tests
- * can simulate success or failure deterministically.
- *
- * Note: This is a test helper only and intentionally minimal.
- *
- * @param releaseImpl - invoked when `release()` is called
- * @returns a test `WakeLockSentinel`
- */
-	function createSentinelWithRelease(releaseImpl: () => Promise<void>): WakeLockSentinel {
+function createSentinelWithRelease(releaseImpl: () => Promise<void>): WakeLockSentinel {
 	/**
 	 * Minimal test sentinel class implementing `WakeLockSentinel`.
 	 *

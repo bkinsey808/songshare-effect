@@ -83,13 +83,8 @@ function installStore(opts: {
 /**
  * Harness for useSharedUsersSection.
  *
- * Documents how the hook integrates into real UI:
- * - currentUserId for permission checks
- * - itemShares filtered by item type and id
- * - isSharesLoading for loading state
- */
-/**
- * Harness for useSharedUsersSection.
+ * Exposes `currentUserId`, filtered `itemShares`, and loading state so tests
+ * can verify how the hook would drive a real shared-users view.
  *
  * @returns ReactElement exposing the hook state for tests
  */

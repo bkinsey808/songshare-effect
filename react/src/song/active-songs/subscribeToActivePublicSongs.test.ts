@@ -7,13 +7,13 @@ import { describe, expect, it, vi } from "vitest";
 import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinimalSupabaseClient.test-util";
 import getSupabaseClientWithAuth from "@/react/lib/supabase/client/getSupabaseClientWithAuth";
 import type {
-    RealtimeChannelLike,
-    SupabaseClientLike,
+	RealtimeChannelLike,
+	SupabaseClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 import asNull from "@/react/lib/test-utils/asNull";
 import forceCast from "@/react/lib/test-utils/forceCast";
 
-import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.test-util";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import subscribeToActivePublicSongs from "./subscribeToActivePublicSongs";
 
@@ -23,10 +23,7 @@ const DB_NULL = forceCast<null>(JSON.parse("null"));
 vi.mock("@/react/lib/supabase/client/getSupabaseClientWithAuth");
 
 const MACROTASK_DELAY = 0;
-/**
- * Advance microtasks and a macrotask tick so tests can observe async effects
- * that are scheduled to run on the next micro/macro tick (subscriptions, timers, etc.).
- */
+
 /**
  * Advance microtasks and a macrotask tick so tests can observe async effects
  * that are scheduled to run on the next micro/macro tick (subscriptions, timers, etc.).
@@ -65,10 +62,6 @@ function noopHandler(_payload: unknown): void {
 /**
  * Type guard that verifies a value is a `set` updater function that transforms
  * the current `SongSubscribeSlice` into a partial update.
- */
-/**
- * Type guard that verifies a value is a `set` updater function that transforms
- * the current `SongSubscribeSlice` into a partial update.
  *
  * @param value - Unknown value to test
  * @returns True when value is an updater function
@@ -82,10 +75,12 @@ function isUpdater(
 describe("subscribeToActivePublicSongs", () => {
 	it("calls addOrUpdatePublicSongs for INSERT and UPDATE when payload includes valid SongPublic", async () => {
 		let capturedHandler: (payload: unknown) => void = noopHandler;
+		let capturedOpts: unknown = undefined;
 		const removeChannelSpy = vi.fn();
 
 		const mockChannel = {
-			on: (_event: string, _opts: unknown, handler: (payload: unknown) => void) => {
+			on: (_event: string, opts: unknown, handler: (payload: unknown) => void) => {
+				capturedOpts = opts;
 				capturedHandler = handler;
 				return mockChannel;
 			},
@@ -102,6 +97,7 @@ describe("subscribeToActivePublicSongs", () => {
 		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(mockClient);
 
 		const addOrUpdatePublicSongs = vi.fn();
+
 		/**
 		 * Minimal `get` accessor used by this test to inject a slice with an
 		 * `addOrUpdatePublicSongs` spy.
@@ -126,6 +122,12 @@ describe("subscribeToActivePublicSongs", () => {
 		await flushPromises();
 
 		expect(typeof capturedHandler).toBe("function");
+		expect(capturedOpts).toStrictEqual({
+			event: "*",
+			schema: "public",
+			table: "song_public",
+			filter: "song_id=eq.abc",
+		});
 
 		// Simulate INSERT
 		const newSong = { song_id: "abc", song_slug: "slug-abc", title: "Title" };
@@ -174,6 +176,7 @@ describe("subscribeToActivePublicSongs", () => {
 		vi.mocked(getSupabaseClientWithAuth).mockResolvedValue(mockClient);
 
 		const addOrUpdatePublicSongs = vi.fn();
+
 		/**
 		 * Minimal `get` accessor used by this test to inject a slice with an
 		 * `addOrUpdatePublicSongs` spy.

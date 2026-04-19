@@ -35,20 +35,10 @@ export default function useSongLibraryCard({ entry }: UseSongLibraryCardParams):
 	 *
 	 * @returns void
 	 */
-	/**
-	 * Navigate to the song edit page for this entry.
-	 *
-	 * @returns void
-	 */
 	function handleEditSongClick(): void {
 		void navigate(`/${lang}/${dashboardPath}/${songEditPath}/${entry.song_id}`);
 	}
 
-	/**
-	 * Remove this song from the user's library via the app store effect.
-	 *
-	 * @returns void
-	 */
 	/**
 	 * Remove this song from the user's library via the app store effect.
 	 *

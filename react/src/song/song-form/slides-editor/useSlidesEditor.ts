@@ -187,6 +187,7 @@ export default function useSlidesEditor({
 	function toggleBackgroundPicker(slideId: string): void {
 		setBackgroundPickerSlideId((currentValue) => (currentValue === slideId ? undefined : slideId));
 	}
+
 	/**
 	 * Close the background picker if open.
 	 *

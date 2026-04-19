@@ -8,15 +8,10 @@ import getStoredLanguage from "../stored/getStoredLanguage";
 import useLanguageDetector from "./useLanguageDetector";
 
 /**
- * Stub out the browser language detector with a typed mock implementation.
- *
- * By casting `vi.mocked(...)` to `MockedFunction<typeof detectBrowserLanguage>`
- * we avoid the loose `any` return type that otherwise triggers the
- * unsafe-call/member-access rules. This keeps the rest of the test file
- * free of any disabling comments.
- */
-/**
  * Replace the runtime browser-language detector with a typed mock.
+ *
+ * Keeps the typed mock setup localized so the rest of the test file stays
+ * free of inline disables and loose mock typing.
  *
  * @param lang - The language value the detector should return
  * @returns void

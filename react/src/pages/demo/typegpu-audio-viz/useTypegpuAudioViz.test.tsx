@@ -80,16 +80,11 @@ function makeMinimalStream(): MinimalMediaStream {
 	};
 }
 
-// Test helpers: narrow runtime values without using non-null assertions or
-// inline eslint disables. These follow the project's existing test patterns
-// (see `useCanvasAnimation.test.tsx`).
 /**
  * Assert that a value is a Canvas 2D rendering context for tests.
  *
- * @param value - runtime value to assert as CanvasRenderingContext2D
- */
-/**
- * Assert that a value is a Canvas 2D rendering context for tests.
+ * Keeps runtime narrowing in a helper so assertions stay readable without
+ * inline disables or non-null assertions.
  *
  * @param value - runtime value to assert as CanvasRenderingContext2D
  * @returns void
@@ -98,11 +93,6 @@ function assertIs2DContext(value: unknown): asserts value is CanvasRenderingCont
 	expect(value).toBeDefined();
 }
 
-/**
- * Assert that a value is a DrawFn for the canvas animation API.
- *
- * @param value - runtime value to assert as DrawFn
- */
 /**
  * Assert that a value is a DrawFn for the canvas animation API.
  *

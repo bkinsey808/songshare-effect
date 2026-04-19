@@ -1,11 +1,16 @@
 import { cleanup, fireEvent, render, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import useChordDisplayModePreference from "@/react/chord-display-mode/useChordDisplayModePreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import type { SongPublic } from "@/react/song/song-schema";
 import makeSongFromIds from "@/react/song/test-utils/makeSongFromIds.test-util";
 import { ONE, TWO, ZERO } from "@/shared/constants/shared-constants";
 import isRecord from "@/shared/type-guards/isRecord";
+import { ChordDisplayCategory } from "@/shared/user/chord-display/chordDisplayCategory";
+import { ChordDisplayMode } from "@/shared/user/chord-display/effectiveChordDisplayMode";
+import { ChordLetterDisplay } from "@/shared/user/chordLetterDisplay";
+import { ChordScaleDegreeDisplay } from "@/shared/user/chordScaleDegreeDisplay";
 import {
 	ResolvedSlideOrientation,
 	SlideOrientationPreference,
@@ -13,6 +18,7 @@ import {
 
 import { useSongViewSlides } from "./useSongViewSlides";
 
+vi.mock("@/react/chord-display-mode/useChordDisplayModePreference");
 vi.mock("@/react/slide-orientation/useSlideOrientationPreference");
 
 const DEFAULT_VIEWPORT_WIDTH = 1600;
@@ -39,8 +45,25 @@ const FULL_SCREEN_FALSE = "false";
 const FULL_SCREEN_TRUE = "true";
 const DEFAULT_VIEWPORT_ASPECT_RATIO = DEFAULT_VIEWPORT_WIDTH / DEFAULT_VIEWPORT_HEIGHT;
 const UPDATED_VIEWPORT_ASPECT_RATIO = UPDATED_VIEWPORT_WIDTH / UPDATED_VIEWPORT_HEIGHT;
+const SHOW_CHORDS_TEST_ID = "show-chords";
+const CHORD_DISPLAY_MODE_TEST_ID = "chord-display-mode";
+const SHOW_LANGUAGE_TAGS_TEST_ID = "show-language-tags";
 
 vi.stubGlobal("document", document);
+
+/**
+ * Install a mocked chord display mode preference for hook tests.
+ *
+ * @returns void
+ */
+function installChordDisplayModePreferenceMock(): void {
+	vi.mocked(useChordDisplayModePreference).mockReturnValue({
+		chordDisplayCategory: ChordDisplayCategory.letters,
+		chordLetterDisplay: ChordLetterDisplay.standard,
+		chordDisplayMode: ChordDisplayMode.letters,
+		chordScaleDegreeDisplay: ChordScaleDegreeDisplay.roman,
+	});
+}
 
 /**
  * Install a mocked slide orientation preference for hook tests.
@@ -104,6 +127,9 @@ function Harness(props: { songPublic: SongPublic | undefined }): ReactElement {
 			<div data-testid="display-fields">{hook.displayFields.join(",")}</div>
 			<div data-testid="effective-slide-orientation">{hook.effectiveSlideOrientation}</div>
 			<div data-testid="is-full-screen">{String(hook.isFullScreen)}</div>
+			<div data-testid={SHOW_CHORDS_TEST_ID}>{String(hook.showChords)}</div>
+			<div data-testid={CHORD_DISPLAY_MODE_TEST_ID}>{hook.chordDisplayMode}</div>
+			<div data-testid={SHOW_LANGUAGE_TAGS_TEST_ID}>{String(hook.showLanguageTags)}</div>
 			<div data-testid="slide-container-class-name">{hook.slideContainerClassName}</div>
 			<div data-testid="total-slides">{String(hook.totalSlides)}</div>
 			<div data-testid="viewport-aspect-ratio">{String(hook.viewportAspectRatio)}</div>
@@ -160,6 +186,7 @@ function Harness(props: { songPublic: SongPublic | undefined }): ReactElement {
 describe("useSongViewSlides — Harness", () => {
 	it("documents the initial landscape state and visible hook outputs", () => {
 		cleanup();
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -177,16 +204,22 @@ describe("useSongViewSlides — Harness", () => {
 			displayFields: getByTestId("display-fields").textContent,
 			effectiveSlideOrientation: getByTestId("effective-slide-orientation").textContent,
 			isFullScreen: getByTestId("is-full-screen").textContent,
+			showChords: getByTestId(SHOW_CHORDS_TEST_ID).textContent,
+			chordDisplayMode: getByTestId(CHORD_DISPLAY_MODE_TEST_ID).textContent,
+			showLanguageTags: getByTestId(SHOW_LANGUAGE_TAGS_TEST_ID).textContent,
 			slideContainerClassName: getByTestId("slide-container-class-name").textContent,
 			totalSlides: getByTestId("total-slides").textContent,
 			viewportAspectRatio: getByTestId("viewport-aspect-ratio").textContent,
 		}).toStrictEqual({
 			canPortalFullScreen: "true",
+			chordDisplayMode: ChordDisplayMode.letters,
 			clampedIndex: "0",
 			currentSlideName: FIRST_SLIDE_NAME,
 			displayFields: "lyrics",
 			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			isFullScreen: FULL_SCREEN_FALSE,
+			showChords: FULL_SCREEN_TRUE,
+			showLanguageTags: FULL_SCREEN_FALSE,
 			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
 			totalSlides: "2",
 			viewportAspectRatio: String(DEFAULT_VIEWPORT_ASPECT_RATIO),
@@ -195,6 +228,7 @@ describe("useSongViewSlides — Harness", () => {
 
 	it("wires every navigation and full-screen handler through real UI controls", async () => {
 		cleanup();
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock(ResolvedSlideOrientation.portrait);
 		installViewportDimensions();
 
@@ -251,6 +285,7 @@ describe("useSongViewSlides — Harness", () => {
 
 describe("useSongViewSlides — renderHook", () => {
 	it("defaults when no song is available", () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -264,6 +299,10 @@ describe("useSongViewSlides — renderHook", () => {
 			displayFields: [],
 			effectiveSlideOrientation: ResolvedSlideOrientation.landscape,
 			isFullScreen: false,
+			selectedFields: [],
+			showChords: true,
+			showLanguageTags: false,
+			chordDisplayMode: ChordDisplayMode.letters,
 			slideContainerClassName: LANDSCAPE_CONTAINER_CLASS_NAME,
 			totalSlides: ZERO,
 			viewportAspectRatio: DEFAULT_VIEWPORT_ASPECT_RATIO,
@@ -271,6 +310,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("handles empty slide order and missing current slides safely", () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -287,6 +327,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("uses language-derived display fields and resolves the first slide initially", () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -306,6 +347,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("moves through slides with the navigation helpers", async () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -338,6 +380,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("handles keyboard navigation and ignores unrelated keys", async () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -376,6 +419,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("removes keyboard listeners on unmount", async () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -398,6 +442,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("clamps the current slide index when the song shrinks", async () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 
@@ -424,6 +469,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("tracks orientation-derived view state", () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock(ResolvedSlideOrientation.portrait);
 		installViewportDimensions();
 
@@ -440,6 +486,7 @@ describe("useSongViewSlides — renderHook", () => {
 	});
 
 	it("updates full-screen state and viewport ratio, then exits on Escape", async () => {
+		installChordDisplayModePreferenceMock();
 		installSlideOrientationPreferenceMock();
 		installViewportDimensions();
 

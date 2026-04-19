@@ -110,7 +110,6 @@ export default function useImageEditForm(
 		tags,
 	]);
 
-	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	/**
 	 * Submit handler that persists the edited image via the store action.
 	 *

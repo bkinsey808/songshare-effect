@@ -2,17 +2,17 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-    setMockRejectedValue,
-    setMockResolvedValue,
+	setMockRejectedValue,
+	setMockResolvedValue,
 } from "@/react/lib/test-utils/spy-import/spyHelpers";
 import spyImport, { type SpyLike } from "@/react/lib/test-utils/spy-import/spyImport";
 
 import type {
-    MinimalAnalyserNode,
-    MinimalBaseAudioContext,
-    MinimalMediaStream,
-    MinimalMediaStreamAudioSourceNode,
-    MinimalMediaStreamTrack,
+	MinimalAnalyserNode,
+	MinimalBaseAudioContext,
+	MinimalMediaStream,
+	MinimalMediaStreamAudioSourceNode,
+	MinimalMediaStreamTrack,
 } from "./audio-types";
 import type createTimeDomainAnalyser from "./createTimeDomainAnalyser";
 import useAudioCapture from "./useAudioCapture";
@@ -25,6 +25,7 @@ import useAudioCapture from "./useAudioCapture";
 function spyCreateTimeDomainAnalyser(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/createTimeDomainAnalyser");
 }
+
 /**
  * Spy helper for `getMicStreamForDevice` import.
  *
@@ -33,6 +34,7 @@ function spyCreateTimeDomainAnalyser(): Promise<SpyLike> {
 function spyGetMicStreamForDevice(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/stream/getMicStreamForDevice");
 }
+
 /**
  * Spy helper for `stopMediaStreamTracks` import.
  *
@@ -41,6 +43,7 @@ function spyGetMicStreamForDevice(): Promise<SpyLike> {
 function spyStopMediaStreamTracks(): Promise<SpyLike> {
 	return spyImport("@/react/lib/audio/stream/stopMediaStreamTracks");
 }
+
 /**
  * Spy helper for `closeAudioContextSafely` import.
  *
@@ -124,7 +127,6 @@ function makeFakeMediaStream(hasTrack = true): MinimalMediaStream {
 describe("useAudioCapture", () => {
 	const FFT_SIZE = 2048; // from implementation
 
-	// Small helper: clear mocks before each test
 	/**
 	 * Reset mocks and test state for each spec.
 	 *

@@ -170,6 +170,7 @@ describe("fetchSharesEffect", () => {
 
 	it("rejects when fetch fails (loading set to true; Effect failure bypasses finally)", async () => {
 		const errorMessage = "network fail";
+
 		/**
 		 * Fetch mock that rejects to simulate a network error.
 		 *
@@ -193,6 +194,7 @@ describe("fetchSharesEffect", () => {
 	});
 
 	it("rejects when HTTP response is not ok (loading set to true; Effect failure bypasses finally)", async () => {
+
 		/**
 		 * Fetch mock that resolves to an HTTP 403 response.
 		 *

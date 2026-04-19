@@ -17,13 +17,6 @@ const mockGetEnv = vi.mocked(getEnvValueSafe);
 
 describe("getPublicSupabaseClient", () => {
 	/**
-	 * Helper that resets mocks and provides a simple env map implementation.
-	 *
-	 * Using an object lookup avoids conditionals inside test code which eslint
-	 * flags.  Each test can call this with different values instead of
-	 * relying on jest hooks.
-	 */
-	/**
 	 * Reset mocks and configure `getEnvValueSafe` for tests.
 	 *
 	 * @param url - Value to expose for `SUPABASE_URL`

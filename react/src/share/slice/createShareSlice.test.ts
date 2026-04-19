@@ -26,10 +26,13 @@ vi.mock("../subscribe/subscribeToSentShares");
 
 /** Expected count for single-item status filter results. */
 const PENDING_COUNT = 1;
+
 /** Expected count for single-item accepted status filter results. */
 const ACCEPTED_COUNT = 1;
+
 /** Minimum number of reset functions expected after creating a slice. */
 const MIN_RESET_REGISTRATION = 0;
+
 /** Array index for first element in status filter results. */
 const FIRST_INDEX = 0;
 
@@ -101,6 +104,7 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 	const sliceHolder: { current: ShareSlice } = {
 		current: forceCast<ShareSlice>(undefined),
 	};
+
 	/**
 	 * Mock `get` function that returns the composed current slice state.
 	 *
@@ -111,6 +115,7 @@ function makeMockStore(initialState: Partial<ShareState> = {}): {
 	}
 
 	const api: Api<ShareSlice> = {
+
 		/**
 		 * Proxy `setState` that delegates to the test `setState` helper.
 		 *

@@ -22,11 +22,8 @@ export default function createScrollHandler(
 	/**
 	 * Read the global vertical scroll position and update state when crossing
 	 * the threshold with hysteresis.
+	 *
 	 * Throttled using requestAnimationFrame to smooth out rapid scroll events.
-	 */
-	/**
-	 * Read the global vertical scroll position and update state when crossing
-	 * the threshold with hysteresis.
 	 *
 	 * @returns void
 	 */
@@ -50,9 +47,6 @@ export default function createScrollHandler(
 		});
 	}
 
-	/**
-	 * Cancel any pending requestAnimationFrame.
-	 */
 	/**
 	 * Cancel any pending requestAnimationFrame.
 	 *

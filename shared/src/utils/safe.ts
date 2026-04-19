@@ -15,6 +15,7 @@ export function safeGet<TValue extends Record<string, unknown>, Key extends keyo
 	obj: TValue,
 	key: Key,
 ): TValue[Key] | undefined;
+
 /**
  * @param obj - The object to read from.
  * @param key - The key to read.
@@ -26,6 +27,7 @@ export function safeGet<TValue extends Record<string, unknown>, Key extends keyo
 	key: Key,
 	defaultValue: Value,
 ): TValue[Key] | Value;
+
 /**
  * @param obj - The object to read from.
  * @param key - The key to read.

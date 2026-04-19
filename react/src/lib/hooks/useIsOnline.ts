@@ -13,6 +13,7 @@ export default function useIsOnline(): boolean {
 
 	// Listen to browser online/offline events and keep `isOnline` state updated
 	useEffect(() => {
+
 		/**
 		 * Browser `online` event handler — mark the app as online.
 		 *
@@ -21,6 +22,7 @@ export default function useIsOnline(): boolean {
 		function handleOnline(): void {
 			setIsOnline(true);
 		}
+
 		/**
 		 * Browser `offline` event handler — mark the app as offline.
 		 *

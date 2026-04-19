@@ -55,6 +55,7 @@ function makeSetNoteSearchState(): {
 	) => ReadonlyMap<number, NoteSearchToggleState>;
 } {
 	const setNoteSearchState = vi.fn<(updater: StateUpdater) => void>();
+
 	/**
 	 * Apply the captured updater function to a previous state map.
 	 *

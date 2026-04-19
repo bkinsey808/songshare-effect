@@ -7,6 +7,7 @@ import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
  * Keep any required type-assertions and ESLint disable rules isolated here
  * so individual test files remain clean and lint-friendly.
  */
+
 /**
  * Set the resolved value for a dynamically imported spy's export.
  *

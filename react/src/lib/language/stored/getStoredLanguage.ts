@@ -39,15 +39,6 @@ function getStoredLanguageSync(): SupportedLanguageType | undefined {
 }
 
 /**
- * Async public API that prefers the modern Cookie Store API when available.
- *
- * - Public (async) API: `getStoredLanguage()` / default export
- * - Internal sync helper: `getStoredLanguageSync()` (not exported)
- *
- * Callers that can await should prefer this function; sync-only callers
- * should continue to read `localStorage` / `document.cookie` directly.
- */
-/**
  * Async public API that resolves the stored supported language.
  *
  * @returns A promise resolving to the stored supported language or `undefined`

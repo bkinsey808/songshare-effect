@@ -6,6 +6,7 @@ import forceCast from "@/react/lib/test-utils/forceCast";
    These helpers contain the required narrow casts in one place so tests don't
    need to repeat oxlint-disable comments.
 */
+
 /**
  * Build a typed input change event for tests.
  *

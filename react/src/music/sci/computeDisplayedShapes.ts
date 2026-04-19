@@ -9,6 +9,7 @@ import filterSpellingBySpellingSearch from "@/react/music/note-picker/filterSpel
 import type { NoteSearchToggleState } from "@/react/music/note-picker/NoteSearchToggleState.type";
 
 const FIRST_SHAPE_INDEX = 0;
+
 /** The root note is always counted, adding one to the interval count for total note count. */
 const ROOT_NOTE_COUNT = 1;
 

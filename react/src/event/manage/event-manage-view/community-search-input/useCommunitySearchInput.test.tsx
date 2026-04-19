@@ -49,19 +49,10 @@ const mockCommunities: CommunityEntry[] = [
 ];
 
 /**
- * Configure the mocked app store to return a constant list of communities.
- *
- * Most of the tests in this file only care about the data returned from
- * `useAppStore` when the selector touches the `communities` slice, so the
- * implementation simply stringifies the selector and looks for the word
- * "communities". This mirrors the pattern used elsewhere in hook tests and
- * keeps the setup lightweight.
- *
- * @param communities - array of entries that the mocked store will supply
- *   whenever the hook reads `state.communities`.
- */
-/**
  * Install a mocked communities slice for `useCommunitySearchInput` tests.
+ *
+ * The selector mock only needs to recognize reads from the `communities`
+ * slice, which keeps the setup lightweight for these hook tests.
  *
  * @param communities - List of community entries to seed.
  * @returns void

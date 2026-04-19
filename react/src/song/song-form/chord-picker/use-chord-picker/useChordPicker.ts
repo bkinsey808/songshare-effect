@@ -53,6 +53,7 @@ type UseChordPickerResult = Readonly<{
 	handleSelectShapeInversion: (sourceShapeCode: string, inversion: SciInversion) => void;
 	inversionBaseShapeCode: string | undefined;
 	selectedBassNote: SongKey | undefined;
+
 	/** True when a shape card in search results should show as selected. */
 	shapeHighlightActive: boolean;
 	notePickerEntries: readonly NotePickerEntry[];
@@ -90,6 +91,7 @@ export default function useChordPicker({
 		chordScaleDegreeDisplay,
 		chordDisplayMode,
 	});
+
 	/**
 	 * Compute the initial selected root for the picker using the provided
 	 * display mode, initial token, and song key.

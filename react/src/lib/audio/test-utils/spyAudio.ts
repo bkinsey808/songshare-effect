@@ -5,11 +5,11 @@ import type { AsyncSpy as SharedAsyncSpy } from "@/shared/types/AsyncSpy.type";
 // imports that reference `spyAudio` keep working.
 export type AsyncSpy = SharedAsyncSpy;
 
-// Helpers for dynamically importing the modules under test.  These live in a
-// non-test file so that we can safely include the necessary `as unknown as`
-// casts without tripping the `no-disable-in-tests` rule.
 /**
  * Create a spy handle for the `useAudioCapture` module export.
+ *
+ * This helper lives outside test files so callers do not need repeated
+ * disable comments for the localized casting inside the spy helper.
  *
  * @returns A promise that resolves to the imported async spy.
  */

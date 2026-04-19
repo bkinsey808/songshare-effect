@@ -1,9 +1,9 @@
 // symbol key must match the one used in the implementation
 export const SYMBOL_KEY = Symbol.for("__supabaseClients__");
 
-// helper that explicitly clears the cached map so each test starts cleanly
 /**
- * Clear the global Supabase client cache between tests.
+ * Clear the global Supabase client cache between tests so each run starts
+ * from a clean global state.
  *
  * @returns void
  */

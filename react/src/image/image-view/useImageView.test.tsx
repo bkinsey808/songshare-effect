@@ -1,11 +1,11 @@
 import {
-    act,
-    cleanup,
-    fireEvent,
-    render,
-    renderHook,
-    waitFor,
-    within,
+	act,
+	cleanup,
+	fireEvent,
+	render,
+	renderHook,
+	waitFor,
+	within,
 } from "@testing-library/react";
 import { Effect } from "effect";
 import { useNavigate, useParams } from "react-router-dom";
@@ -86,13 +86,8 @@ function installStore(opts: {
 /**
  * Harness for useImageView — "Documentation by Harness".
  *
- * Shows how useImageView integrates into an image view page:
- * - Displays image, loading state, error
- * - Edit button for owners
- * - QR code URL for sharing
- */
-/**
- * Harness for useImageView — "Documentation by Harness".
+ * Shows loading, image data, owner actions, and QR-code sharing values the
+ * hook exposes to an image-view page.
  *
  * @returns ReactElement that renders the hook's return values for tests.
  */

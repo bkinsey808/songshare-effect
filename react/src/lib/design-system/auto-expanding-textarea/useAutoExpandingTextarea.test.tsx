@@ -144,14 +144,6 @@ function assignTextareaRef({
 }
 
 /**
- * Harness for useAutoExpandingTextarea — "Documentation by Harness".
- *
- * Shows how the hook integrates into a real textarea:
- * - The returned ref is attached to the textarea element
- * - The focus and input handlers are wired to DOM events
- * - Every hook option is passed as a prop so tests document the supported modes
- */
-/**
  * Test harness that mounts a textarea wired to the hook for integration-style tests.
  *
  * @param value - Initial textarea value used by the harness.

@@ -57,6 +57,7 @@ export default function SongFormFooter({
 			onCancel();
 		}
 	}
+
 	/**
 	 * Confirm leaving and invoke the cancel handler.
 	 *

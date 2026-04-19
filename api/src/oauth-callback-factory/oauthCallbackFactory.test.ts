@@ -56,10 +56,6 @@ function getCookieHeader(ctx: ReturnType<typeof makeCtx>): string | null {
 }
 
 /**
- * Provide an explicit undefined value for mocks that avoids "confusing void expression"
- * lint errors by returning a non-void type.
- */
-/**
  * @returns undefined (typed for mocks)
  */
 function getMockUndefined(): string | undefined {

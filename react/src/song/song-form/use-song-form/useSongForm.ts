@@ -26,7 +26,7 @@ import useSongFormDelete from "./useSongFormDelete";
  */
 export default function useSongForm(): UseSongFormReturn {
 	const songId = useParams<{ song_id?: string }>().song_id;
-	const { tags, getTags, setTags } = useItemTags("song", songId);
+	const { tags, getTags, setTags, isLoadingTags } = useItemTags("song", songId);
 	const location = useLocation();
 	const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -44,6 +44,7 @@ export default function useSongForm(): UseSongFormReturn {
 	// Initialize to true if we're editing (songId exists) to prevent flash of stale data
 	const isEditing = songId !== undefined && songId.trim() !== "";
 	const [isLoadingData, setIsLoadingData] = useState(isEditing);
+	const isChangeTrackingReady = !isLoadingData && !isLoadingTags;
 
 	// Composite hook for form state, change tracking, and initial values
 	const {
@@ -68,6 +69,7 @@ export default function useSongForm(): UseSongFormReturn {
 		formRef,
 		songId,
 		isLoadingData,
+		isChangeTrackingReady,
 		tags,
 		hasPopulatedRef,
 	});
@@ -175,7 +177,6 @@ export default function useSongForm(): UseSongFormReturn {
 		onSubmit,
 	});
 
-	// Handle save button click
 	/**
 	 * Trigger form submission via the form submit handler.
 	 *
@@ -195,7 +196,7 @@ export default function useSongForm(): UseSongFormReturn {
 		removeSongLibraryEntry,
 	});
 
-	const hasChanges = isLoadingData ? false : hasUnsavedChanges();
+	const hasChanges = isChangeTrackingReady ? hasUnsavedChanges() : false;
 
 	const { pendingChordPickerRequest, openChordPicker, closeChordPicker, insertChordFromPicker } =
 		useChordPickerRequest();

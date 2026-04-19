@@ -6,15 +6,17 @@ import type { ParseDataFromCookieParams } from "@/api/cookie/ParseDataFromCookie
 import { error as serverError, log as serverLog } from "@/api/logger";
 import decodeUnknownSyncOrThrow from "@/shared/validation/decodeUnknownSyncOrThrow";
 
-// Overloads: when allowMissing is true the return includes undefined
 /**
  * Extract and verify a JWT from a cookie, then decode it using the provided schema.
+ *
+ * This overload allows `undefined` when `allowMissing` is true.
  * @param params - Configuration options.
  * @returns Effect yielding the decoded data or undefined if allowMissing is true and data is absent.
  */
 export function parseDataFromCookie<SchemaT extends Schema.Schema.AnyNoContext>(
 	params: ParseDataFromCookieParams<SchemaT, true>,
 ): Effect.Effect<Schema.Schema.Type<SchemaT> | undefined, ValidationError | ServerError>;
+
 /**
  * Extract and verify a JWT from a cookie, then decode it using the provided schema.
  * @param params - Configuration options.
@@ -85,16 +87,18 @@ export function parseDataFromCookie<
 				}),
 		});
 
-		const verified = yield* (allowMissing
+		const verified = yield* allowMissing
 			? verifyEffect.pipe(
 					Effect.catchAll(() => {
 						if (debug) {
-							serverLog("[parseDataFromCookie] JWT verification failed, returning undefined (allowMissing=true)");
+							serverLog(
+								"[parseDataFromCookie] JWT verification failed, returning undefined (allowMissing=true)",
+							);
 						}
 						return Effect.succeed(undefined);
 					}),
 				)
-			: verifyEffect);
+			: verifyEffect;
 
 		if (verified === undefined) {
 			return undefined;

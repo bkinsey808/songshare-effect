@@ -11,9 +11,9 @@ import { isSupportedLanguage } from "@/shared/language/supported-languages-effec
 import { apiAuthSignOutPath } from "@/shared/paths";
 import { justSignedInQueryParam } from "@/shared/queryParams";
 import {
-    justRegisteredKey,
-    justSignedOutKey,
-    justUnauthorizedAccessKey,
+	justRegisteredKey,
+	justSignedOutKey,
+	justUnauthorizedAccessKey,
 } from "@/shared/sessionStorageKeys";
 import type { UserSessionData } from "@/shared/userSessionData";
 
@@ -123,11 +123,11 @@ export default function useDashboard(): UseDashboardState {
 
 	const navigate = useNavigate();
 
-	// Local helper: attempt to invoke the current store's `signOut` safely and
-	// indicate whether it was invoked. Kept local to the hook to avoid
-	// perturbing module-level initialization and to satisfy lint rules.
 	/**
 	 * Attempt to call the current store `signOut` implementation safely.
+	 *
+	 * Kept local to the hook so module-level initialization stays unchanged
+	 * while still allowing a guarded sign-out attempt.
 	 *
 	 * @returns boolean true when the store signOut function was invoked
 	 */

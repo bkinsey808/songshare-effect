@@ -97,21 +97,10 @@ const useAppStore = create<AppSlice>()(
 );
 
 /**
- * Typed getter for the vanilla store API.
- *
- * Use this when you need a fully-typed `AppSlice` from code that runs
- * outside a selector (tests, hooks, non-react helpers). This centralizes
- * the narrowing/cast so callers don't have to perform `as unknown as AppSlice`
- * themselves.
- *
- * @returns the fully-initialized `AppSlice` instance
- */
-// The Zustand `getState()` is untyped at this callsite; we assert the shape
-// once below using a small runtime check so callers get a fully-typed `AppSlice`
-// without repeating unsafe casts across the codebase.
-// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion -- runtime validation of untyped store
-/**
  * Runtime assertion that narrows an unknown value to `AppSlice`.
+ *
+ * This keeps the untyped Zustand `getState()` boundary localized so callers
+ * can use a validated `AppSlice` without repeating unsafe casts.
  *
  * @param state - value to assert as an `AppSlice`
  * @returns void
@@ -120,6 +109,7 @@ function assertAppSlice(state: unknown): asserts state is AppSlice {
 	if (state === null || typeof state !== "object") {
 		throw new TypeError("App store is not yet initialized or has unexpected shape");
 	}
+	// oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-type-assertion -- runtime validation of untyped store
 	const maybeObj = state as Record<string, unknown>;
 	if (
 		typeof maybeObj["setShowSignedInAlert"] !== "function" ||

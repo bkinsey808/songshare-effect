@@ -22,6 +22,7 @@ describe("handleImageLibraryEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const addImageLibraryEntry = vi.fn();
 		const removeImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` for non-realtime payload tests.
 		 *
@@ -42,6 +43,7 @@ describe("handleImageLibraryEvent", () => {
 
 	it.each(["INSERT", "UPDATE"] as const)("adds entry for %s events", async (eventType) => {
 		const addImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` for INSERT/UPDATE event tests.
 		 *
@@ -63,6 +65,7 @@ describe("handleImageLibraryEvent", () => {
 
 	it("skips add when new record is not a valid ImageLibraryEntry", async () => {
 		const addImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` when new record is invalid.
 		 *
@@ -88,6 +91,7 @@ describe("handleImageLibraryEvent", () => {
 
 	it("skips add when extractNewRecord returns undefined", async () => {
 		const addImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` when extractNewRecord yields undefined.
 		 *
@@ -109,6 +113,7 @@ describe("handleImageLibraryEvent", () => {
 
 	it("removes entry on DELETE when image_id in old", async () => {
 		const removeImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` for DELETE event tests.
 		 *
@@ -134,6 +139,7 @@ describe("handleImageLibraryEvent", () => {
 
 	it("skips remove on DELETE when image_id missing from old", async () => {
 		const removeImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` used when old record lacks image_id.
 		 *

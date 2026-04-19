@@ -3,11 +3,11 @@ import spyImport from "@/react/lib/test-utils/spy-import/spyImport";
 // Typed alias used by callers so they don't need to repeat the full signature.
 export type ResizeSpy = (canvas: HTMLCanvasElement) => void;
 
-// Dynamically import the module under test.  This file lives outside of a
-// test so we can freely use the necessary `as unknown as` cast instead of
-// sprinkling oxlint-disable comments throughout spec files.
 /**
  * Create a spy handle for the `resizeCanvasToDisplaySize` module export.
+ *
+ * This helper lives outside test files so callers do not need repeated
+ * inline disable comments for the localized casting inside the spy helper.
  *
  * @returns A promise that resolves to the imported resize spy.
  */

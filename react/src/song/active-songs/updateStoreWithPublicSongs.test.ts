@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import type { SongPublic } from "@/react/song/song-schema";
 
-import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.test-util";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import updateStoreWithPublicSongs from "./updateStoreWithPublicSongs";
 

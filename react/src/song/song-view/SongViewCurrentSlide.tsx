@@ -2,8 +2,10 @@ import { useTranslation } from "react-i18next";
 
 import FocalPointCoverImage from "@/react/image/focal-point/FocalPointCoverImage";
 import type { SongKey } from "@/shared/song/songKeyOptions";
+import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 import { ResolvedSlideOrientation } from "@/shared/user/slideOrientationPreference";
 
+import AnnotatedTextField from "./annotated-text-field/AnnotatedTextField";
 import useSongViewCurrentSlide from "./useSongViewCurrentSlide";
 
 /** Offset to convert a 0-based index to a 1-based slide number for display */
@@ -21,12 +23,16 @@ type SongViewCurrentSlideProps = Readonly<{
 	currentSlideIndex: number;
 	displayFields: readonly string[];
 	isFullScreen?: boolean;
-	songKey?: SongKey | "" | null | undefined;
+	showChords?: boolean;
+	chordDisplayModeOverride?: ChordDisplayModeType;
+	showLanguageTags?: boolean;
+	songKey: SongKey | undefined;
 	totalSlides: number;
 }>;
 
 /**
- * Render the current slide title and configured field values.
+ * Render the current slide title and configured field values with floating
+ * chord and language annotations above the lyric text.
  *
  * When there are no slides it renders a localized empty-state message. If the
  * slide payload is missing or not a plain record, nothing is rendered.
@@ -36,7 +42,10 @@ type SongViewCurrentSlideProps = Readonly<{
  * @param currentSlideIndex - Zero-based index of the current slide for display numbering
  * @param displayFields - Ordered field keys to render from `field_data`.
  * @param isFullScreen - Whether the view is rendered full-screen
- * @param songKey - Optional song key used for chord rendering
+ * @param showChords - When true, chord tokens float above the lyric text; when false they are stripped
+ * @param chordDisplayModeOverride - Optional chord display mode that overrides the user preference
+ * @param showLanguageTags - When true, language tags float above the lyric text
+ * @param songKey - Song key used for chord rendering, or `undefined` when unavailable
  * @param totalSlides - Total number of slides for this song.
  * @returns React element or `undefined` when no slide content should render.
  */
@@ -46,6 +55,9 @@ export default function SongViewCurrentSlide({
 	currentSlideIndex,
 	displayFields,
 	isFullScreen = false,
+	showChords = true,
+	chordDisplayModeOverride,
+	showLanguageTags = false,
 	songKey,
 	totalSlides,
 }: SongViewCurrentSlideProps): ReactElement | undefined {
@@ -53,10 +65,11 @@ export default function SongViewCurrentSlide({
 	const {
 		backgroundImageDimensions,
 		backgroundImageUrl,
+		chordDisplayMode: globalChordDisplayMode,
 		effectiveSlideOrientation,
 		focalPoint,
 		getFieldLabel,
-		getFieldText,
+		getRawFieldText,
 		isEmpty,
 		isRenderable,
 		showSlideNumber,
@@ -64,9 +77,12 @@ export default function SongViewCurrentSlide({
 		slideNameStr,
 	} = useSongViewCurrentSlide({
 		currentSlide,
-		...(songKey === undefined ? {} : { songKey }),
+		songKey,
 		totalSlides,
 	});
+
+	const effectiveChordDisplayMode = chordDisplayModeOverride ?? globalChordDisplayMode;
+
 	const slideStyle: React.CSSProperties | undefined = isFullScreen
 		? undefined
 		: {
@@ -130,18 +146,28 @@ export default function SongViewCurrentSlide({
 					</h2>
 				)}
 
-				{/* Render each configured field. Fallbacks: missing `field_data` -> undefined, missing text -> "—" */}
+				{/* Render each configured field with floating chord and language annotations */}
 				{displayFields.map((field) => {
-					const text = getFieldText(field);
+					const rawText = getRawFieldText(field);
 					const label = getFieldLabel(field);
 					return (
 						<div key={field}>
 							<span className={`text-sm font-semibold text-white/90 ${textGlowClassName}`}>
 								{label}
 							</span>
-							<div className={`mt-1 whitespace-pre-wrap text-white ${textGlowClassName}`}>
-								{text || "—"}
-							</div>
+							{rawText === "" ? (
+								<div className={`mt-1 text-white ${textGlowClassName}`}>—</div>
+							) : (
+								<AnnotatedTextField
+									text={rawText}
+									extractChords={showChords}
+									extractLanguageTags={showLanguageTags}
+									chordDisplayMode={effectiveChordDisplayMode}
+									songKey={songKey}
+									textClassName={`text-white ${textGlowClassName}`}
+									annotationClassName={`text-sky-200 ${textGlowClassName}`}
+								/>
+							)}
 						</div>
 					);
 				})}

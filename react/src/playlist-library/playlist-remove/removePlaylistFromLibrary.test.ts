@@ -20,6 +20,7 @@ vi.mock(
 describe("removePlaylistFromLibrary", () => {
 	it("fails when request has no playlist_id", async () => {
 		const setPlaylistLibraryError = vi.fn();
+
 		/**
 		 * Return a fake `PlaylistLibrarySlice` for the test where the playlist exists.
 		 *

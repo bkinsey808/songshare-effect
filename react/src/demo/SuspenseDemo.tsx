@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 
 import {
-    DEMO_POSTS_COUNT,
-    DEMO_POSTS_DELAY_MS,
-    DEMO_PROFILE_DELAY_MS,
+	DEMO_POSTS_COUNT,
+	DEMO_POSTS_DELAY_MS,
+	DEMO_PROFILE_DELAY_MS,
 } from "@/shared/constants/http";
 import { ONE, ZERO } from "@/shared/constants/shared-constants";
 import delay from "@/shared/utils/delay";
@@ -25,7 +25,6 @@ const postsCache = createSuspenseCache<DemoPost[]>("demo:posts");
 // File-local constants to avoid magic-number literals in this demo
 const POST_SAMPLE_COUNT = 3;
 
-// Utility function to create a suspending fetch
 /**
  * Suspense-friendly fetch helper that returns a resolved value or throws
  * a thenable that Suspense can catch while the Promise is pending.
@@ -50,7 +49,6 @@ type UserProfileParams = Readonly<{
 	userId: number;
 }>;
 
-// Component that fetches user data and suspends
 /**
  * Demo user profile component used by the Suspense demo.
  *
@@ -84,7 +82,6 @@ type UserPostParams = Readonly<{
 	userId: number;
 }>;
 
-// Component that fetches posts and suspends
 /**
  * Demo user posts component used by the Suspense demo.
  *
@@ -130,7 +127,6 @@ function UserPosts({ userId }: UserPostParams): ReactElement {
 	);
 }
 
-// Loading fallback components
 /**
  * Loading skeleton for the profile section used as a Suspense fallback.
  *

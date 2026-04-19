@@ -9,9 +9,10 @@ vi.mock("./fetchUsername");
 
 const mockedFetch = vi.mocked(fetchUsername);
 
-// Helper implementations for supabase-like query chain used by tests
 /**
  * Simulate a `.single()` call returning an empty Postgrest-like response.
+ *
+ * Part of the minimal Supabase-like query chain used by these tests.
  *
  * @returns A promise resolving to a minimal `{ data, error }` shape
  */

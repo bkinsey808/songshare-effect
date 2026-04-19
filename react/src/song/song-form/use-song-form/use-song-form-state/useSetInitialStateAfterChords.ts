@@ -4,6 +4,7 @@ import type { FormState } from "@/react/song/song-form/song-form-types";
 
 type UseSetInitialStateAfterChordsParams = {
 	readonly isLoadingData: boolean;
+	readonly isChangeTrackingReady: boolean;
 	readonly hasPopulatedRef: React.RefObject<boolean>;
 	readonly formValues: FormState["formValues"];
 	readonly slideOrder: FormState["slideOrder"];
@@ -18,6 +19,7 @@ type UseSetInitialStateAfterChordsParams = {
  * so user edits are properly detected as changes.
  *
  * @param isLoadingData - Whether form data is still loading
+ * @param isChangeTrackingReady - Whether async dependencies like tags have loaded
  * @param hasPopulatedRef - Ref indicating if form has been populated
  * @param formValues - Current form values (including computed chords)
  * @param slideOrder - Current slide order
@@ -28,6 +30,7 @@ type UseSetInitialStateAfterChordsParams = {
  */
 export default function useSetInitialStateAfterChords({
 	isLoadingData,
+	isChangeTrackingReady,
 	hasPopulatedRef,
 	formValues,
 	slideOrder,
@@ -37,7 +40,7 @@ export default function useSetInitialStateAfterChords({
 }: UseSetInitialStateAfterChordsParams): void {
 	// Set the baseline for change tracking after chords are computed and form is populated
 	useEffect(() => {
-		if (!isLoadingData && hasPopulatedRef.current) {
+		if (isChangeTrackingReady && !isLoadingData && hasPopulatedRef.current) {
 			setInitialState({
 				formValues,
 				slideOrder,
@@ -45,5 +48,14 @@ export default function useSetInitialStateAfterChords({
 				slides,
 			});
 		}
-	}, [formValues, slideOrder, tags, slides, isLoadingData, setInitialState, hasPopulatedRef]);
+	}, [
+		formValues,
+		slideOrder,
+		tags,
+		slides,
+		isChangeTrackingReady,
+		isLoadingData,
+		setInitialState,
+		hasPopulatedRef,
+	]);
 }

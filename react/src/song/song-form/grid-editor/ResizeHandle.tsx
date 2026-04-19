@@ -4,9 +4,10 @@ type ResizeHandleProps = Readonly<{
 	isResizing: boolean;
 }>;
 
-// top-level handler doesn't capture outer-scope values
 /**
  * Keydown handler for the resize handle; prevents activation on Enter/Space.
+ *
+ * Kept at module scope so the handler does not capture outer component values.
  *
  * @param event - Keyboard event from the handle
  * @returns void

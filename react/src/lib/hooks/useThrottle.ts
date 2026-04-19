@@ -3,13 +3,6 @@ import { useLayoutEffect, useRef, useState } from "react";
 /**
  * Result returned by `useThrottle`.
  *
- * The returned function has a `flush()` method that will immediately invoke any
- * pending call and clear the throttle window.  The identity of the function is
- * stable across renders.
- */
-/**
- * Result returned by `useThrottle`.
- *
  * - `throttled` is the function you call normally.
  * - `flush` forces any pending invocation to run immediately.
  *

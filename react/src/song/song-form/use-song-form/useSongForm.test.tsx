@@ -30,12 +30,6 @@ const NAVIGATE_BACK = -1;
 // --- Helpers ---
 
 /**
- * Install a mocked app store implementation for tests.
- *
- * @param overrides - Optional fake state overrides
- * @returns void
- */
-/**
  * Install mocked store selectors and effects for `useSongForm` tests.
  *
  * @param overrides - Optional overrides for the default slice values.
@@ -65,15 +59,19 @@ function installStore(overrides: Record<string, unknown> = {}): void {
  * Mock the `useItemTags` hook for tests.
  *
  * @param tags - Initial tag list to return from the mock
+ * @param isLoadingTags - Optional loading state returned by the mock
  * @returns void
  */
-function mockUseItemTags(tags: readonly string[] = []): void {
+function mockUseItemTags(
+	tags: readonly string[] = [],
+	options: { readonly isLoadingTags?: boolean } = {},
+): void {
 	vi.mocked(useItemTags).mockReturnValue({
 		tags,
 		getTags: () => [...tags],
 		setTags: SET_TAGS_SPY,
 		saveTags: vi.fn().mockResolvedValue({ success: true }),
-		isLoadingTags: false,
+		isLoadingTags: options.isLoadingTags ?? false,
 	});
 }
 
@@ -751,6 +749,48 @@ describe("useSongForm — renderHook", () => {
 		// Assert — isLoadingData suppresses hasChanges reporting
 		await waitFor(() => {
 			expect(result.current.isLoadingData).toBe(true);
+			expect(result.current.hasChanges).toBe(false);
+		});
+	});
+
+	it("keeps hasChanges false while edit tags are still loading", async () => {
+		installStore({
+			privateSongs: {
+				[MOCK_SONG_ID]: {
+					private_notes: "Private note",
+				},
+			},
+			publicSongs: {
+				[MOCK_SONG_ID]: {
+					song_id: MOCK_SONG_ID,
+					user_id: "user-123",
+					song_name: "Loaded song",
+					song_slug: "loaded-song",
+					lyrics: ["en"],
+					script: [],
+					translations: [],
+					chords: [],
+					short_credit: "",
+					long_credit: "",
+					public_notes: "",
+					key: "",
+				},
+			},
+			userSessionData: {
+				user: {
+					user_id: "user-123",
+				},
+			},
+		});
+		mockUseItemTags([], { isLoadingTags: true });
+		vi.mocked(useParams).mockReturnValue({ song_id: MOCK_SONG_ID });
+		vi.mocked(useLocation).mockReturnValue(MOCK_LOCATION_EDIT);
+		vi.mocked(useNavigate).mockReturnValue(vi.fn());
+
+		const { result } = renderHook(() => useSongForm());
+
+		await waitFor(() => {
+			expect(result.current.isLoadingData).toBe(false);
 			expect(result.current.hasChanges).toBe(false);
 		});
 	});

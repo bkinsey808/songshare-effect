@@ -35,6 +35,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const setCommunityEvents = vi.fn();
 		const fetchCommunityBySlug = vi.fn(() => Effect.void);
+
 		/**
 		 * Test getter returning a `CommunitySlice` with preset events and helpers.
 		 *
@@ -57,6 +58,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 
 	it("calls fetchCommunityBySlug on INSERT when currentCommunity exists", async () => {
 		const fetchCommunityBySlug = vi.fn(() => Effect.void);
+
 		/**
 		 * Test getter returning a `CommunitySlice` with preset events and helpers.
 		 *
@@ -80,6 +82,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 
 	it("does not call fetchCommunityBySlug on INSERT when currentCommunity is undefined", async () => {
 		const fetchCommunityBySlug = vi.fn(() => Effect.void);
+
 		/**
 		 * Test getter returning a `CommunitySlice` without `currentCommunity`.
 		 *
@@ -103,6 +106,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 
 	it("removes event from communityEvents on DELETE when event_id is in old payload", async () => {
 		const setCommunityEvents = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with preset events and helpers.
 		 *
@@ -133,6 +137,7 @@ describe("handleCommunityEventSubscribeEvent", () => {
 
 	it("does not call setCommunityEvents on DELETE when old has no event_id", async () => {
 		const setCommunityEvents = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with preset events and helpers.
 		 *

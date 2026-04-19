@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import makeSongTestSlice from "./makeSongTestSlice.mock";
+import makeSongTestSlice from "./makeSongTestSlice.test-util";
 import type { SongSubscribeSlice } from "./song-slice";
 
 describe("makeSongTestSlice", () => {

@@ -84,6 +84,7 @@ describe("addUserToLibraryEffect", () => {
 	it("fails when server returns non-2xx and sets error", async () => {
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
+
 		/**
 		 * Mock for Zustand `get` function.
 		 * @returns The mocked `UserLibrarySlice`.
@@ -123,6 +124,7 @@ describe("addUserToLibraryEffect", () => {
 	it("wraps network errors and surfaces message", async () => {
 		const setUserLibraryError = vi.fn();
 		const addUserLibraryEntry = vi.fn();
+
 		/**
 		 * Mock for Zustand `get` function.
 		 * @returns The mocked `UserLibrarySlice`.

@@ -17,15 +17,15 @@ import useItemTags from "@/react/tag/useItemTags";
 import { type ValidationError } from "@/shared/validation/validate-types";
 
 import {
-    type PlaylistFormValues,
-    type PlaylistFormValuesFromSchema,
-    playlistFormSchema,
+	type PlaylistFormValues,
+	type PlaylistFormValuesFromSchema,
+	playlistFormSchema,
 } from "../playlistSchema";
 import {
-    addSongToOrder,
-    moveSongDown as moveSongDownHelper,
-    moveSongUp as moveSongUpHelper,
-    removeSongFromOrder,
+	addSongToOrder,
+	moveSongDown as moveSongDownHelper,
+	moveSongUp as moveSongUpHelper,
+	removeSongFromOrder,
 } from "./helpers/songOrder";
 import submitPlaylist, { type SubmitPlaylistParams } from "./helpers/submitPlaylist";
 import usePlaylistDragAndDrop from "./helpers/usePlaylistDragAndDrop";
@@ -120,7 +120,6 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 		song_order: [],
 	});
 
-	// Helper to update form values
 	/**
 	 * Update a single form field and reflect it into the DOM form if present.
 	 *
@@ -180,7 +179,6 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 		initialValues,
 	});
 
-	// Handle Name Change (slug generation)
 	/**
 	 * Handle playlist name updates and generate slug when creating (not editing).
 	 *
@@ -194,7 +192,6 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 		}
 	}
 
-	// Helper updates
 	/**
 	 * Add a song id into the current song order.
 	 *
@@ -279,7 +276,6 @@ export default function usePlaylistForm(): UsePlaylistFormReturn {
 		setFormValue("private_notes", value);
 	}
 
-	// Submission
 	/**
 	 * Form submit handler that validates and submits playlist data.
 	 *

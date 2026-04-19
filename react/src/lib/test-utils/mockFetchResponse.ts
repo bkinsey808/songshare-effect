@@ -1,4 +1,5 @@
 /* oxlint-disable @typescript-eslint/no-unsafe-type-assertion, promise/prefer-await-to-then */
+
 /**
  * Test helper to mock a fetch Response object.
  *

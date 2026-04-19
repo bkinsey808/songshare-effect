@@ -1,5 +1,5 @@
-import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 
 import Button from "@/react/lib/design-system/Button";
 import XIcon from "@/react/lib/design-system/icons/XIcon";
@@ -7,6 +7,7 @@ import SlideOrientationSelect from "@/react/slide-orientation/SlideOrientationSe
 import { type SongPublic } from "@/react/song/song-schema";
 
 import SongViewCurrentSlide from "../SongViewCurrentSlide";
+import PresenterFieldSelector from "./presenter-field-selector/PresenterFieldSelector";
 import SongViewSlideControls from "./SongViewSlideControls";
 import { useSongViewSlides } from "./useSongViewSlides";
 
@@ -19,7 +20,8 @@ type SongViewSlidesProps = Readonly<{
 }>;
 
 /**
- * Render the current slide, navigation controls, and optional full-screen view.
+ * Render the current slide, navigation controls, presenter options panel,
+ * and optional full-screen view.
  *
  * @param songPublic - Public song payload used to derive slides.
  * @returns React element rendering slides and controls.
@@ -36,14 +38,34 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 		goNext,
 		goPrev,
 		isFullScreen,
+		selectedFields,
 		setIsFullScreen,
+		setChordDisplayMode,
+		showChords,
+		showLanguageTags,
 		slideContainerClassName,
+		toggleChords,
+		toggleField,
+		toggleLanguageTags,
 		totalSlides,
 		viewportAspectRatio,
+		chordDisplayMode,
 	} = useSongViewSlides(songPublic);
 
 	return (
 		<>
+			<PresenterFieldSelector
+				availableFields={displayFields}
+				selectedFields={selectedFields}
+				showChords={showChords}
+				chordDisplayMode={chordDisplayMode}
+				showLanguageTags={showLanguageTags}
+				onToggleField={toggleField}
+				onToggleChords={toggleChords}
+				onSetChordDisplayMode={setChordDisplayMode}
+				onToggleLanguageTags={toggleLanguageTags}
+			/>
+
 			<section
 				className={`${slideContainerClassName} rounded-lg border border-gray-600 bg-gray-800 p-6`}
 				aria-label={t("songView.currentSlide", "Current slide")}
@@ -51,9 +73,12 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 				<SongViewCurrentSlide
 					currentSlide={currentSlide}
 					currentSlideIndex={clampedIndex}
-					displayFields={displayFields}
-					songKey={songPublic.key}
+					displayFields={selectedFields}
+					songKey={songPublic.key ?? undefined}
 					totalSlides={totalSlides}
+					showChords={showChords}
+					chordDisplayModeOverride={chordDisplayMode}
+					showLanguageTags={showLanguageTags}
 				/>
 			</section>
 
@@ -84,46 +109,45 @@ export default function SongViewSlides({ songPublic }: SongViewSlidesProps): Rea
 
 			{isFullScreen && totalSlides > MIN_SLIDE_INDEX && canPortalFullScreen
 				? createPortal(
-				<div
-					className="fixed inset-0 z-50 overflow-hidden bg-gray-900"
-					role="dialog"
-					aria-modal="true"
-					aria-label={t("songView.fullScreenSlide", "Slide in full screen")}
-				>
-					<Button
-						variant="outlineSecondary"
-						size="compact"
-						onClick={() => {
-							setIsFullScreen(false);
-						}}
-						className="absolute right-4 top-4"
-						icon={<XIcon className="size-4" />}
-						aria-label={t("songView.exitFullScreen", "Exit full screen")}
-						data-testid="song-view-exit-fullscreen"
-					>
-						{t("songView.exitFullScreen", "Exit full screen")}
-					</Button>
-					<p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-500">
-						{t("songView.pressEscToExit", "Press Esc to exit")}
-					</p>
-					<div
-						className="absolute inset-0"
-						data-testid="song-view-fullscreen-slide-frame"
-					>
-						<SongViewCurrentSlide
-							containerAspectRatioOverride={viewportAspectRatio}
-							currentSlide={currentSlide}
-							currentSlideIndex={clampedIndex}
-							displayFields={displayFields}
-							isFullScreen
-							songKey={songPublic.key}
-							totalSlides={totalSlides}
-						/>
-					</div>
-				</div>
-					,
-					document.body,
-				)
+						<div
+							className="fixed inset-0 z-50 overflow-hidden bg-gray-900"
+							role="dialog"
+							aria-modal="true"
+							aria-label={t("songView.fullScreenSlide", "Slide in full screen")}
+						>
+							<Button
+								variant="outlineSecondary"
+								size="compact"
+								onClick={() => {
+									setIsFullScreen(false);
+								}}
+								className="absolute right-4 top-4"
+								icon={<XIcon className="size-4" />}
+								aria-label={t("songView.exitFullScreen", "Exit full screen")}
+								data-testid="song-view-exit-fullscreen"
+							>
+								{t("songView.exitFullScreen", "Exit full screen")}
+							</Button>
+							<p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-gray-500">
+								{t("songView.pressEscToExit", "Press Esc to exit")}
+							</p>
+							<div className="absolute inset-0" data-testid="song-view-fullscreen-slide-frame">
+								<SongViewCurrentSlide
+									containerAspectRatioOverride={viewportAspectRatio}
+									currentSlide={currentSlide}
+									currentSlideIndex={clampedIndex}
+									displayFields={selectedFields}
+									isFullScreen
+									songKey={songPublic.key ?? undefined}
+									totalSlides={totalSlides}
+									showChords={showChords}
+									chordDisplayModeOverride={chordDisplayMode}
+									showLanguageTags={showLanguageTags}
+								/>
+							</div>
+						</div>,
+						document.body,
+					)
 				: undefined}
 		</>
 	);

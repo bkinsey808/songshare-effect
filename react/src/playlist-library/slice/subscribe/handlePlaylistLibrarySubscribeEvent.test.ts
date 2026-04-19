@@ -32,6 +32,7 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const addPlaylistLibraryEntry = vi.fn();
 		const removePlaylistLibraryEntry = vi.fn();
+
 		/**
 		 * Return a mocked `PlaylistLibrarySlice` for the test.
 		 *
@@ -54,6 +55,7 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("adds enriched entry on INSERT", async () => {
 		const addPlaylistLibraryEntry = vi.fn();
+
 		/**
 		 * Return a mocked `PlaylistLibrarySlice` for the INSERT test.
 		 *
@@ -79,6 +81,7 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("removes entry on DELETE when playlist_id in old", async () => {
 		const removePlaylistLibraryEntry = vi.fn();
+
 		/**
 		 * Return a mocked `PlaylistLibrarySlice` for the DELETE test.
 		 *
@@ -104,6 +107,7 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("does not remove when old has no playlist_id", async () => {
 		const removePlaylistLibraryEntry = vi.fn();
+
 		/**
 		 * Return a mocked `PlaylistLibrarySlice` for the DELETE missing-id test.
 		 *
@@ -129,6 +133,7 @@ describe("handlePlaylistLibrarySubscribeEvent", () => {
 
 	it("skips INSERT when new entry is malformed", async () => {
 		const addPlaylistLibraryEntry = vi.fn();
+
 		/**
 		 * Return a mocked `PlaylistLibrarySlice` for the malformed INSERT test.
 		 *

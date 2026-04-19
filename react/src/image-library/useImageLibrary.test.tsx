@@ -72,15 +72,10 @@ function installStore(opts: {
 }
 
 /**
- * Harness for useImageLibrary — "Documentation by Harness".
- *
- * Shows how useImageLibrary integrates into an image library view:
- * - Entries list
- * - Loading and error display
- * - Remove handler
- */
-/**
  * Test harness for `useImageLibrary` demonstrating DOM integration.
+ *
+ * Shows how `useImageLibrary` drives entries, loading, error display,
+ * and remove actions in a simple image-library view.
  *
  * @returns A React element used by tests to assert rendering.
  */

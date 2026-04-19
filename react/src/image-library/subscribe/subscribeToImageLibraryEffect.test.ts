@@ -25,6 +25,7 @@ describe("subscribeToImageLibraryEffect", () => {
 
 		const addImageLibraryEntry = vi.fn();
 		const removeImageLibraryEntry = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` used when subscription succeeds.
 		 *

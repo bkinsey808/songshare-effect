@@ -34,6 +34,7 @@ function Harness(): ReactElement {
 		formRef,
 		songId: undefined,
 		isLoadingData: false,
+		isChangeTrackingReady: true,
 		tags: [],
 		hasPopulatedRef,
 	});
@@ -120,6 +121,7 @@ describe("useSongFormState — renderHook", () => {
 				formRef,
 				songId: undefined,
 				isLoadingData: false,
+				isChangeTrackingReady: true,
 				tags: [],
 				hasPopulatedRef,
 			});
@@ -154,6 +156,7 @@ describe("useSongFormState — renderHook", () => {
 				formRef,
 				songId: undefined,
 				isLoadingData: false,
+				isChangeTrackingReady: true,
 				tags: [],
 				hasPopulatedRef,
 			});
@@ -178,6 +181,7 @@ describe("useSongFormState — renderHook", () => {
 				formRef,
 				songId: undefined,
 				isLoadingData: false,
+				isChangeTrackingReady: true,
 				tags: [],
 				hasPopulatedRef,
 			});
@@ -204,6 +208,7 @@ describe("useSongFormState — renderHook", () => {
 				formRef,
 				songId: undefined,
 				isLoadingData: false,
+				isChangeTrackingReady: true,
 				tags: [],
 				hasPopulatedRef,
 			});
@@ -224,6 +229,7 @@ describe("useSongFormState — renderHook", () => {
 				formRef,
 				songId: "song-123",
 				isLoadingData: true,
+				isChangeTrackingReady: false,
 				tags: [],
 				hasPopulatedRef,
 			});

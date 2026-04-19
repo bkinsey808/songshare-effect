@@ -23,6 +23,7 @@ const NEW_ACTIVE_EVENT_ID = "event-new";
 describe("handleCommunityPublicSubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const setCurrentCommunity = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with a preset `currentCommunity`.
 		 *
@@ -42,6 +43,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 
 	it("does nothing when eventType is not UPDATE", async () => {
 		const setCurrentCommunity = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with a preset `currentCommunity`.
 		 *
@@ -63,6 +65,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 
 	it("patches currentCommunity with active_event_id on UPDATE", async () => {
 		const setCurrentCommunity = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with a preset `currentCommunity`.
 		 *
@@ -94,6 +97,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 
 	it("does not patch when currentCommunity is undefined", async () => {
 		const setCurrentCommunity = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` without a `currentCommunity`.
 		 *
@@ -122,6 +126,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 
 	it("does not add active_event_id when new value is not a string", async () => {
 		const setCurrentCommunity = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with a preset `currentCommunity`.
 		 *
@@ -150,6 +155,7 @@ describe("handleCommunityPublicSubscribeEvent", () => {
 
 	it("does not patch when new is not a record", async () => {
 		const setCurrentCommunity = vi.fn();
+
 		/**
 		 * Test getter returning a `CommunitySlice` with a preset `currentCommunity`.
 		 *

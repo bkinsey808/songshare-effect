@@ -48,6 +48,7 @@ function makeSlice(): {
 			state = { ...state, ...patchOrUpdater };
 		}
 	}
+
 	/**
 	 * Returns the current mocked raw state used by the slice in tests.
 	 *

@@ -10,6 +10,7 @@ const G_SEMITONE = 7;
 
 /** Spelling for a major triad (root + major third + perfect fifth). */
 const MAJOR_SPELLING = "3,5";
+
 /**
  * Spelling for a whole-step dyad (root + major second).
  * Notes are always exactly 2 semitones apart, so C(0) and G(7) can never coexist.

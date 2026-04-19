@@ -19,6 +19,7 @@ type UseSongFormStateParams = {
 	readonly formRef: React.RefObject<HTMLFormElement | null>;
 	readonly songId: string | undefined;
 	readonly isLoadingData: boolean;
+	readonly isChangeTrackingReady: boolean;
 	readonly tags: readonly string[];
 	readonly hasPopulatedRef: React.RefObject<boolean>;
 };
@@ -53,6 +54,7 @@ type UseSongFormStateReturn = {
  * @param formRef - Reference to the backing DOM form element
  * @param songId - Song id being edited (undefined for new songs)
  * @param isLoadingData - Whether form data is currently being fetched
+ * @param isChangeTrackingReady - Whether async form dependencies are ready for dirty tracking
  * @param tags - Array of tags applied to the song
  * @param hasPopulatedRef - Ref tracking whether form has been populated
  * @returns Consolidated form state and helpers
@@ -61,6 +63,7 @@ export default function useSongFormState({
 	formRef,
 	songId,
 	isLoadingData,
+	isChangeTrackingReady,
 	tags,
 	hasPopulatedRef,
 }: UseSongFormStateParams): UseSongFormStateReturn {
@@ -113,7 +116,7 @@ export default function useSongFormState({
 	// Use generic form changes hook - default deep equality comparison handles nested state
 	const { hasUnsavedChanges, setInitialState, clearInitialState } = useFormChanges<FormState>({
 		currentState: currentFormState,
-		enabled: !isLoadingData,
+		enabled: isChangeTrackingReady,
 	});
 
 	// Build initial form values
@@ -133,7 +136,7 @@ export default function useSongFormState({
 			if (hasSetInitialStateRef.current === NEW_SONG_MARKER) {
 				return;
 			}
-			if (isLoadingData) {
+			if (!isChangeTrackingReady || isLoadingData) {
 				return;
 			}
 			setInitialState({
@@ -155,7 +158,7 @@ export default function useSongFormState({
 		}
 
 		// For editing: only set initial state once after form is populated
-		if (!hasPopulatedRef.current || isLoadingData) {
+		if (!isChangeTrackingReady || !hasPopulatedRef.current || isLoadingData) {
 			return;
 		}
 
@@ -184,6 +187,7 @@ export default function useSongFormState({
 		tags,
 		slides,
 		songId,
+		isChangeTrackingReady,
 		isLoadingData,
 		hasPopulatedRef,
 		setInitialState,
@@ -211,6 +215,7 @@ export default function useSongFormState({
 	}, [setFormValuesState, slideOrder, slides]);
 
 	useSetInitialStateAfterChords({
+		isChangeTrackingReady,
 		isLoadingData,
 		hasPopulatedRef,
 		formValues,

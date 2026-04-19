@@ -101,6 +101,7 @@ describe("fetchSongLibrary", () => {
 	it("fetches and enriches entries when data is present", async () => {
 		const get = makeSongLibrarySlice();
 		const slice = get();
+
 		/**
 		 * Getter used by the tested effect to access the current slice instance.
 		 *
@@ -145,6 +146,7 @@ describe("fetchSongLibrary", () => {
 	it("handles empty song_library gracefully", async () => {
 		const get = makeSongLibrarySlice();
 		const slice = get();
+
 		/**
 		 * Getter used by the tested effect to access the current slice instance.
 		 *
@@ -173,6 +175,7 @@ describe("fetchSongLibrary", () => {
 	it("throws when no supabase client available and cleans up loading flag", async () => {
 		const get = makeSongLibrarySlice();
 		const slice = get();
+
 		/**
 		 * Getter used by the tested effect to access the current slice instance.
 		 *

@@ -63,6 +63,7 @@ describe("subscribeToSongPublic", () => {
 			vi.fn<(entries: Readonly<Record<string, SongLibraryEntry>>) => void>();
 		const baseGet = makeSongLibrarySlice({ s1: existingEntry });
 		const slice = { ...baseGet(), setSongLibraryEntries };
+
 		/**
 		 * Getter used by the tested subscription to access the current slice.
 		 *

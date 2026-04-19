@@ -12,6 +12,7 @@ import useSlideOrientationPreference from "./useSlideOrientationPreference";
 type SlideOrientationSelectProps = Readonly<{
 	className?: string;
 }>;
+
 /**
  * Slide orientation selector shown for signed-in users.
  *

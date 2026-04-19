@@ -1,10 +1,10 @@
 import { createContext, use, useState } from "react";
 
 import {
-    DEMO_ALT_USER_ID,
-    DEMO_DEFAULT_USER_ID,
-    DEMO_FETCH_SONG_DELAY_MS,
-    DEMO_FETCH_USER_DELAY_MS,
+	DEMO_ALT_USER_ID,
+	DEMO_DEFAULT_USER_ID,
+	DEMO_FETCH_SONG_DELAY_MS,
+	DEMO_FETCH_USER_DELAY_MS,
 } from "@/shared/constants/http";
 import delay from "@/shared/utils/delay";
 import { createTypedCache } from "@/shared/utils/typedPromiseCache";
@@ -24,7 +24,6 @@ const songCache = createTypedCache<{
 	genre: string;
 }>("demo-song");
 
-// Simulate API calls
 /**
  * Simulate fetching user data for the demo.
  *
@@ -65,7 +64,6 @@ async function fetchSongDetails(songName: string): Promise<{
 	};
 }
 
-// Helper function to get or create cached promises
 /**
  * Get or create a cached promise result from the provided typed cache.
  *
@@ -86,7 +84,6 @@ type UserProfileParams = Readonly<{
 	userId: number;
 }>;
 
-// Component that uses the 'use' hook with promises
 /**
  * Demo user profile component that reads a cached promise via the `use` hook.
  *
@@ -134,7 +131,6 @@ type SongDetailsParams = Readonly<{
 	songName: string;
 }>;
 
-// Component that demonstrates using 'use' hook with dynamic promises
 /**
  * Demo song details component that reads a cached promise via the `use` hook.
  *
@@ -172,7 +168,6 @@ function SongDetails({ songName }: SongDetailsParams): ReactElement {
 	);
 }
 
-// Main demo component
 /**
  * Top-level demo showcasing the `use` hook with cached promises and context.
  *

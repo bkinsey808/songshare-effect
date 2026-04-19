@@ -18,15 +18,19 @@ import buildImageSlug from "./buildImageSlug";
 
 /** Bytes per kilobyte */
 const BYTES_PER_KB = 1024;
+
 /** Bytes per megabyte */
 const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB;
+
 /** Max image file size in megabytes */
 const MAX_IMAGE_SIZE_MB = 10;
+
 /** Max image file size: 10 MB */
 const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * BYTES_PER_MB;
 
 /** Length of the short ID suffix derived from the image UUID. */
 const SHORT_ID_LENGTH = 8;
+
 /** Start index for string slice operations. */
 const SLICE_START = 0;
 

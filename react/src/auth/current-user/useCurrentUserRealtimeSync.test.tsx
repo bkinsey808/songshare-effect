@@ -79,11 +79,6 @@ function findSubscriptionConfig(tableName: SubscriptionConfig["tableName"]): Sub
 /**
  * Harness for useCurrentUserRealtimeSync.
  *
- * Shows how app code mounts the void hook alongside current-user UI state.
- */
-/**
- * Harness for useCurrentUserRealtimeSync.
- *
  * @returns ReactElement rendering observable hook outputs for tests
  */
 function Harness(): ReactElement {

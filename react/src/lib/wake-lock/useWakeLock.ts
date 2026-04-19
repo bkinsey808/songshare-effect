@@ -47,10 +47,10 @@ export default function useWakeLock(): {
 
 		void initWakeLock();
 
-		// Re-acquire wake lock when page becomes visible again (e.g., Chrome releases
-		// the lock when a page is hidden). Only attempt when we don't already have a sentinel.
 		/**
 		 * Re-request the wake lock when the document becomes visible again and no sentinel exists.
+		 *
+		 * This covers browsers that release the lock when the page becomes hidden.
 		 *
 		 * @returns void
 		 */
@@ -72,8 +72,6 @@ export default function useWakeLock(): {
 		};
 	}, [isSupported]);
 
-	// Toggle the wake lock on or off.
-	// Uses an internal async function so the exported `toggleWakeLock` remains synchronous to callers.
 	/**
 	 * Toggle the wake lock state. When active, it releases the lock; otherwise it requests a lock.
 	 *

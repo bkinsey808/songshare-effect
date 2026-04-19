@@ -51,6 +51,7 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [uploadError, setUploadError] = useState<string | undefined>(undefined);
 	const [tags, setTagsInternal] = useState<string[]>([]);
+
 	/**
 	 * Set the tag list for the upload form.
 	 *
@@ -79,8 +80,6 @@ export default function useImageUploadForm(): UseImageUploadFormReturn {
 		setImageName((prev) => (prev === "" ? file.name.replace(/\.[^/.]+$/, "") : prev));
 	}
 
-	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
-	// oxlint-disable-next-line @typescript-eslint/no-deprecated -- narrow deprecation: React.FormEvent used intentionally for handler signature
 	/**
 	 * Upload the selected file and navigate to the image view on success.
 	 *

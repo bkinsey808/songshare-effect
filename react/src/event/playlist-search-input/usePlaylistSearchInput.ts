@@ -105,7 +105,6 @@ export default function usePlaylistSearchInput({
 						(entry.playlist_slug?.toLowerCase().includes(trimmedQuery.toLowerCase()) ?? false),
 				);
 
-	// Handle playlist selection
 	/**
 	 * Called when the user selects a playlist from the list.
 	 *
@@ -118,7 +117,6 @@ export default function usePlaylistSearchInput({
 		setIsOpen(false);
 	}
 
-	// Handle click outside to close dropdown
 	/**
 	 * Close the dropdown when a non-container click occurs.
 	 *
@@ -128,7 +126,6 @@ export default function usePlaylistSearchInput({
 		setIsOpen(false);
 	}
 
-	// Handle input focus
 	/**
 	 * Focus handler that opens the dropdown when the input receives focus.
 	 *
@@ -138,7 +135,6 @@ export default function usePlaylistSearchInput({
 		setIsOpen(true);
 	}
 
-	// Handle input change
 	/**
 	 * Update search query and open the dropdown when the input changes.
 	 *
@@ -150,7 +146,6 @@ export default function usePlaylistSearchInput({
 		setIsOpen(true);
 	}
 
-	// Clear selection
 	/**
 	 * Clear the current selection and reset the input display.
 	 *

@@ -8,14 +8,6 @@ type CommunityMembersCardProps = Readonly<{
 }>;
 
 /**
- * Card displaying community members and pending invitations.
- *
- * Shows joined members and owners in the main list, and invited
- * users in a separate section.
- *
- * @returns React element for the members card
- */
-/**
  * Card displaying community members with their avatars and roles.
  *
  * @param members - List of community members to display

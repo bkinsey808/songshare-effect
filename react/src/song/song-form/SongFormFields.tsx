@@ -88,6 +88,7 @@ export default function SongFormFields({
 	onRemoveSongChord,
 }: SongFormFieldsProps): ReactElement {
 	const { t } = useTranslation();
+
 	/**
 	 * Handle updates to the song name input.
 	 *
@@ -97,6 +98,7 @@ export default function SongFormFields({
 	function handleSongNameChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setFormValue("song_name", event.target.value);
 	}
+
 	/**
 	 * Handle updates to the song slug input.
 	 *
@@ -106,6 +108,7 @@ export default function SongFormFields({
 	function handleSongSlugChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setFormValue("song_slug", event.target.value);
 	}
+
 	/**
 	 * Handle updates to the short credit input.
 	 *
@@ -115,6 +118,7 @@ export default function SongFormFields({
 	function handleShortCreditChange(event: React.ChangeEvent<HTMLInputElement>): void {
 		setFormValue("short_credit", event.target.value);
 	}
+
 	/**
 	 * Handle updates to the long credit textarea.
 	 *
@@ -124,6 +128,7 @@ export default function SongFormFields({
 	function handleLongCreditChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		setFormValue("long_credit", event.target.value);
 	}
+
 	/**
 	 * Handle updates to the public notes textarea.
 	 *
@@ -133,6 +138,7 @@ export default function SongFormFields({
 	function handlePublicNotesChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		setFormValue("public_notes", event.target.value);
 	}
+
 	/**
 	 * Handle updates to the private notes textarea.
 	 *

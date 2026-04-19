@@ -25,6 +25,7 @@ describe("addImageToLibraryEffect", () => {
 
 		const addImageLibraryEntry = vi.fn();
 		const isInImageLibrary = vi.fn().mockReturnValue(false);
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` used by this test.
 		 *
@@ -55,6 +56,7 @@ describe("addImageToLibraryEffect", () => {
 
 		const addImageLibraryEntry = vi.fn();
 		const isInImageLibrary = vi.fn().mockReturnValue(true);
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` for the already-in-library case.
 		 *
@@ -78,6 +80,7 @@ describe("addImageToLibraryEffect", () => {
 
 	it("fails when image_id is not a string", async () => {
 		const setImageLibraryError = vi.fn();
+
 		/**
 		 * Return a minimal `ImageLibrarySlice` for invalid-request handling.
 		 *

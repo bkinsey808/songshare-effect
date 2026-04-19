@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 import getSlideOrientationContainerClassName from "@/react/slide-orientation/getSlideOrientationContainerClassName";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
 import { type SongPublic } from "@/react/song/song-schema";
-import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
 import { ONE } from "@/shared/constants/shared-constants";
+import deriveSongFieldKeys from "@/shared/song/deriveSongFieldKeys";
+import type { ChordDisplayModeType } from "@/shared/user/chord-display/effectiveChordDisplayMode";
 import { safeGet } from "@/shared/utils/safe";
+
+import usePresenterOptions from "./usePresenterOptions";
 
 /** Minimum allowed slide index (keeps bounds explicit and avoids magic numbers) */
 const MIN_SLIDE_INDEX = 0;
@@ -46,10 +49,18 @@ export type UseSongViewSlidesResult = {
 	goNext: () => void;
 	goPrev: () => void;
 	isFullScreen: boolean;
+	selectedFields: readonly string[];
 	setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
+	setChordDisplayMode: (mode: ChordDisplayModeType) => void;
+	showChords: boolean;
+	showLanguageTags: boolean;
 	slideContainerClassName: string;
+	toggleChords: () => void;
+	toggleField: (field: string) => void;
+	toggleLanguageTags: () => void;
 	totalSlides: number;
 	viewportAspectRatio: number;
+	chordDisplayMode: ChordDisplayModeType;
 };
 
 /**
@@ -137,6 +148,7 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 	// Add global keyboard handlers for Home/End/Arrow keys to support keyboard navigation.
 	// Prevent default on handled keys to avoid native actions.
 	useEffect(() => {
+
 		/**
 		 * Global keyboard handler for slide navigation (Home/End/Arrows).
 		 *
@@ -185,6 +197,7 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 		if (!isFullScreen) {
 			return;
 		}
+
 		/**
 		 * Escape key handler to exit full-screen mode when active.
 		 *
@@ -248,9 +261,20 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 					script: songPublic.script,
 					translations: songPublic.translations,
 				});
+	const {
+		selectedFields,
+		showChords,
+		chordDisplayMode,
+		showLanguageTags,
+		toggleField,
+		toggleChords,
+		setChordDisplayMode,
+		toggleLanguageTags,
+	} = usePresenterOptions({ availableFields: displayFields });
 
 	return {
 		canPortalFullScreen,
+		chordDisplayMode,
 		clampedIndex,
 		currentSlide,
 		displayFields,
@@ -260,8 +284,15 @@ export function useSongViewSlides(songPublic: SongPublic | undefined): UseSongVi
 		goNext,
 		goPrev,
 		isFullScreen,
+		selectedFields,
 		setIsFullScreen,
+		setChordDisplayMode,
+		showChords,
+		showLanguageTags,
 		slideContainerClassName,
+		toggleChords,
+		toggleField,
+		toggleLanguageTags,
 		totalSlides,
 		viewportAspectRatio,
 	};

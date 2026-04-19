@@ -31,6 +31,7 @@ const DOUBLE_DURATION = DURATION + DURATION;
 function assertIsCanvas(node: unknown): asserts node is HTMLCanvasElement {
 	expect(node).toBeInstanceOf(HTMLCanvasElement);
 }
+
 /**
  * Assert the runtime value matches the CanvasAnimationApi test shape.
  *
@@ -40,6 +41,7 @@ function assertIsCanvas(node: unknown): asserts node is HTMLCanvasElement {
 function assertIsApi(node: unknown): asserts node is CanvasAnimationApi {
 	expect(node).toBeDefined();
 }
+
 /**
  * Assert that the given value conforms to `DrawTiming` in tests.
  *
@@ -74,6 +76,7 @@ function TestHarness({ onApi }: { onApi: (api: CanvasAnimationApi) => void }): R
 }
 
 describe("useCanvasAnimation (integration)", () => {
+
 	/**
 	 * Install fake timers and stub RAF/cancelRAF for deterministic tests.
 	 *

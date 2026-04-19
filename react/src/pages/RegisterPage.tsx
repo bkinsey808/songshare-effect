@@ -53,6 +53,7 @@ export default function RegisterPage(): ReactElement {
 	function handleUsernameBlur(): void {
 		handleFieldBlur("username", usernameRef);
 	}
+
 	/**
 	 * Clear username validation errors when the user edits the field.
 	 *

@@ -100,12 +100,6 @@ function getLyricsTextarea(container: HTMLElement): HTMLTextAreaElement {
 }
 
 /**
- * Installs deterministic mocked Zustand selector behavior for this test.
- *
- * @param state - Store state exposed to selectors
- * @returns Nothing
- */
-/**
  * Install a mocked store for `useSlideDetailCard` tests.
  *
  * @param state - The store state to seed for the test.

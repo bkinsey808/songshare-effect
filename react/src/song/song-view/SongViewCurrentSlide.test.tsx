@@ -8,7 +8,10 @@ import forceCast from "@/react/lib/test-utils/forceCast";
 import mockUseTranslation from "@/react/lib/test-utils/mockUseTranslation";
 import useSlideNumberPreference from "@/react/slide-number/useSlideNumberPreference";
 import useSlideOrientationPreference from "@/react/slide-orientation/useSlideOrientationPreference";
-import { ResolvedSlideOrientation, SlideOrientationPreference } from "@/shared/user/slideOrientationPreference";
+import {
+	ResolvedSlideOrientation,
+	SlideOrientationPreference,
+} from "@/shared/user/slideOrientationPreference";
 
 import SongViewCurrentSlide from "./SongViewCurrentSlide";
 
@@ -89,14 +92,13 @@ function installAppStoreMock({
 	imageLibraryEntries = {},
 	publicImages = {},
 }: Partial<Pick<AppSlice, "imageLibraryEntries" | "publicImages">> = {}): void {
-	vi.mocked(useAppStore).mockImplementation(
-		(selector: (state: AppSlice) => unknown) =>
-			selector(
-				forceCast<AppSlice>({
-					imageLibraryEntries,
-					publicImages,
-				}),
-			),
+	vi.mocked(useAppStore).mockImplementation((selector: (state: AppSlice) => unknown) =>
+		selector(
+			forceCast<AppSlice>({
+				imageLibraryEntries,
+				publicImages,
+			}),
+		),
 	);
 }
 
@@ -117,6 +119,7 @@ describe("song view current slide", () => {
 				}}
 				currentSlideIndex={0}
 				displayFields={["lyrics"]}
+				songKey={undefined}
 				totalSlides={1}
 			/>,
 		);
@@ -141,6 +144,7 @@ describe("song view current slide", () => {
 				}}
 				currentSlideIndex={0}
 				displayFields={["lyrics"]}
+				songKey={undefined}
 				totalSlides={1}
 			/>,
 		);
@@ -164,6 +168,7 @@ describe("song view current slide", () => {
 				}}
 				currentSlideIndex={0}
 				displayFields={["lyrics"]}
+				songKey={undefined}
 				totalSlides={1}
 			/>,
 		);
@@ -188,6 +193,7 @@ describe("song view current slide", () => {
 				}}
 				currentSlideIndex={0}
 				displayFields={["lyrics"]}
+				songKey={undefined}
 				totalSlides={1}
 			/>,
 		);
@@ -238,6 +244,7 @@ describe("song view current slide", () => {
 				}}
 				currentSlideIndex={0}
 				displayFields={["lyrics"]}
+				songKey={undefined}
 				totalSlides={1}
 			/>,
 		);
@@ -291,6 +298,7 @@ describe("song view current slide", () => {
 				}}
 				currentSlideIndex={0}
 				displayFields={["lyrics"]}
+				songKey={undefined}
 				totalSlides={1}
 			/>,
 		);
@@ -302,7 +310,7 @@ describe("song view current slide", () => {
 		expect(image.getAttribute("style")).toContain(`height: ${LANDSCAPE_IMAGE_HEIGHT}`);
 	});
 
-	it("renders transformed lyric chords using the selected display mode", () => {
+	it("renders lyric chords as floating annotations using the selected display mode", () => {
 		mockUseTranslation();
 		installAppStoreMock();
 		installChordDisplayModeMock("solfege");
@@ -322,6 +330,8 @@ describe("song view current slide", () => {
 			/>,
 		);
 
-		expect(screen.getByText("Hello [Do -]")).toBeTruthy();
+		// Chord is shown as a floating annotation, not inline in the lyric text.
+		expect(screen.getByText("Do -")).toBeTruthy();
+		expect(screen.queryByText("Hello [Do -]")).toBeNull();
 	});
 });

@@ -34,6 +34,7 @@ describe("handleUserLibrarySubscribeEvent", () => {
 	it("does nothing when payload is not a realtime payload", async () => {
 		const addUserLibraryEntry = vi.fn();
 		const removeUserLibraryEntry = vi.fn();
+
 		/**
 		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
 		 *
@@ -56,6 +57,7 @@ describe("handleUserLibrarySubscribeEvent", () => {
 
 	it("adds enriched entry on INSERT", async () => {
 		const addUserLibraryEntry = vi.fn();
+
 		/**
 		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
 		 *
@@ -81,6 +83,7 @@ describe("handleUserLibrarySubscribeEvent", () => {
 
 	it("removes entry on DELETE when followed_user_id in old", async () => {
 		const removeUserLibraryEntry = vi.fn();
+
 		/**
 		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
 		 *
@@ -106,6 +109,7 @@ describe("handleUserLibrarySubscribeEvent", () => {
 
 	it("skips INSERT when new entry is malformed", async () => {
 		const addUserLibraryEntry = vi.fn();
+
 		/**
 		 * Test getter returning a `UserLibrarySlice` with add/remove helpers.
 		 *

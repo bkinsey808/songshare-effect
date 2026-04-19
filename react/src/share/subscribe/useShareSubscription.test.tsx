@@ -66,13 +66,8 @@ function installMocks(opts: {
 /**
  * Harness for useShareSubscription (Documentation by Harness).
  *
- * This is a void hook — it fetches sent shares and subscribes to real-time
- * updates when the user is signed in. The Harness mounts the hook and exposes
- * store state (isSharesLoading, sentShares) to document how the hook affects
- * the app store. Call from a page component before any conditional returns.
- */
-/**
- * Harness for useShareSubscription (Documentation by Harness).
+ * Mounts the void hook and exposes store-derived state so tests can verify the
+ * fetch/subscribe behavior it triggers for signed-in users.
  *
  * @returns ReactElement used to mount the hook and inspect store state
  */

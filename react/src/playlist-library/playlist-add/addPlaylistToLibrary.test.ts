@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import forceCast from "@/react/lib/test-utils/forceCast";
 import { clientWarn } from "@/react/lib/utils/clientLogger";
 import type {
-    AddPlaylistToLibraryRequest,
-    PlaylistLibraryEntry,
+	AddPlaylistToLibraryRequest,
+	PlaylistLibraryEntry,
 } from "@/react/playlist-library/slice/playlist-library-types";
 import type { PlaylistLibrarySlice } from "@/react/playlist-library/slice/PlaylistLibrarySlice.type";
 import acceptPendingSharesForItem from "@/react/share/effects/acceptPendingSharesForItem";
@@ -21,10 +21,6 @@ vi.mock("@/shared/error-message/extractErrorMessage");
 vi.mock("../guards/guardAsAddPlaylistRequest");
 vi.mock("../guards/guardAsPlaylistLibraryEntry");
 
-/**
- * Temporarily replaces global fetch with a mock, runs the test, and restores fetch.
- * Ensures cleanup even when the test throws.
- */
 /**
  * Temporarily replaces global fetch with a mock, runs the test, and restores fetch.
  * Ensures cleanup even when the test throws.

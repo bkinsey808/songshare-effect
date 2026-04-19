@@ -126,7 +126,6 @@ export default function useSlideManagerView(
 		(song) => song.songId === eventManage.eventPublic?.active_song_id,
 	);
 
-	// helpers used by SlideManagerView
 	/**
 	 * Clamp a positive slide position into the valid range.
 	 *
@@ -153,7 +152,6 @@ export default function useSlideManagerView(
 		}
 	}
 
-	// slide control handlers
 	/**
 	 * Navigate to the first slide.
 	 *
@@ -211,7 +209,6 @@ export default function useSlideManagerView(
 		}
 	}
 
-	// song control handlers
 	/**
 	 * Navigate to the first song in the playlist.
 	 *

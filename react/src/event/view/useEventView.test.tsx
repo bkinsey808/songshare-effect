@@ -62,6 +62,7 @@ type StoreState = {
 	leaveEvent: (eventId: string, userId: string) => Effect.Effect<void, unknown>;
 	setCurrentEvent: (event: ReturnType<typeof makeEventEntry> | undefined) => void;
 	fetchPlaylistById: (playlistId: string) => Effect.Effect<unknown, unknown>;
+	addActivePublicSongIds: (songIds: readonly string[]) => Effect.Effect<void, Error>;
 	publicSongs: Record<string, unknown>;
 	userSessionData:
 		| {
@@ -125,12 +126,6 @@ function makeCurrentEvent(
 }
 
 /**
- * Installs a per-test `useAppStore` selector implementation with overridable state.
- *
- * @param overrides - Partial store values to merge into the default mocked store.
- * @returns The exact mock store object used by selectors in this test.
- */
-/**
  * Install a mocked store for `useEventView` tests.
  *
  * @param overrides - Partial store values to override defaults.
@@ -146,6 +141,7 @@ function installStore(overrides: Partial<StoreState> = {}): StoreState {
 		leaveEvent: vi.fn().mockReturnValue(Effect.succeed(undefined)),
 		setCurrentEvent: vi.fn(),
 		fetchPlaylistById: vi.fn().mockReturnValue(Effect.succeed(undefined as unknown)),
+		addActivePublicSongIds: vi.fn().mockReturnValue(Effect.succeed(undefined)),
 		publicSongs: {},
 		userSessionData: {
 			userPublic: {
@@ -548,6 +544,48 @@ describe("useEventView", () => {
 				}),
 			);
 		});
+	});
+
+	it("calls addActivePublicSongIds when event has an active song id", async () => {
+		// Arrange
+		const activeSongId = "song-abc";
+		const store = prepareStore({
+			currentEvent: makeCurrentEvent({
+				public: forceCast<NonNullable<ReturnType<typeof makeCurrentEvent>["public"]>>({
+					...makeCurrentEvent().public,
+					active_song_id: activeSongId,
+				}),
+			}),
+		});
+
+		// Act
+		renderUseEventViewHook();
+
+		// Assert
+		await waitFor(() => {
+			expect(store.addActivePublicSongIds).toHaveBeenCalledWith([activeSongId]);
+		});
+	});
+
+	it("does not call addActivePublicSongIds when active_song_id is null", async () => {
+		// Arrange
+		const store = prepareStore({
+			currentEvent: makeCurrentEvent({
+				public: forceCast<NonNullable<ReturnType<typeof makeCurrentEvent>["public"]>>({
+					...makeCurrentEvent().public,
+					active_song_id: undefined,
+				}),
+			}),
+		});
+
+		// Act
+		renderUseEventViewHook();
+
+		// Assert
+		await waitFor(() => {
+			expect(store.fetchEventBySlug).toHaveBeenCalledWith(EVENT_SLUG);
+		});
+		expect(store.addActivePublicSongIds).not.toHaveBeenCalled();
 	});
 
 	it("renderHook exposes event URL and slideshow state derived from dependencies", () => {

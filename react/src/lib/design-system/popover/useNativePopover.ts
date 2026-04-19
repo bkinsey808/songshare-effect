@@ -12,6 +12,7 @@ export type UseNativePopoverProps = Readonly<{
 export type UseNativePopoverReturn = {
 	// Refs for DOM elements
 	triggerRef: React.RefObject<HTMLElement | null>;
+
 	/** Optional callback ref helper so callers can set the trigger without
 	 * requiring mutable ref assignments. Use this to avoid assigning into
 	 * readonly RefObjects from components. */
@@ -53,6 +54,7 @@ export function useNativePopover({
 }: UseNativePopoverProps): UseNativePopoverReturn {
 	// Refs needed to access DOM elements for positioning calculations and native popover API
 	const triggerRef = useRef<HTMLElement | null>(null);
+
 	/**
 	 * Optional callback ref helper that sets the internal trigger ref.
 	 *

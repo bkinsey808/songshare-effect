@@ -4,10 +4,11 @@ import type { SmoothedAudioLevel } from "@/react/lib/audio/smooth/useSmoothedAud
 
 let currentMockAudioLevel: SmoothedAudioLevel | undefined = undefined;
 
-// Factory used to create the module mock. Defined so the runtime mock can close over
-// the `currentMockAudioLevel` variable.
 /**
  * Build the internal Vitest module factory for `useSmoothedAudioLevel`.
+ *
+ * The factory closes over `currentMockAudioLevel` so tests can update the
+ * returned value without rebuilding the mock module each time.
  *
  * @returns A module factory that reads the current mocked audio level.
  */

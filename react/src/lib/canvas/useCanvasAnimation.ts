@@ -132,12 +132,11 @@ export function useCanvasAnimation(): {
 		let frame = 0;
 		let lastTime: number | undefined = undefined;
 
-		// Animation frame callback. We receive a high-resolution timestamp from
-		// RAF (`now`), compute `dt` since the previous tick, invoke the
-		// user-supplied `draw` callback with (ctx, frame, { now, dt }) and schedule
-		// the next RAF tick.
 		/**
 		 * RAF callback that computes delta time and invokes user `draw` callback.
+		 *
+		 * Receives the high-resolution RAF timestamp, computes `dt`, and
+		 * schedules the next animation frame tick.
 		 *
 		 * @param now - High-resolution timestamp provided by requestAnimationFrame
 		 * @returns void

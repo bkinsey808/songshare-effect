@@ -1,6 +1,6 @@
 import type { Api } from "@/react/app-store/app-store-types";
 
-import makeSongSubscribeSlice from "./makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "./makeSongSubscribeSlice.test-util";
 import { createSongSubscribeSlice, type SongSubscribeSlice } from "./song-slice";
 
 /**

@@ -1,7 +1,7 @@
 import type {
-    PostgrestResponse,
-    RealtimeChannelLike,
-    SupabaseClientLike,
+	PostgrestResponse,
+	RealtimeChannelLike,
+	SupabaseClientLike,
 } from "@/react/lib/supabase/client/SupabaseClientLike";
 
 /**
@@ -19,31 +19,22 @@ function createChannel(): RealtimeChannelLike {
 		 * @param _handler - Optional payload handler (unused in stub)
 		 * @returns The channel stub for chaining
 		 */
-		on(
-				_event: string,
-				_opts: unknown,
-				_handler?: (payload: unknown) => void,
-			): RealtimeChannelLike {
-				return channel;
-			},
-			/**
-			 * Subscribe placeholder returning undefined in this minimal stub.
-			 *
-			 * @param _cb - Optional subscribe callback (unused)
-			 * @returns undefined
-			 */
-			subscribe(_cb?: (status: string, err?: unknown) => void): unknown {
-				return undefined;
-			},
+		on(_event: string, _opts: unknown, _handler?: (payload: unknown) => void): RealtimeChannelLike {
+			return channel;
+		},
+		/**
+		 * Subscribe placeholder returning undefined in this minimal stub.
+		 *
+		 * @param _cb - Optional subscribe callback (unused)
+		 * @returns undefined
+		 */
+		subscribe(_cb?: (status: string, err?: unknown) => void): unknown {
+			return undefined;
+		},
 	};
 	return channel;
 }
 
-/**
- * Create the smallest Supabase client double needed by library tests.
- *
- * @returns A minimal client stub that supports `from`, `channel`, and `auth.getUser`.
- */
 /**
  * Create the smallest Supabase client double needed by library tests.
  *

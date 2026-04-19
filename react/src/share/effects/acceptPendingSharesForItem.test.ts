@@ -32,6 +32,7 @@ const FIRST_CALL = 1;
 
 describe("acceptPendingSharesForItem", () => {
 	it("no-ops when get returns object without getReceivedSharesByStatus", async () => {
+
 		/**
 		 * Return a minimal slice-like object containing `updateShareStatus`.
 		 *
@@ -49,6 +50,7 @@ describe("acceptPendingSharesForItem", () => {
 
 	it("no-ops when get returns object without updateShareStatus", async () => {
 		const getReceivedSharesByStatus = vi.fn(() => []);
+
 		/**
 		 * Return a minimal slice-like object exposing `getReceivedSharesByStatus`.
 		 *
@@ -72,12 +74,7 @@ describe("acceptPendingSharesForItem", () => {
 		});
 		const updateShareStatus = vi.fn(() => Effect.void);
 		const getReceivedSharesByStatus = vi.fn(() => [matchingShare] as const);
-		/**
-		 * Return a slice-like object with both `getReceivedSharesByStatus` and
-		 * `updateShareStatus` for matching-share tests.
-		 *
-		 * @returns An object with both mocks.
-		 */
+
 		/**
 		 * Return a slice-like object with both `getReceivedSharesByStatus` and
 		 * `updateShareStatus` for matching-share tests.
@@ -110,6 +107,7 @@ describe("acceptPendingSharesForItem", () => {
 		});
 		const updateShareStatus = vi.fn(() => Effect.void);
 		const getReceivedSharesByStatus = vi.fn(() => [otherShare] as const);
+
 		/**
 		 * Return a slice-like object used for failure path tests.
 		 *
@@ -137,6 +135,7 @@ describe("acceptPendingSharesForItem", () => {
 		});
 		const updateShareStatus = vi.fn(() => Effect.fail(new Error("update failed")));
 		const getReceivedSharesByStatus = vi.fn(() => [matchingShare] as const);
+
 		/**
 		 * Return a slice-like object with both `getReceivedSharesByStatus` and
 		 * `updateShareStatus` for matching-share tests.

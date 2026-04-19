@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 /* oxlint-disable no-console */
+
 /**
  * Generates a Playwright storageState file (`e2e/.auth/google-user.json`)
  * that contains a pre-signed `userSession` cookie for the Google test account.

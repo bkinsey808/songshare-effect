@@ -10,8 +10,10 @@ import findShapeByInversion from "@/react/music/inversions/findShapeByInversion"
 import type { SelectedRoot } from "@/react/music/root-picker/selected-root.type";
 
 const ROOT_SEMITONE_OFFSET = 0;
+
 /** Synthetic shapes produced by computeShapeAfterNoteToggle always use id=0; catalog shapes use positive ids. */
 const SYNTHETIC_CHORD_ID = 0;
+
 /** Root counts as one note in addition to the non-root intervals in a spelling. */
 const ROOT_NOTE_COUNT = 1;
 

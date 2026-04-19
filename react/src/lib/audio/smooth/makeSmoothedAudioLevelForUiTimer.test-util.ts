@@ -17,10 +17,11 @@ export default function makeSmoothedAudioLevelForUiTimer(uiIntervalMs: number): 
 	let internalLevel = ZERO;
 	let timerId: ReturnType<typeof globalThis.setInterval> | undefined = undefined;
 
-	// Central helper that clears the internal timer. Place the single narrow
-	// oxlint-disable here so individual methods don't need repeated disables.
 	/**
 	 * Clear the internal UI timer if installed.
+	 *
+	 * This centralizes the narrow timer-related lint exception so individual
+	 * methods do not need repeated disables.
 	 *
 	 * @returns void
 	 */

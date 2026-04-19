@@ -30,15 +30,6 @@ function setStoredLanguageSync(language: SupportedLanguageType): void {
 }
 
 /**
- * Async public API that prefers the modern Cookie Store API when available.
- *
- * - Public (async) API: `setStoredLanguage()` (default export)
- * - Internal sync helper: `setStoredLanguageSync()` (not exported)
- *
- * Callers that can await should prefer this function; sync-only callers
- * should continue to read/write localStorage/document.cookie directly.
- */
-/**
  * Async public API that persists the preferred language.
  *
  * @param language - ISO 2-letter supported language code

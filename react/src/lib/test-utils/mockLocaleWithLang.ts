@@ -2,11 +2,11 @@ import { vi } from "vitest";
 
 import type { UseLocaleResult } from "@/react/lib/language/locale/useLocale";
 
-// Helper: identity `t` translation function typed to the runtime
-// `useTranslation()` signature. Defined at module scope to avoid recreating
-// it on every call.
 /**
  * Build an identity translation function for locale-related tests.
+ *
+ * The helper stays at module scope so tests reuse one typed implementation
+ * instead of recreating it on every call.
  *
  * @returns A `t` function that falls back to the default or key.
  */

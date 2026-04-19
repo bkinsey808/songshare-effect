@@ -111,17 +111,10 @@ function installStore(opts: {
 }
 
 /**
- * Harness for useSharedItemSection.
- *
- * Shows how useSharedItemSection integrates into real UI:
- * - Tab buttons for received/sent views
- * - Status filter (all, pending, accepted, rejected)
- * - filtered shares list
- * - Accept/Reject handlers for pending received shares
- * - Error and loading states
- */
-/**
  * Test harness for `useSharedItemSection` demonstrating UI interactions.
+ *
+ * Covers tab changes, status filtering, pending-share actions, and
+ * loading/error state the hook exposes to the UI.
  *
  * @returns A React element used by DOM-based tests.
  */

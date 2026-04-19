@@ -9,7 +9,7 @@ import createMinimalSupabaseClient from "@/react/lib/supabase/client/createMinim
 import getSupabaseClient from "@/react/lib/supabase/client/getSupabaseClient";
 import type { SupabaseClientLike } from "@/react/lib/supabase/client/SupabaseClientLike";
 
-import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.test-util";
 import type { SongSubscribeSlice } from "../song-slice/song-slice";
 import subscribeToActivePrivateSongs from "./subscribeToActivePrivateSongs";
 
@@ -54,7 +54,6 @@ async function flushPromises(): Promise<void> {
 	await delay(MACROTASK_DELAY);
 }
 
-
 /**
  * makeGetWithActiveIds
  *
@@ -82,6 +81,7 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(undefined);
 
 		const set = vi.fn();
+
 		/**
 		 * Minimal `get` accessor used by the subscription factory in tests.
 		 *
@@ -118,6 +118,7 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
+
 		/**
 		 * Minimal `get` accessor used by the subscription factory in tests.
 		 *
@@ -150,6 +151,7 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
+
 		/**
 		 * Minimal `get` accessor used by the subscription factory in tests.
 		 *
@@ -184,6 +186,7 @@ describe("subscribeToActivePrivateSongs", () => {
 		vi.mocked(getSupabaseClient).mockReturnValue(createMinimalClient());
 
 		const set = vi.fn();
+
 		/**
 		 * Minimal `get` accessor used by the subscription factory in tests.
 		 *

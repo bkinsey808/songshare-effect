@@ -14,6 +14,7 @@ describe("addMember", () => {
 
 	const setCommunityLoading = vi.fn();
 	const setCommunityError = vi.fn();
+
 	/**
 	 * Test getter providing the minimal `CommunitySlice` used by addMember.
 	 *

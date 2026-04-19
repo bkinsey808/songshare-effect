@@ -1,10 +1,3 @@
-/**
- * Custom hook for managing slide order operations.
- *
- * @param slideOrder - Current slide order array
- * @param setSlideOrder - Setter to update the slide order
- * @returns Handlers for modifying slide order: `duplicateSlideOrder`, `removeSlideOrder`, `moveSlideUp`, `moveSlideDown`
- */
 import { ONE } from "@/shared/constants/shared-constants";
 
 /**
@@ -35,9 +28,10 @@ export default function useSlideOrder({
 	const NOT_FOUND = -1;
 	const NONE = 0;
 
-	// Duplicate a slide in the order array (can appear multiple times)
 	/**
 	 * Duplicate a slide id by appending it to the order array.
+	 *
+	 * The same slide can appear multiple times in the order.
 	 *
 	 * @param slideId - Slide id to duplicate in the order
 	 * @returns void
@@ -54,7 +48,6 @@ export default function useSlideOrder({
 	 * @param index - Optional index to remove
 	 * @returns void
 	 */
-	// Remove only the clicked instance of slideId from the order array
 	function removeSlideOrder({
 		slideId,
 		index,

@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it, vi } from "vitest";
 
-import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.mock";
+import makeSongSubscribeSlice from "../song-slice/makeSongSubscribeSlice.test-util";
 import addActivePrivateSongIds from "./addActivePrivateSongIds";
 
 describe("addActivePrivateSongIds", () => {

@@ -6,14 +6,6 @@ import makeSongPublic from "@/react/song/test-utils/makeSongPublic.test-util";
 import isSongLibraryEntry from "./guards/isSongLibraryEntry";
 
 /**
- * transformLibraryEntries
- * -----------------------
- * Pure helper that merges rows from three Supabase queries into the
- * shape consumed by the song library slice. This helper is unit tested
- * in isolation to avoid complex Supabase client mocking in the test
- * suite and to comply with repository linting rules.
- */
-/**
  * Transform arrays of rows into a record keyed by `song_id` containing
  * derived song and owner information.
  *
